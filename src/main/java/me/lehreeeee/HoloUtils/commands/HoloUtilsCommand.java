@@ -47,9 +47,9 @@ public class HoloUtilsCommand implements CommandExecutor {
             }
         }
 
-        if(args.length == 2){
+        if(args.length == 3){
             if(args[0].equalsIgnoreCase("test")){
-                textDisplayManager.addDisplay(UUID.fromString(args[1]));
+                textDisplayManager.addDisplay(UUID.fromString(args[1]),args[2]);
                 return true;
             }
         }
