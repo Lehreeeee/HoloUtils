@@ -1,0 +1,10 @@
+name: HoloUtils
+version: '1.0.0-SNAPSHOT'
+main: me.lehreeeee.HoloUtils.HoloUtils
+api-version: '1.21'
+
+commands:
+  holoutils:
+    description: Main command for HoloUtils
+    aliases: [hu, hutils]
+    permission: holoutils.admin
