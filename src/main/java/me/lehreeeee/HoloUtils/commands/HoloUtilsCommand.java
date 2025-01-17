@@ -61,7 +61,7 @@ public class HoloUtilsCommand implements CommandExecutor {
 
         if(args.length == 3){
             if(args[0].equalsIgnoreCase("test")){
-                tagDisplayManager.addDisplay(UUID.fromString(args[1]),args[2]);
+                tagDisplayManager.setDisplayTag(UUID.fromString(args[1]),args[2]);
                 return true;
             }
         }

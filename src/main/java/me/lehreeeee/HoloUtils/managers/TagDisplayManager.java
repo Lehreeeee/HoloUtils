@@ -70,9 +70,10 @@ public class TagDisplayManager {
         return this.GUITitle;
     }
 
-    public void addDisplay(UUID uuid, String tag){
+    public void setDisplayTag(UUID uuid, String tagName){
 
         Entity targetEntity = Bukkit.getEntity(uuid);
+        String tag = playerTags.get(tagName);
 
         if (targetEntity == null) {
             logger.warning("Cant find the entity.");
