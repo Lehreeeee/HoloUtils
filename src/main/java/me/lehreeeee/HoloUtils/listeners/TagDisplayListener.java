@@ -8,20 +8,22 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.UUID;
 
-public class InventoryInteractionListener implements Listener {
+public class TagDisplayListener implements Listener {
     private final TagDisplayManager tagDisplayManager = TagDisplayManager.getInstance();
     private final NamespacedKey tagNameNSK = new NamespacedKey("holoutils","tagname");
 
-    public InventoryInteractionListener(HoloUtils plugin){
+    public TagDisplayListener(HoloUtils plugin){
         Bukkit.getPluginManager().registerEvents(this,plugin);
     }
 
@@ -30,7 +32,7 @@ public class InventoryInteractionListener implements Listener {
         Inventory clickedInv = event.getClickedInventory();
 
         // Ignore if its not from my plugin
-        if(clickedInv == null || !(clickedInv.getHolder() instanceof PlayerTagGUIHolder)) return;
+        if(clickedInv == null || !(clickedInv.getHolder() instanceof PlayerTagGUIHolder) || event.getCurrentItem() == null) return;
 
         event.setCancelled(true);
 
@@ -40,7 +42,8 @@ public class InventoryInteractionListener implements Listener {
 
         // Remove all player tag
         if(clickedSlot == 49){
-            //tagDisplayManager.removeDisplayTag(uuid);
+            tagDisplayManager.removeTag(uuid);
+            clickedInv.close();
         }
         // Choose tag
         else if (clickedSlot > 8 && clickedSlot < 45 && clickedSlot % 9 != 0 && clickedSlot % 9 != 8) {
@@ -52,6 +55,17 @@ public class InventoryInteractionListener implements Listener {
                 String tagName = clickedItemPDC.get(tagNameNSK, PersistentDataType.STRING);
                 tagDisplayManager.setDisplayTag(uuid,tagName);
             }
+            clickedInv.close();
         }
+    }
+
+    @EventHandler
+    public void onEntityTeleport(EntityTeleportEvent event){
+        tagDisplayManager.updateLocation(event.getEntity().getUniqueId());
+    }
+
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent event){
+        tagDisplayManager.removeTag(event.getEntity().getUniqueId());
     }
 }

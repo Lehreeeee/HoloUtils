@@ -2,7 +2,7 @@ package me.lehreeeee.HoloUtils;
 
 import me.lehreeeee.HoloUtils.commands.HoloUtilsCommand;
 import me.lehreeeee.HoloUtils.commands.HoloUtilsCommandTabCompleter;
-import me.lehreeeee.HoloUtils.listeners.InventoryInteractionListener;
+import me.lehreeeee.HoloUtils.listeners.TagDisplayListener;
 import me.lehreeeee.HoloUtils.listeners.PlayerProjectileListener;
 import me.lehreeeee.HoloUtils.managers.TagDisplayManager;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -17,6 +17,7 @@ public final class HoloUtils extends JavaPlugin {
 
     private final Logger logger = getLogger();
     private PlayerProjectileListener playerProjectileListener;
+    private boolean debug = false;
 
     @Override
     public void onEnable() {
@@ -26,7 +27,7 @@ public final class HoloUtils extends JavaPlugin {
 
         TagDisplayManager.initialize(this);
         playerProjectileListener = new PlayerProjectileListener(this);
-        new InventoryInteractionListener(this);
+        new TagDisplayListener(this);
 
         getCommand("holoutils").setExecutor(new HoloUtilsCommand(this));
         getCommand("holoutils").setTabCompleter(new HoloUtilsCommandTabCompleter());
@@ -60,5 +61,12 @@ public final class HoloUtils extends JavaPlugin {
         playerProjectileListener.setDisabledWorlds(new HashSet<>(config.getStringList("arrow-shoots-thru-players-worlds")));
 
         TagDisplayManager.getInstance().loadPlayerTagsConfig(playerTagConfig);
+
+        // Should print debug msg?
+        this.debug = config.getBoolean("debug",false);
+    }
+
+    public boolean shouldPrintDebug(){
+        return this.debug;
     }
 }

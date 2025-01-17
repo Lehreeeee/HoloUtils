@@ -10,8 +10,8 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Transformation;
+import org.jetbrains.annotations.NotNull;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
@@ -24,6 +24,7 @@ public class TagDisplayManager {
     private final Logger logger;
     private final Map<String,String> playerTags = new HashMap<>();
     private String GUITitle = "<white>[<aqua>Display Tag<white>]";
+    private final Map<UUID,TextDisplay> loadedPlayerTags = new HashMap<>();
 
     private TagDisplayManager(HoloUtils plugin){
         this.plugin = plugin;
@@ -71,9 +72,15 @@ public class TagDisplayManager {
     }
 
     public void setDisplayTag(UUID uuid, String tagName){
-
         Entity targetEntity = Bukkit.getEntity(uuid);
-        String tag = playerTags.get(tagName);
+        // Default tag is the tagname
+        String tag = tagName;
+
+        // Tag name has value? Replace with the actual tag
+        if(playerTags.containsKey(tagName)){
+            tag = playerTags.get(tagName);
+        }
+
 
         if (targetEntity == null) {
             logger.warning("Cant find the entity.");
@@ -98,14 +105,44 @@ public class TagDisplayManager {
             );
         });
 
-        logger.info("Adding display text");
+        // Sets the display text
         display.text(MessageHelper.process(tag));
 
-        logger.info("Adding display to entity passenger");
+        // Add on top of the entity and make it visible
         targetEntity.addPassenger(display);
         display.setVisibleByDefault(true);
 
-        logger.info("Scheduling to remove display after 5s");
-        Bukkit.getScheduler().runTaskLater(plugin, display::remove, 100L);
+        Bukkit.getScheduler().runTaskLater(plugin, display::remove, 300L);
+        debugLogger("Added tag " + tag + " to entity " + uuid + " for 15 sec.");
+
+        // Tracks the loaded tags
+        loadedPlayerTags.put(uuid,display);
+    }
+
+    public void removeTag(UUID uuid){
+        if(!loadedPlayerTags.containsKey(uuid)) return;
+
+        loadedPlayerTags.get(uuid).remove();
+        loadedPlayerTags.remove(uuid);
+
+        debugLogger("Removed tag for entity " + uuid);
+    }
+
+    public void updateLocation(UUID uuid){
+        if(!loadedPlayerTags.containsKey(uuid)) return;
+
+        Entity entity = Bukkit.getEntity(uuid);
+        TextDisplay tag = loadedPlayerTags.get(uuid);
+
+        if(tag.isInsideVehicle()) debugLogger(tag + " is inside vehicle");
+
+        if(entity != null){
+            entity.addPassenger(tag);
+            debugLogger("Updated tag location for entity " + uuid);
+        }
+    }
+
+    public void debugLogger(String debugMessage){
+        if(plugin.shouldPrintDebug()) logger.info(debugMessage);
     }
 }
