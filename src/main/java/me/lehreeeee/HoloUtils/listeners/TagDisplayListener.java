@@ -61,7 +61,12 @@ public class TagDisplayListener implements Listener {
 
     @EventHandler
     public void onEntityTeleport(EntityTeleportEvent event){
-        tagDisplayManager.updateLocation(event.getEntity().getUniqueId());
+        tagDisplayManager.updateLocation(event.getEntity().getUniqueId(),event.getTo());
+    }
+
+    @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent event){
+        tagDisplayManager.updateLocation(event.getPlayer().getUniqueId(),event.getTo());
     }
 
     @EventHandler

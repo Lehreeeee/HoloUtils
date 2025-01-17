@@ -10,6 +10,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.NotNull;
 import org.joml.AxisAngle4f;
@@ -128,17 +129,23 @@ public class TagDisplayManager {
         debugLogger("Removed tag for entity " + uuid);
     }
 
-    public void updateLocation(UUID uuid){
+    public void updateLocation(UUID uuid, Location location){
+        debugLogger("Entity teleport event detected.");
         if(!loadedPlayerTags.containsKey(uuid)) return;
 
         Entity entity = Bukkit.getEntity(uuid);
         TextDisplay tag = loadedPlayerTags.get(uuid);
 
-        if(tag.isInsideVehicle()) debugLogger(tag + " is inside vehicle");
-
         if(entity != null){
-            entity.addPassenger(tag);
-            debugLogger("Updated tag location for entity " + uuid);
+            // Delay it or it wont work when changing world
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    tag.teleport(location);
+                    entity.addPassenger(tag);
+                    debugLogger("Updated tag location for entity " + uuid + " to " + tag.getLocation());
+                }
+            }.runTaskLater(plugin, 5L);
         }
     }
 
