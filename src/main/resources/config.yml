@@ -1,1 +1,4 @@
 debug: false
+
+arrow-shoots-thru-players-worlds:
+  - world

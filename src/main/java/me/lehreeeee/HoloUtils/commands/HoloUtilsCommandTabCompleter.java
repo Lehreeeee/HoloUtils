@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class HoloUtilsCommandTabCompleter implements TabCompleter {
-    private final List<String> commands = List.of("reload", "help");
+    private final List<String> commands = List.of("reload", "help", "playertag", "elementstatus");
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {

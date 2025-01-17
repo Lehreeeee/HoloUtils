@@ -1,8 +1,9 @@
 
 package me.lehreeeee.HoloUtils.commands;
 
+import me.lehreeeee.HoloUtils.GUI.PlayerTagGUI;
 import me.lehreeeee.HoloUtils.HoloUtils;
-import me.lehreeeee.HoloUtils.managers.TextDisplayManager;
+import me.lehreeeee.HoloUtils.managers.TagDisplayManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,12 +17,12 @@ import java.util.logging.Logger;
 public class HoloUtilsCommand implements CommandExecutor {
     private final HoloUtils plugin;
     private final Logger logger;
-    private final TextDisplayManager textDisplayManager;
+    private final TagDisplayManager tagDisplayManager;
 
-    public HoloUtilsCommand(HoloUtils plugin, TextDisplayManager textDisplayManager) {
+    public HoloUtilsCommand(HoloUtils plugin) {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
-        this.textDisplayManager = textDisplayManager;
+        this.tagDisplayManager = TagDisplayManager.getInstance();
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){
@@ -30,12 +31,23 @@ public class HoloUtilsCommand implements CommandExecutor {
         }
 
         if(args.length == 1){
+            if(args[0].equalsIgnoreCase("playertag") && sender instanceof Player player){
+                if(!player.hasPermission("iu.ptag.*")) {
+                    sendFeedbackMessage(sender, "<#FFA500>You don't have any player tag.");
+                    return true;
+                }
+
+                player.openInventory(new PlayerTagGUI().createPlayerTagGUI(player));
+                return true;
+            }
+
             if(args[0].equalsIgnoreCase("reload")){
                 sendFeedbackMessage(sender,"<#FFA500>Reloading HoloUtils...");
 
                 // Reload config here
                 plugin.reloadConfig();
-                // Reload stats from the new config
+                // Reload data from the new config
+                plugin.reloadData();
 
                 sendFeedbackMessage(sender,"<#FFA500>Successfully reloaded HoloUtils.");
                 return true;
@@ -49,7 +61,7 @@ public class HoloUtilsCommand implements CommandExecutor {
 
         if(args.length == 3){
             if(args[0].equalsIgnoreCase("test")){
-                textDisplayManager.addDisplay(UUID.fromString(args[1]),args[2]);
+                tagDisplayManager.addDisplay(UUID.fromString(args[1]),args[2]);
                 return true;
             }
         }

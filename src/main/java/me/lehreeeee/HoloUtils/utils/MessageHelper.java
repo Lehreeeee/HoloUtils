@@ -7,7 +7,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class MessageHelper {
 
-    private static final String prefix = "<aqua>[<#FFA500>MMStats<aqua>] ";
+    private static final String prefix = "<aqua>[<#FFA500>HoloUtils<aqua>] ";
 
     public static Component process(String msg) {
         return process(msg,false);
