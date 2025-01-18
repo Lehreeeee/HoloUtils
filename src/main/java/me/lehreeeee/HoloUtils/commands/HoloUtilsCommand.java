@@ -67,10 +67,24 @@ public class HoloUtilsCommand implements CommandExecutor {
 
             if(args[1].equalsIgnoreCase("get") && args.length == 3){
                 String result = pdcEditor.getData(args[2]);
-                if(result != null) sendFeedbackMessage(player, "<#FFA500>Value of <aqua>"+ args[2] + " <#FFA500>is<aqua> " + result);
-                else sendFeedbackMessage(player,"Something went wrong. Is the key correct?");
+                if(result != null) {
+                    sendFeedbackMessage(player, "<#FFA500>Value of <aqua>"+ args[2] + " <#FFA500>is<aqua> " + result);
+                } else {
+                    sendFeedbackMessage(player,"Something went wrong. Is the key correct?");
+                }
                 return true;
             }
+
+            if(args[1].equalsIgnoreCase("remove") && args.length == 3){
+                if(pdcEditor.removeData(args[2])){
+                    // Update the item
+                    player.getInventory().setItemInMainHand(pdcEditor.getItemStack());
+                    sendFeedbackMessage(player, "<#FFA500>Value of <aqua>"+ args[2] + " <#FFA500>has been removed.");
+                } else {
+                    sendFeedbackMessage(player,"Something went wrong. Is the key correct?");
+                }
+            }
+
             return true;
         }
 

@@ -14,15 +14,15 @@ import java.util.logging.Logger;
 public class ItemPDCEditor {
     private final HoloUtils plugin;
     private final Logger logger;
-    private final ItemStack preEditItem;
+    private final ItemStack itemStack;
     private final ItemMeta itemMeta;
     private PersistentDataContainer pdc;
 
-    public ItemPDCEditor(HoloUtils plugin, ItemStack preEditItem){
+    public ItemPDCEditor(HoloUtils plugin, ItemStack itemStack){
         this.plugin = plugin;
         this.logger = plugin.getLogger();
-        this.preEditItem = preEditItem;
-        this.itemMeta = preEditItem.getItemMeta();
+        this.itemStack = itemStack;
+        this.itemMeta = itemStack.getItemMeta();
         if(itemMeta != null) this.pdc = itemMeta.getPersistentDataContainer();
     }
 
@@ -40,7 +40,6 @@ public class ItemPDCEditor {
 
     public String getData(String key){
         NamespacedKey nsk = NamespacedKey.fromString(key);
-
         if (nsk == null) return null;
 
         List<PersistentDataType<?, ?>> possibleDataTypes = List.of(
@@ -80,6 +79,21 @@ public class ItemPDCEditor {
 
         // Found nothing
         return null;
+    }
+
+    public boolean removeData(String key){
+        NamespacedKey nsk = NamespacedKey.fromString(key);
+        if (nsk == null || !pdc.has(nsk)) return false;
+
+        // Remove from pdc then update item meta
+        pdc.remove(nsk);
+        itemStack.setItemMeta(itemMeta);
+
+        return true;
+    }
+
+    public ItemStack getItemStack(){
+        return itemStack;
     }
 
     private void debugLogger(String debugMessage){

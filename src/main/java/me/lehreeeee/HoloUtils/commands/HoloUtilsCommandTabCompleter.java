@@ -26,9 +26,9 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
         }
 
         if(args[0].equalsIgnoreCase("pdc") && sender instanceof Player player){
-            if(args.length == 2) return List.of("get","set");
+            if(args.length == 2) return List.of("get","set","remove");
 
-            if(args.length == 3 && List.of("get","set").contains(args[1])){
+            if(args.length == 3 && List.of("get","set","remove").contains(args[1])){
                 ItemPDCEditor pdcEditor = new ItemPDCEditor(plugin,player.getInventory().getItemInMainHand());
                 return pdcEditor.getNSKs();
             }
