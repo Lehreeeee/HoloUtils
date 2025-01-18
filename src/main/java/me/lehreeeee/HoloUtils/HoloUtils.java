@@ -39,6 +39,9 @@ public final class HoloUtils extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Remove all loaded tags, just in case... idk if they really persist or not LOL
+        TagDisplayManager.getInstance().removeAllTag();
+
         logger.info("Disabled HoloUtils...");
     }
 

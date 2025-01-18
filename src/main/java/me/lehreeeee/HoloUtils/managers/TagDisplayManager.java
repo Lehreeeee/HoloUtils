@@ -74,6 +74,12 @@ public class TagDisplayManager {
 
     public void setDisplayTag(UUID uuid, String tagName){
         Entity targetEntity = Bukkit.getEntity(uuid);
+
+        if (targetEntity == null) {
+            logger.warning("Cant find the entity.");
+            return;
+        }
+
         // Default tag is the tagname
         String tag = tagName;
 
@@ -82,17 +88,17 @@ public class TagDisplayManager {
             tag = playerTags.get(tagName);
         }
 
-
-        if (targetEntity == null) {
-            logger.warning("Cant find the entity.");
-            return;
+        // Does the entity have an existing tag already? Remove it first if so
+        if(loadedPlayerTags.containsKey(uuid)){
+            removeTag(uuid);
         }
 
+        // Spawn the display entity
         World world = targetEntity.getWorld();
         Location location = targetEntity.getLocation();
 
         TextDisplay display = world.spawn(location, TextDisplay.class, entity -> {
-            entity.setPersistent(true);
+            entity.setPersistent(false);
             entity.setBillboard(Display.Billboard.CENTER);
 
             entity.setVisibleByDefault(false);
@@ -113,9 +119,6 @@ public class TagDisplayManager {
         targetEntity.addPassenger(display);
         display.setVisibleByDefault(true);
 
-        Bukkit.getScheduler().runTaskLater(plugin, display::remove, 300L);
-        debugLogger("Added tag " + tag + " to entity " + uuid + " for 15 sec.");
-
         // Tracks the loaded tags
         loadedPlayerTags.put(uuid,display);
     }
@@ -123,14 +126,30 @@ public class TagDisplayManager {
     public void removeTag(UUID uuid){
         if(!loadedPlayerTags.containsKey(uuid)) return;
 
-        loadedPlayerTags.get(uuid).remove();
-        loadedPlayerTags.remove(uuid);
+        TextDisplay display = loadedPlayerTags.get(uuid);
+        if(display != null){
+            display.remove();
+        }
 
+        loadedPlayerTags.remove(uuid);
         debugLogger("Removed tag for entity " + uuid);
     }
 
+    public void removeAllTag(){
+        if(loadedPlayerTags.isEmpty()) return;
+
+        for(UUID uuid : loadedPlayerTags.keySet()){
+            TextDisplay display = loadedPlayerTags.get(uuid);
+            if(display != null){
+                display.remove();
+            }
+        }
+
+        loadedPlayerTags.clear();
+        debugLogger("Removed all loaded tags");
+    }
+
     public void updateLocation(UUID uuid, Location location){
-        debugLogger("Entity teleport event detected.");
         if(!loadedPlayerTags.containsKey(uuid)) return;
 
         Entity entity = Bukkit.getEntity(uuid);
@@ -141,6 +160,7 @@ public class TagDisplayManager {
             new BukkitRunnable() {
                 @Override
                 public void run() {
+                    // Teleport is needed after changing world too
                     tag.teleport(location);
                     entity.addPassenger(tag);
                     debugLogger("Updated tag location for entity " + uuid + " to " + tag.getLocation());
