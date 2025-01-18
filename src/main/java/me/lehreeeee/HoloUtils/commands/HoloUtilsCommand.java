@@ -32,7 +32,7 @@ public class HoloUtilsCommand implements CommandExecutor {
 
         if(args.length == 1){
             if(args[0].equalsIgnoreCase("playertag") && sender instanceof Player player){
-                if(!player.hasPermission("iu.ptag.*")) {
+                if(TagDisplayManager.getInstance().getAvailableTags(player).isEmpty()) {
                     sendFeedbackMessage(sender, "<#FFA500>You don't have any player tag.");
                     return true;
                 }
@@ -55,13 +55,6 @@ public class HoloUtilsCommand implements CommandExecutor {
 
             if(args[0].equalsIgnoreCase("help")){
                 sendCommandUsage(sender);
-                return true;
-            }
-        }
-
-        if(args.length == 3){
-            if(args[0].equalsIgnoreCase("test")){
-                tagDisplayManager.setDisplayTag(UUID.fromString(args[1]),args[2]);
                 return true;
             }
         }

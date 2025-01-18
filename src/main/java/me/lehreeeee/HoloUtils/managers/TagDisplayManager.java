@@ -61,7 +61,7 @@ public class TagDisplayManager {
     public Map<String,String> getAvailableTags(Player player){
         Map<String,String> availableTags = new HashMap<>();
         for(String tagName : playerTags.keySet()){
-            if(player.hasPermission("hu.ptag." + tagName)){
+            if(player.hasPermission("holoutils.ptag." + tagName)){
                 availableTags.put(tagName,playerTags.get(tagName));
             }
         }
