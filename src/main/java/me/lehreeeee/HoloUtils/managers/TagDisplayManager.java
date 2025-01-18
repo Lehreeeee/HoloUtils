@@ -169,7 +169,7 @@ public class TagDisplayManager {
         }
     }
 
-    public void debugLogger(String debugMessage){
+    private void debugLogger(String debugMessage){
         if(plugin.shouldPrintDebug()) logger.info(debugMessage);
     }
 }

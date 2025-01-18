@@ -26,11 +26,12 @@ public final class HoloUtils extends JavaPlugin {
         saveCustomConfig();
 
         TagDisplayManager.initialize(this);
+
         playerProjectileListener = new PlayerProjectileListener(this);
         new TagDisplayListener(this);
 
         getCommand("holoutils").setExecutor(new HoloUtilsCommand(this));
-        getCommand("holoutils").setTabCompleter(new HoloUtilsCommandTabCompleter());
+        getCommand("holoutils").setTabCompleter(new HoloUtilsCommandTabCompleter(this));
 
         reloadData();
 

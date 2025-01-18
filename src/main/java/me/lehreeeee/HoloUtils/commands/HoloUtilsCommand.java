@@ -4,6 +4,7 @@ package me.lehreeeee.HoloUtils.commands;
 import me.lehreeeee.HoloUtils.GUI.PlayerTagGUI;
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.TagDisplayManager;
+import me.lehreeeee.HoloUtils.utils.ItemPDCEditor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -26,6 +27,7 @@ public class HoloUtilsCommand implements CommandExecutor {
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){
+        // Development mode, only admin can use
         if(!sender.hasPermission("holoutils.admin")){
             sendFeedbackMessage(sender,"<#FFA500>Who are you?! You don't have permission to do this!");
         }
@@ -57,6 +59,19 @@ public class HoloUtilsCommand implements CommandExecutor {
                 sendCommandUsage(sender);
                 return true;
             }
+        }
+
+        // /holoutils pdc [get/set] [namespaced key] [datatype] [value]
+        if(args[0].equalsIgnoreCase("pdc") && sender instanceof Player player){
+            ItemPDCEditor pdcEditor = new ItemPDCEditor(plugin,player.getInventory().getItemInMainHand());
+
+            if(args[1].equalsIgnoreCase("get") && args.length == 3){
+                String result = pdcEditor.getData(args[2]);
+                if(result != null) sendFeedbackMessage(player, "<#FFA500>Value of <aqua>"+ args[2] + " <#FFA500>is<aqua> " + result);
+                else sendFeedbackMessage(player,"Something went wrong. Is the key correct?");
+                return true;
+            }
+            return true;
         }
 
         sendFeedbackMessage(sender,"<#FFA500>Unknown command. Check /HoloUtils help.");
