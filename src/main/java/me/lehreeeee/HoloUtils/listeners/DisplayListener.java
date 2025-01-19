@@ -19,11 +19,11 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.UUID;
 
-public class TitleDisplayListener implements Listener {
+public class DisplayListener implements Listener {
     private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
     private final NamespacedKey titleNameNSK = new NamespacedKey("holoutils","titlename");
 
-    public TitleDisplayListener(HoloUtils plugin){
+    public DisplayListener(HoloUtils plugin){
         Bukkit.getPluginManager().registerEvents(this,plugin);
     }
 
@@ -53,22 +53,25 @@ public class TitleDisplayListener implements Listener {
             PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
             if(clickedItemPDC.has(titleNameNSK)){
                 String titleName = clickedItemPDC.get(titleNameNSK, PersistentDataType.STRING);
-                titleDisplayManager.setDisplayTitle(uuid,titleName);
+                titleDisplayManager.setTitleDisplay(uuid,titleName);
             }
             clickedInv.close();
         }
     }
 
+    // For non-player only
     @EventHandler
     public void onEntityTeleport(EntityTeleportEvent event){
         titleDisplayManager.updateLocation(event.getEntity().getUniqueId(),event.getTo());
     }
 
+    // For player only
     @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent event){
         titleDisplayManager.updateLocation(event.getPlayer().getUniqueId(),event.getTo());
     }
 
+    // This is for both LOL
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event){
         titleDisplayManager.removeTitle(event.getEntity().getUniqueId());

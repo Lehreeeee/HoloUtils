@@ -1,7 +1,10 @@
 # This is for showing status effect on mobs
 # Please use MiniMessage format for the tag, link -> https://docs.advntr.dev/minimessage/format.html
 
-# Commands to apply the status TBD
+# Height of the title (duh), 0.6 for mobs.
+status-height: 0.6
+
+# /holoutils elementalstatus [UUID] [Element] [Duration in ticks]
 elements:
   flame: "<red>🔥"
   ice: "<aqua>❄"

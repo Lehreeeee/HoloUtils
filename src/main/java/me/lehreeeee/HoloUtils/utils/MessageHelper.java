@@ -17,6 +17,10 @@ public class MessageHelper {
         return MiniMessage.miniMessage().deserialize(needsPrefix ? prefix + msg : msg);
     }
 
+    public static String revert(Component component) {
+        return MiniMessage.miniMessage().serialize(component);
+    }
+
     public static String getPlainText(String msg) {
         return PlainTextComponentSerializer.plainText().serialize(process(msg));
     }

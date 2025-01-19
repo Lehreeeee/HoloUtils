@@ -3,6 +3,7 @@ package me.lehreeeee.HoloUtils.commands;
 
 import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUI;
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import me.lehreeeee.HoloUtils.utils.ItemPDCEditor;
 import org.bukkit.command.Command;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public class HoloUtilsCommand implements CommandExecutor {
@@ -58,6 +60,17 @@ public class HoloUtilsCommand implements CommandExecutor {
                 sendCommandUsage(sender);
                 return true;
             }
+        }
+
+        if(args[0].equalsIgnoreCase("elementalstatus") && args.length == 4){
+            try{
+                StatusDisplayManager.getInstance().setStatusDisplay(UUID.fromString(args[1]),args[2],Long.valueOf(args[3]));
+            } catch(NumberFormatException e){
+                sendFeedbackMessage(sender,"Invalid duration, expected Long but get " + args[3]);
+            } catch (IllegalArgumentException e){
+                sendFeedbackMessage(sender,"Invalid UUID - " + args[1]);
+            }
+            return true;
         }
 
         if(args[0].equalsIgnoreCase("pdc") && sender instanceof Player player){

@@ -2,8 +2,9 @@ package me.lehreeeee.HoloUtils;
 
 import me.lehreeeee.HoloUtils.commands.HoloUtilsCommand;
 import me.lehreeeee.HoloUtils.commands.HoloUtilsCommandTabCompleter;
-import me.lehreeeee.HoloUtils.listeners.TitleDisplayListener;
+import me.lehreeeee.HoloUtils.listeners.DisplayListener;
 import me.lehreeeee.HoloUtils.listeners.PlayerProjectileListener;
+import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -26,9 +27,10 @@ public final class HoloUtils extends JavaPlugin {
         saveCustomConfig();
 
         TitleDisplayManager.initialize(this);
+        StatusDisplayManager.initialize(this);
 
         playerProjectileListener = new PlayerProjectileListener(this);
-        new TitleDisplayListener(this);
+        new DisplayListener(this);
 
         getCommand("holoutils").setExecutor(new HoloUtilsCommand(this));
         getCommand("holoutils").setTabCompleter(new HoloUtilsCommandTabCompleter(this));
@@ -47,25 +49,28 @@ public final class HoloUtils extends JavaPlugin {
     }
 
     private void saveCustomConfig(){
-        saveResource("DisplayTag/ElementalStatus.yml", false);
+        saveResource("DisplayTag/StatusEffects.yml", false);
         saveResource("DisplayTag/PlayerTitle.yml", false);
     }
 
     public void reloadData(){
         File playerTitleFile = new File(this.getDataFolder(), "/DisplayTag/PlayerTitle.yml");
+        File elementalStatusFile = new File(this.getDataFolder(), "/DisplayTag/StatusEffects.yml");
 
         // Create default if not exist
-        if(!playerTitleFile.exists()){
+        if(!playerTitleFile.exists() || !elementalStatusFile.exists()){
             this.saveCustomConfig();
         }
 
         saveDefaultConfig();
         FileConfiguration config = this.getConfig();
         YamlConfiguration playerTitleConfig = YamlConfiguration.loadConfiguration(playerTitleFile);
+        YamlConfiguration elementalStatusConfig = YamlConfiguration.loadConfiguration(elementalStatusFile);
 
         playerProjectileListener.setDisabledWorlds(new HashSet<>(config.getStringList("arrow-shoots-thru-players-worlds")));
 
         TitleDisplayManager.getInstance().loadPlayerTitlesConfig(playerTitleConfig);
+        StatusDisplayManager.getInstance().loadElementalStatusConfig(elementalStatusConfig);
 
         // Should print debug msg?
         this.debug = config.getBoolean("debug",false);

@@ -46,18 +46,18 @@ public class TitleDisplayManager {
     }
 
     public void loadPlayerTitlesConfig(YamlConfiguration playerTitleConfig){
-        // Reload player tags
+        // Reload player titles
         playerTitles.clear();
         if(playerTitleConfig.contains("titles")){
-            for(String tag : playerTitleConfig.getConfigurationSection("titles").getKeys(false)) {
-                playerTitles.put(tag,playerTitleConfig.getString("titles." + tag));
+            for(String title : playerTitleConfig.getConfigurationSection("titles").getKeys(false)) {
+                playerTitles.put(title,playerTitleConfig.getString("titles." + title));
             }
         }
 
         // Load title for the GUI
         if(playerTitleConfig.contains("gui-name")) this.GUIName = playerTitleConfig.getString("gui-name", "<white>[<aqua>Title Display<white>]");
 
-        // Load height for the tag
+        // Load height for the titles
         if(playerTitleConfig.contains("title-height")) this.titleHeight = (float) playerTitleConfig.getDouble("title-height",0.6);
     }
 
@@ -75,7 +75,7 @@ public class TitleDisplayManager {
         return this.GUIName;
     }
 
-    public void setDisplayTitle(UUID uuid, String titleName){
+    public void setTitleDisplay(UUID uuid, String titleName){
         Entity targetEntity = Bukkit.getEntity(uuid);
 
         if (targetEntity == null) {
