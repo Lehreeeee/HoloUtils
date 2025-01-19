@@ -1,9 +1,0 @@
-# Permission will be hu.ptag.[TagName]
-# Please use MiniMessage format for the tag, link -> https://docs.advntr.dev/minimessage/format.html
-
-gui-title: "<white>[<aqua>Display Tag<white>]"
-
-# Max 28 per player, i don't have time to add 2nd page :suiwheeze:
-tags:
-  example-tag: "<aqua>[<green>I'm Green<aqua>]"
-

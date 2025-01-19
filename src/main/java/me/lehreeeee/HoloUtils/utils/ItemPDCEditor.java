@@ -92,6 +92,41 @@ public class ItemPDCEditor {
         return true;
     }
 
+    public boolean setData(String namespace, String key, String dataType, String data){
+        NamespacedKey nsk = NamespacedKey.fromString(namespace + ":" + key);
+        if(nsk == null) return false;
+
+        try{
+            switch (dataType.toUpperCase()) {
+                case "STRING":
+                    pdc.set(nsk,PersistentDataType.STRING, data);
+                    break;
+                case "INTEGER":
+                    pdc.set(nsk,PersistentDataType.INTEGER, Integer.valueOf(data));
+                    break;
+                case "FLOAT":
+                    pdc.set(nsk,PersistentDataType.FLOAT, Float.valueOf(data));
+                    break;
+                case "DOUBLE":
+                    pdc.set(nsk,PersistentDataType.DOUBLE, Double.valueOf(data));
+                    break;
+                case "LONG":
+                    pdc.set(nsk,PersistentDataType.LONG, Long.valueOf(data));
+                    break;
+                case "BYTE":
+                    pdc.set(nsk,PersistentDataType.BYTE, Byte.valueOf(data));
+                    break;
+                default:
+                    return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+
+        itemStack.setItemMeta(itemMeta);
+        return true;
+    }
+
     public ItemStack getItemStack(){
         return itemStack;
     }

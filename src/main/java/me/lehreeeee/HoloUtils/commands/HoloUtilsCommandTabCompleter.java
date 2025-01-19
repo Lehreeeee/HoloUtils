@@ -12,8 +12,17 @@ import java.util.List;
 
 public class HoloUtilsCommandTabCompleter implements TabCompleter {
     private final HoloUtils plugin;
-    private final List<String> commands = List.of("reload", "help", "playertag", "elementstatus","pdc");
-    private final List<String> supportedDataTypes = List.of("STRING","INTEGER","FLOAT","DOUBLE","LONG");
+    private final List<String> commands = List.of("reload", "help", "playertitle", "elementstatus","pdc");
+    private final List<String> pdcActions = List.of("get","set","remove");
+    private final List<String> typeNames = List.of(
+            "STRING",
+            "INTEGER",
+            "FLOAT",
+            "DOUBLE",
+            "LONG",
+            "BYTE"
+    );
+
 
     public HoloUtilsCommandTabCompleter(HoloUtils plugin) {
         this.plugin = plugin;
@@ -25,12 +34,38 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
             return commands;
         }
 
-        if(args[0].equalsIgnoreCase("pdc") && sender instanceof Player player){
-            if(args.length == 2) return List.of("get","set","remove");
+        if(args.length == 2){
+            if(args[0].equalsIgnoreCase("pdc")){
+                return pdcActions;
+            }
+        }
 
-            if(args.length == 3 && List.of("get","set","remove").contains(args[1])){
-                ItemPDCEditor pdcEditor = new ItemPDCEditor(plugin,player.getInventory().getItemInMainHand());
-                return pdcEditor.getNSKs();
+        if(args.length == 3){
+            if(args[0].equalsIgnoreCase("pdc") && sender instanceof Player player){
+                if(List.of("get","remove").contains(args[1])){
+                    ItemPDCEditor pdcEditor = new ItemPDCEditor(plugin,player.getInventory().getItemInMainHand());
+                    return pdcEditor.getNSKs();
+                } else if(args[1].equalsIgnoreCase("set")){
+                    return List.of("Namespace");
+                }
+            }
+        }
+
+        if(args.length == 4) {
+            if(args[0].equalsIgnoreCase("pdc") && args[1].equalsIgnoreCase("set")) {
+                return List.of("Key");
+            }
+        }
+
+        if(args.length == 5){
+            if(args[0].equalsIgnoreCase("pdc") && args[1].equalsIgnoreCase("set")){
+                return typeNames;
+            }
+        }
+
+        if(args.length == 6){
+            if(args[0].equalsIgnoreCase("pdc") && args[1].equalsIgnoreCase("set")){
+                return List.of("Value");
             }
         }
 

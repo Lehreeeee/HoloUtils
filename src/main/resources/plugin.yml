@@ -1,5 +1,5 @@
 name: HoloUtils
-version: '0.6.9-SNAPSHOT'
+version: '1.0.0'
 main: me.lehreeeee.HoloUtils.HoloUtils
 api-version: '1.21'
 

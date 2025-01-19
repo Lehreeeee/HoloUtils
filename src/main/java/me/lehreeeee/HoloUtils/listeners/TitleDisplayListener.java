@@ -2,7 +2,7 @@ package me.lehreeeee.HoloUtils.listeners;
 
 import me.lehreeeee.HoloUtils.GUI.PlayerTagGUIHolder;
 import me.lehreeeee.HoloUtils.HoloUtils;
-import me.lehreeeee.HoloUtils.managers.TagDisplayManager;
+import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
@@ -19,11 +19,11 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.UUID;
 
-public class TagDisplayListener implements Listener {
-    private final TagDisplayManager tagDisplayManager = TagDisplayManager.getInstance();
-    private final NamespacedKey tagNameNSK = new NamespacedKey("holoutils","tagname");
+public class TitleDisplayListener implements Listener {
+    private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
+    private final NamespacedKey titleNameNSK = new NamespacedKey("holoutils","titlename");
 
-    public TagDisplayListener(HoloUtils plugin){
+    public TitleDisplayListener(HoloUtils plugin){
         Bukkit.getPluginManager().registerEvents(this,plugin);
     }
 
@@ -42,7 +42,7 @@ public class TagDisplayListener implements Listener {
 
         // Remove all player tag
         if(clickedSlot == 49){
-            tagDisplayManager.removeTag(uuid);
+            titleDisplayManager.removeTitle(uuid);
             clickedInv.close();
         }
         // Choose tag
@@ -51,9 +51,9 @@ public class TagDisplayListener implements Listener {
             if(clickedItemMeta == null) return;
 
             PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
-            if(clickedItemPDC.has(tagNameNSK)){
-                String tagName = clickedItemPDC.get(tagNameNSK, PersistentDataType.STRING);
-                tagDisplayManager.setDisplayTag(uuid,tagName);
+            if(clickedItemPDC.has(titleNameNSK)){
+                String titleName = clickedItemPDC.get(titleNameNSK, PersistentDataType.STRING);
+                titleDisplayManager.setDisplayTitle(uuid,titleName);
             }
             clickedInv.close();
         }
@@ -61,16 +61,16 @@ public class TagDisplayListener implements Listener {
 
     @EventHandler
     public void onEntityTeleport(EntityTeleportEvent event){
-        tagDisplayManager.updateLocation(event.getEntity().getUniqueId(),event.getTo());
+        titleDisplayManager.updateLocation(event.getEntity().getUniqueId(),event.getTo());
     }
 
     @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent event){
-        tagDisplayManager.updateLocation(event.getPlayer().getUniqueId(),event.getTo());
+        titleDisplayManager.updateLocation(event.getPlayer().getUniqueId(),event.getTo());
     }
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event){
-        tagDisplayManager.removeTag(event.getEntity().getUniqueId());
+        titleDisplayManager.removeTitle(event.getEntity().getUniqueId());
     }
 }

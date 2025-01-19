@@ -1,0 +1,12 @@
+# Permission will be holoutils.playertitle.[TagName]
+# Please use MiniMessage format for the tag, link -> https://docs.advntr.dev/minimessage/format.html
+
+gui-name: "<white>[<aqua>Title Display<white>]"
+# Height of the title (duh), 0.6 if without the hp display from TAB plugin. 0.9 if theres hp display.
+title-height: 0.9
+
+# Max 28 per player, i don't have time to add 2nd page :suiwheeze:
+titles:
+  example-title: "<aqua>[<green>I'm Green<aqua>]"
+  ameeeee: "<gold>✦ <white>🔎 <red>[<gradient:gold:yellow:gold><bold>AMEEEEE</bold></gradient><red>] <white>🔎 <gradient:gold:yellow>✦</gradient>"
+

@@ -1,6 +1,6 @@
 package me.lehreeeee.HoloUtils.GUI;
 
-import me.lehreeeee.HoloUtils.managers.TagDisplayManager;
+import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -13,11 +13,11 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Map;
 
-public class PlayerTagGUI {
+public class PlayerTitleGUI {
 
 
-    public Inventory createPlayerTagGUI(Player player){
-        TagDisplayManager tagDisplayManager = TagDisplayManager.getInstance();
+    public Inventory createPlayerTitleGUI(Player player){
+        TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
         Inventory inv = new PlayerTagGUIHolder().getInventory();
 
 
@@ -33,7 +33,7 @@ public class PlayerTagGUI {
         ItemStack removeButton = new ItemStack(Material.REDSTONE_BLOCK);
         ItemMeta updateButtonMeta = removeButton.getItemMeta();
         if (updateButtonMeta != null){
-            updateButtonMeta.displayName(MessageHelper.process("<red><b><!i>Remove player tag"));
+            updateButtonMeta.displayName(MessageHelper.process("<red><b><!i>Remove player title"));
             removeButton.setItemMeta(updateButtonMeta);
         }
 
@@ -44,21 +44,21 @@ public class PlayerTagGUI {
             }
         }
 
-        Map<String,String> availableTags = tagDisplayManager.getAvailableTags(player);
-        int tagSlot = 9;
+        Map<String,String> availableTags = titleDisplayManager.getAvailableTitles(player);
+        int titleSlot = 9;
 
         for(String tagName : availableTags.keySet()){
-            while(isBorderSlot(tagSlot)){
-                tagSlot++;
+            while(isBorderSlot(titleSlot)){
+                titleSlot++;
             }
 
             // TODO: Add more pages for more than 28 Tags
             // Make sure its within the inventory, 43 is the last available slot
-            if(tagSlot < 44){
-                // Populate the inventory with available tags, how the tags look will be shown as the item name.
-                ItemStack tagItem = createTagItem(tagName, availableTags.get(tagName));
-                inv.setItem(tagSlot,tagItem);
-                tagSlot++;
+            if(titleSlot < 44){
+                // Populate the inventory with available titles, how the titles look will be shown as the item name.
+                ItemStack tagItem = createTitleItem(tagName, availableTags.get(tagName));
+                inv.setItem(titleSlot,tagItem);
+                titleSlot++;
             }
         }
 
@@ -73,20 +73,20 @@ public class PlayerTagGUI {
         return slot <= 8 || slot >= 45 || slot % 9 == 0 || slot % 9 == 8;
     }
 
-    private ItemStack createTagItem(String tagName, String tag){
-        ItemStack tagItem = new ItemStack(Material.NAME_TAG);
-        ItemMeta tagItemMeta = tagItem.getItemMeta();
+    private ItemStack createTitleItem(String titleName, String title){
+        ItemStack titleItem = new ItemStack(Material.NAME_TAG);
+        ItemMeta titleItemMeta = titleItem.getItemMeta();
 
-        if(tagItemMeta != null){
+        if(titleItemMeta != null){
             // Need add <!i> or its gonna be italic for some reason
-            tagItemMeta.displayName(MessageHelper.process("<!i>" + tag));
+            titleItemMeta.displayName(MessageHelper.process("<!i>" + title));
 
-            PersistentDataContainer tagItemPDC = tagItemMeta.getPersistentDataContainer();
-            tagItemPDC.set(new NamespacedKey("holoutils","tagname"), PersistentDataType.STRING,tagName);
+            PersistentDataContainer titleItemPDC = titleItemMeta.getPersistentDataContainer();
+            titleItemPDC.set(new NamespacedKey("holoutils","titlename"), PersistentDataType.STRING, titleName);
 
-            tagItem.setItemMeta(tagItemMeta);
+            titleItem.setItemMeta(titleItemMeta);
         }
 
-        return tagItem;
+        return titleItem;
     }
 }

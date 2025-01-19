@@ -2,9 +2,9 @@ package me.lehreeeee.HoloUtils;
 
 import me.lehreeeee.HoloUtils.commands.HoloUtilsCommand;
 import me.lehreeeee.HoloUtils.commands.HoloUtilsCommandTabCompleter;
-import me.lehreeeee.HoloUtils.listeners.TagDisplayListener;
+import me.lehreeeee.HoloUtils.listeners.TitleDisplayListener;
 import me.lehreeeee.HoloUtils.listeners.PlayerProjectileListener;
-import me.lehreeeee.HoloUtils.managers.TagDisplayManager;
+import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,10 +25,10 @@ public final class HoloUtils extends JavaPlugin {
         saveDefaultConfig();
         saveCustomConfig();
 
-        TagDisplayManager.initialize(this);
+        TitleDisplayManager.initialize(this);
 
         playerProjectileListener = new PlayerProjectileListener(this);
-        new TagDisplayListener(this);
+        new TitleDisplayListener(this);
 
         getCommand("holoutils").setExecutor(new HoloUtilsCommand(this));
         getCommand("holoutils").setTabCompleter(new HoloUtilsCommandTabCompleter(this));
@@ -41,30 +41,31 @@ public final class HoloUtils extends JavaPlugin {
     @Override
     public void onDisable() {
         // Remove all loaded tags, just in case... idk if they really persist or not LOL
-        TagDisplayManager.getInstance().removeAllTag();
+        TitleDisplayManager.getInstance().removeAllTitles();
 
         logger.info("Disabled HoloUtils...");
     }
 
     private void saveCustomConfig(){
         saveResource("DisplayTag/ElementalStatus.yml", false);
-        saveResource("DisplayTag/PlayerTag.yml", false);
+        saveResource("DisplayTag/PlayerTitle.yml", false);
     }
 
     public void reloadData(){
-        File playerTagFile = new File(this.getDataFolder(),"/DisplayTag/PlayerTag.yml");
+        File playerTitleFile = new File(this.getDataFolder(), "/DisplayTag/PlayerTitle.yml");
 
         // Create default if not exist
-        if(!playerTagFile.exists()){
+        if(!playerTitleFile.exists()){
             this.saveCustomConfig();
         }
 
+        saveDefaultConfig();
         FileConfiguration config = this.getConfig();
-        YamlConfiguration playerTagConfig = YamlConfiguration.loadConfiguration(playerTagFile);
+        YamlConfiguration playerTitleConfig = YamlConfiguration.loadConfiguration(playerTitleFile);
 
         playerProjectileListener.setDisabledWorlds(new HashSet<>(config.getStringList("arrow-shoots-thru-players-worlds")));
 
-        TagDisplayManager.getInstance().loadPlayerTagsConfig(playerTagConfig);
+        TitleDisplayManager.getInstance().loadPlayerTitlesConfig(playerTitleConfig);
 
         // Should print debug msg?
         this.debug = config.getBoolean("debug",false);
