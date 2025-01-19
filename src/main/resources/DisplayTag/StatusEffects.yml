@@ -4,7 +4,7 @@
 # Height of the title (duh), 0.6 for mobs.
 status-height: 0.6
 
-# /holoutils statusdisplay [UUID] [Status] [Duration in ticks]
+# /holoutils statusdisplay [UUID] [Status] [Duration_in_ticks]
 status-effects:
   flame: "<red>🔥"
   ice: "<aqua>❄"

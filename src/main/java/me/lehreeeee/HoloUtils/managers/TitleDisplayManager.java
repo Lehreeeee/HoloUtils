@@ -22,9 +22,9 @@ public class TitleDisplayManager {
     private static TitleDisplayManager instance;
     private final HoloUtils plugin;
     private final Logger logger;
-    private final Map<String,String> playerTitles = new HashMap<>();
     private String GUIName = "<white>[<aqua>Title Display<white>]";
     private float titleHeight = 0.6F;
+    private final Map<String,String> playerTitles = new HashMap<>();
     private final Map<UUID,TextDisplay> loadedPlayerTitles = new HashMap<>();
 
     private TitleDisplayManager(HoloUtils plugin){
@@ -101,24 +101,7 @@ public class TitleDisplayManager {
             removeTitle(uuid);
         }
 
-        // Spawn the display entity
-        World world = targetEntity.getWorld();
-        Location location = targetEntity.getLocation();
-
-        TextDisplay display = world.spawn(location, TextDisplay.class, entity -> {
-            entity.setPersistent(false);
-            entity.setBillboard(Display.Billboard.CENTER);
-
-            entity.setVisibleByDefault(false);
-            entity.setTransformation(
-                    new Transformation(
-                            new Vector3f(0, titleHeight, 0),
-                            new AxisAngle4f(), // no left rotation
-                            new Vector3f(1,1,1), // Must have scale or else it wont show
-                            new AxisAngle4f() // no right rotation
-                    )
-            );
-        });
+        TextDisplay display = spawnDisplayEntity(targetEntity);
 
         // Sets the display text
         display.text(MessageHelper.process(title));
@@ -175,6 +158,27 @@ public class TitleDisplayManager {
                 }
             }.runTaskLater(plugin, 5L);
         }
+    }
+
+    private TextDisplay spawnDisplayEntity(Entity targetEntity){
+        // Spawn the display entity
+        World world = targetEntity.getWorld();
+        Location location = targetEntity.getLocation();
+
+        return world.spawn(location, TextDisplay.class, entity -> {
+            entity.setPersistent(false);
+            entity.setBillboard(Display.Billboard.CENTER);
+
+            entity.setVisibleByDefault(false);
+            entity.setTransformation(
+                    new Transformation(
+                            new Vector3f(0, titleHeight, 0),
+                            new AxisAngle4f(), // no left rotation
+                            new Vector3f(1,1,1), // Must have scale or else it wont show
+                            new AxisAngle4f() // no right rotation
+                    )
+            );
+        });
     }
 
     private void debugLogger(String debugMessage){

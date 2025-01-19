@@ -13,7 +13,7 @@ import java.util.List;
 
 public class HoloUtilsCommandTabCompleter implements TabCompleter {
     private final HoloUtils plugin;
-    private final List<String> commands = List.of("reload", "help", "playertitle", "elementalstatus","pdc");
+    private final List<String> commands = List.of("reload", "help", "playertitle", "statuseffect","pdc");
     private final List<String> pdcActions = List.of("get","set","remove");
     private final List<String> typeNames = List.of(
             "STRING",
@@ -40,7 +40,7 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
                 return pdcActions;
             }
 
-            if(args[0].equalsIgnoreCase("statusdisplay")){
+            if(args[0].equalsIgnoreCase("statuseffect")){
                 return List.of("[UUID]");
             }
         }
@@ -55,7 +55,7 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
                 }
             }
 
-            if(args[0].equalsIgnoreCase("statusdisplay")){
+            if(args[0].equalsIgnoreCase("statuseffect")){
                 return StatusDisplayManager.getInstance().getAvailableStatuses();
             }
         }
@@ -65,8 +65,8 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
                 return List.of("Key");
             }
 
-            if(args[0].equalsIgnoreCase("statusdisplay")){
-                return List.of("[Duration in ticks]");
+            if(args[0].equalsIgnoreCase("statuseffect")){
+                return List.of("[Duration_in_ticks]");
             }
         }
 

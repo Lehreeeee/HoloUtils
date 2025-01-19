@@ -62,7 +62,7 @@ public class HoloUtilsCommand implements CommandExecutor {
             }
         }
 
-        if(args[0].equalsIgnoreCase("statusdisplay") && args.length == 4){
+        if(args[0].equalsIgnoreCase("statuseffect") && args.length == 4){
             try{
                 StatusDisplayManager.getInstance().setStatusDisplay(UUID.fromString(args[1]),args[2],Long.valueOf(args[3]));
             } catch(NumberFormatException e){

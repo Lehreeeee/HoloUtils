@@ -62,7 +62,7 @@ public class StatusDisplayManager {
         if(statusEffectsConfig.contains("status-height")) this.statusHeight = (float) statusEffectsConfig.getDouble("status-height",0.6);
     }
 
-    public void setStatusDisplay(UUID uuid, String element, Long tick){
+    public void setStatusDisplay(UUID uuid, String status, Long tick){
         Entity targetEntity = Bukkit.getEntity(uuid);
 
         if (targetEntity == null) {
@@ -76,10 +76,10 @@ public class StatusDisplayManager {
         }
 
         // Default status symbol
-        String status = "<red>?";
+        String statusSymbol = "<white>\uD83D\uDD0E";
 
-        if(statusEffects.containsKey(element)){
-            status = statusEffects.get(element);
+        if(statusEffects.containsKey(status)){
+            statusSymbol = statusEffects.get(status);
         }
 
         // Has existing status display? Append it if yes
@@ -89,36 +89,35 @@ public class StatusDisplayManager {
             String currentString = MessageHelper.revert(display.text());
 
             // If exists, remove first
-            if(currentString.contains(status) && scheduledTasks.containsKey(uuid + ";" + element)) {
-                debugLogger("Found existing same element, removing before applying new one.");
+            if(scheduledTasks.containsKey(uuid + ";" + status)) {
+                debugLogger("Found existing same status, removing before applying new one.");
 
                 // Cancel the scheduled task and remove from the list
-                scheduledTasks.get(uuid + ";" + element).cancel();
-                scheduledTasks.remove(uuid + ";" + element);
+                scheduledTasks.get(uuid + ";" + status).cancel();
 
-                // Remove element but keep the display because we adding new 1
-                removeStatus(uuid,display,element,true);
+                // Remove status but keep the display because we adding new 1 later
+                removeStatus(uuid,display,status,true);
 
                 // Update current string
                 currentString = MessageHelper.revert(display.text());
             }
 
             // Add the status
-            display.text(MessageHelper.process(currentString + status));
+            display.text(MessageHelper.process(currentString + statusSymbol));
 
             // Schedule for removal
             BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                removeStatus(uuid, display, element,false);
+                removeStatus(uuid, display, status,false);
             }, tick);
 
-            scheduledTasks.put(uuid + ";" + element, task);
+            scheduledTasks.put(uuid + ";" + status, task);
         } else {
             debugLogger("Can't find existing display, spawning new one.");
 
             TextDisplay display = spawnDisplayEntity(targetEntity);
 
             // Sets the display text
-            display.text(MessageHelper.process(status));
+            display.text(MessageHelper.process(statusSymbol));
 
             // Add on top of the entity and make it visible
             targetEntity.addPassenger(display);
@@ -126,10 +125,10 @@ public class StatusDisplayManager {
 
             // Schedule for removal
             BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                removeStatus(uuid, display, element,false);
+                removeStatus(uuid, display, status,false);
             }, tick);
 
-            scheduledTasks.put(uuid + ";" + element, task);
+            scheduledTasks.put(uuid + ";" + status, task);
             loadedStatusDisplay.put(uuid,display);
         }
     }
@@ -141,17 +140,9 @@ public class StatusDisplayManager {
         }
 
         debugLogger("Removing status " + status + " for " + uuid);
-        String currentString = MessageHelper.revert(display.text());
-        String updatedString = currentString;
+        scheduledTasks.remove(uuid + ";" + status);
 
-        String symbol = statusEffects.get(status);
-
-        // Remove from the string
-        if(symbol != null){
-            updatedString = currentString.replaceFirst(symbol ,"");
-        }
-
-        debugLogger("Old String - " + currentString);
+        String updatedString = getLatestStatusEffectString(uuid);
         debugLogger("New String - " + updatedString);
 
         // If empty/it was the last status, remove it completely
@@ -163,6 +154,29 @@ public class StatusDisplayManager {
 
         // Update display
         display.text(MessageHelper.process(updatedString));
+    }
+
+    private String getLatestStatusEffectString(UUID uuid){
+        // Define a StringBuilder to construct the resulting string
+        StringBuilder effectsBuilder = new StringBuilder();
+
+        // Iterate through the statusEffects map to construct keys and fetch symbols
+        for (Map.Entry<String, String> entry : statusEffects.entrySet()) {
+            String effectName = entry.getKey();  // Effect name is the key
+            String symbol = entry.getValue();   // Effect symbol is the value
+
+            // Construct the key using the UUID and the effect name
+            String taskKey = uuid.toString() + ";" + effectName;
+
+            // Check if this key exists in the scheduledTasks map
+            if (scheduledTasks.containsKey(taskKey)) {
+                // If the task exists, append the symbol to the effectsBuilder
+                effectsBuilder.append(symbol);
+            }
+        }
+
+        // Return the final string of concatenated symbols
+        return effectsBuilder.toString();
     }
 
     private TextDisplay spawnDisplayEntity(Entity targetEntity){
