@@ -50,11 +50,11 @@ public final class HoloUtils extends JavaPlugin {
 
     private void saveCustomConfig(){
         saveResource("DisplayTag/StatusEffects.yml", false);
-        saveResource("DisplayTag/PlayerTitle.yml", false);
+        saveResource("DisplayTag/PlayerTitles.yml", false);
     }
 
     public void reloadData(){
-        File playerTitleFile = new File(this.getDataFolder(), "/DisplayTag/PlayerTitle.yml");
+        File playerTitleFile = new File(this.getDataFolder(), "/DisplayTag/PlayerTitles.yml");
         File elementalStatusFile = new File(this.getDataFolder(), "/DisplayTag/StatusEffects.yml");
 
         // Create default if not exist
@@ -70,7 +70,7 @@ public final class HoloUtils extends JavaPlugin {
         playerProjectileListener.setDisabledWorlds(new HashSet<>(config.getStringList("arrow-shoots-thru-players-worlds")));
 
         TitleDisplayManager.getInstance().loadPlayerTitlesConfig(playerTitleConfig);
-        StatusDisplayManager.getInstance().loadElementalStatusConfig(elementalStatusConfig);
+        StatusDisplayManager.getInstance().loadStatusEffectsConfig(elementalStatusConfig);
 
         // Should print debug msg?
         this.debug = config.getBoolean("debug",false);

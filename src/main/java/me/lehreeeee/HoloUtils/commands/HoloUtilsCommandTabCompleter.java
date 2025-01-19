@@ -40,7 +40,7 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
                 return pdcActions;
             }
 
-            if(args[0].equalsIgnoreCase("elementalstatus")){
+            if(args[0].equalsIgnoreCase("statusdisplay")){
                 return List.of("[UUID]");
             }
         }
@@ -55,8 +55,8 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
                 }
             }
 
-            if(args[0].equalsIgnoreCase("elementalstatus")){
-                return StatusDisplayManager.getInstance().getAvailableElements();
+            if(args[0].equalsIgnoreCase("statusdisplay")){
+                return StatusDisplayManager.getInstance().getAvailableStatuses();
             }
         }
 
@@ -65,7 +65,7 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
                 return List.of("Key");
             }
 
-            if(args[0].equalsIgnoreCase("elementalstatus")){
+            if(args[0].equalsIgnoreCase("statusdisplay")){
                 return List.of("[Duration in ticks]");
             }
         }

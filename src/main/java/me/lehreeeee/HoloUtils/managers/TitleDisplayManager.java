@@ -83,6 +83,11 @@ public class TitleDisplayManager {
             return;
         }
 
+        if(!(targetEntity instanceof Player)) {
+            logger.warning("You can't use title display on non-player. (Why tho?)");
+            return;
+        }
+
         // Default title is the title name
         String title = titleName;
 

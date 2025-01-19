@@ -8,8 +8,8 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
@@ -23,9 +23,9 @@ public class StatusDisplayManager {
     private final HoloUtils plugin;
     private final Logger logger;
     private float statusHeight = 0.6F;
-    private final Map<String,String> elementalStatus = new HashMap<>();
+    private final Map<String,String> statusEffects = new HashMap<>();
     private final Map<UUID,TextDisplay> loadedStatusDisplay = new HashMap<>();
-    // String/Key is [uuid];[element]
+    // String/Key is [uuid];[status_effect]
     private final Map<String, BukkitTask> scheduledTasks = new HashMap<>();
 
     private StatusDisplayManager(HoloUtils plugin){
@@ -46,20 +46,20 @@ public class StatusDisplayManager {
         }
     }
 
-    public List<String> getAvailableElements(){
-        return new ArrayList<>(elementalStatus.keySet());
+    public List<String> getAvailableStatuses(){
+        return new ArrayList<>(statusEffects.keySet());
     }
 
-    public void loadElementalStatusConfig(YamlConfiguration elementalStatusConfig){
-        elementalStatus.clear();
-        if(elementalStatusConfig.contains("elements")){
-            for(String element : elementalStatusConfig.getConfigurationSection("elements").getKeys(false)) {
-                elementalStatus.put(element,elementalStatusConfig.getString("elements." + element));
+    public void loadStatusEffectsConfig(YamlConfiguration statusEffectsConfig){
+        statusEffects.clear();
+        if(statusEffectsConfig.contains("status-effects")){
+            for(String effects : statusEffectsConfig.getConfigurationSection("status-effects").getKeys(false)) {
+                statusEffects.put(effects,statusEffectsConfig.getString("status-effects." + effects));
             }
         }
 
         // Load height for the status
-        if(elementalStatusConfig.contains("status-height")) this.statusHeight = (float) elementalStatusConfig.getDouble("status-height",0.6);
+        if(statusEffectsConfig.contains("status-height")) this.statusHeight = (float) statusEffectsConfig.getDouble("status-height",0.6);
     }
 
     public void setStatusDisplay(UUID uuid, String element, Long tick){
@@ -70,11 +70,16 @@ public class StatusDisplayManager {
             return;
         }
 
+        if(targetEntity instanceof Player) {
+            logger.warning("You can't use status display on player. (yet?)");
+            return;
+        }
+
         // Default status symbol
         String status = "<red>?";
 
-        if(elementalStatus.containsKey(element)){
-            status = elementalStatus.get(element);
+        if(statusEffects.containsKey(element)){
+            status = statusEffects.get(element);
         }
 
         // Has existing status display? Append it if yes
@@ -92,7 +97,7 @@ public class StatusDisplayManager {
                 scheduledTasks.remove(uuid + element);
 
                 // Remove element but keep the display because we adding new 1
-                removeElement(uuid,display,element,true);
+                removeStatus(uuid,display,element,true);
 
                 // Update current string
                 currentString = MessageHelper.revert(display.text());
@@ -103,7 +108,7 @@ public class StatusDisplayManager {
 
             // Schedule for removal
             BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                removeElement(uuid, display, element,false);
+                removeStatus(uuid, display, element,false);
             }, tick);
 
             scheduledTasks.put(uuid + element , task);
@@ -121,7 +126,7 @@ public class StatusDisplayManager {
 
             // Schedule for removal
             BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                removeElement(uuid, display, element,false);
+                removeStatus(uuid, display, element,false);
             }, tick);
 
             scheduledTasks.put(uuid + element, task);
@@ -129,17 +134,17 @@ public class StatusDisplayManager {
         }
     }
 
-    private void removeElement(UUID uuid, TextDisplay display, String element, boolean keepDisplay){
+    private void removeStatus(UUID uuid, TextDisplay display, String status, boolean keepDisplay){
         if(display == null){
             logger.warning("Display doko?");
             return;
         }
 
-        debugLogger("Removing element " + element + " for " + uuid);
+        debugLogger("Removing status " + status + " for " + uuid);
         String currentString = MessageHelper.revert(display.text());
         String updatedString = currentString;
 
-        String symbol = elementalStatus.get(element);
+        String symbol = statusEffects.get(status);
 
         // Remove from the string
         if(symbol != null){
@@ -149,7 +154,7 @@ public class StatusDisplayManager {
         debugLogger("Old String - " + currentString);
         debugLogger("New String - " + updatedString);
 
-        // If empty/it was the last element, remove it completely
+        // If empty/it was the last status, remove it completely
         if(updatedString.isBlank() && !keepDisplay){
             display.remove();
             loadedStatusDisplay.remove(uuid);
