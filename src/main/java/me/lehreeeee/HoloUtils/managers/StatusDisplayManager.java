@@ -10,6 +10,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
@@ -133,9 +134,41 @@ public class StatusDisplayManager {
         }
     }
 
+    public void updateLocation(UUID uuid, Location location){
+        if(!loadedStatusDisplay.containsKey(uuid)) return;
+
+        Entity entity = Bukkit.getEntity(uuid);
+        TextDisplay display = loadedStatusDisplay.get(uuid);
+
+        if(entity != null){
+            // Delay it or it wont work when changing world
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    // Teleport is needed after changing world too
+                    display.teleport(location);
+                    entity.addPassenger(display);
+                    debugLogger("Updated title location for entity " + uuid + " to " + display.getLocation());
+                }
+            }.runTaskLater(plugin, 5L);
+        }
+    }
+
+    public void removeStatusDisplay(UUID uuid){
+        if(!loadedStatusDisplay.containsKey(uuid)) return;
+
+        TextDisplay display = loadedStatusDisplay.get(uuid);
+        if(display != null){
+            display.remove();
+        }
+
+        loadedStatusDisplay.remove(uuid);
+        debugLogger("Removed status display for entity " + uuid);
+    }
+
     private void removeStatus(UUID uuid, TextDisplay display, String status, boolean keepDisplay){
         if(display == null){
-            logger.warning("Display doko?");
+            debugLogger("Display not found for " + uuid + ", skipping.");
             return;
         }
 

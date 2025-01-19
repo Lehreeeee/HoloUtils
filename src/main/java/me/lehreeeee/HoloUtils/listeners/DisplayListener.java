@@ -2,10 +2,12 @@ package me.lehreeeee.HoloUtils.listeners;
 
 import me.lehreeeee.HoloUtils.GUI.PlayerTagGUIHolder;
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -21,6 +23,7 @@ import java.util.UUID;
 
 public class DisplayListener implements Listener {
     private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
+    private final StatusDisplayManager statusDisplayManager = StatusDisplayManager.getInstance();
     private final NamespacedKey titleNameNSK = new NamespacedKey("holoutils","titlename");
 
     public DisplayListener(HoloUtils plugin){
@@ -62,7 +65,7 @@ public class DisplayListener implements Listener {
     // For non-player only
     @EventHandler
     public void onEntityTeleport(EntityTeleportEvent event){
-        titleDisplayManager.updateLocation(event.getEntity().getUniqueId(),event.getTo());
+        statusDisplayManager.updateLocation(event.getEntity().getUniqueId(),event.getTo());
     }
 
     // For player only
@@ -74,6 +77,10 @@ public class DisplayListener implements Listener {
     // This is for both LOL
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event){
-        titleDisplayManager.removeTitle(event.getEntity().getUniqueId());
+        Entity entity = event.getEntity();
+        if(entity instanceof Player)
+            titleDisplayManager.removeTitle(entity.getUniqueId());
+        else
+            statusDisplayManager.removeStatusDisplay(entity.getUniqueId());
     }
 }
