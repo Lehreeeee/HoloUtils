@@ -89,12 +89,12 @@ public class StatusDisplayManager {
             String currentString = MessageHelper.revert(display.text());
 
             // If exists, remove first
-            if(currentString.contains(status) && scheduledTasks.containsKey(uuid + element)) {
+            if(currentString.contains(status) && scheduledTasks.containsKey(uuid + ";" + element)) {
                 debugLogger("Found existing same element, removing before applying new one.");
 
                 // Cancel the scheduled task and remove from the list
-                scheduledTasks.get(uuid + element).cancel();
-                scheduledTasks.remove(uuid + element);
+                scheduledTasks.get(uuid + ";" + element).cancel();
+                scheduledTasks.remove(uuid + ";" + element);
 
                 // Remove element but keep the display because we adding new 1
                 removeStatus(uuid,display,element,true);
@@ -111,7 +111,7 @@ public class StatusDisplayManager {
                 removeStatus(uuid, display, element,false);
             }, tick);
 
-            scheduledTasks.put(uuid + element , task);
+            scheduledTasks.put(uuid + ";" + element, task);
         } else {
             debugLogger("Can't find existing display, spawning new one.");
 
@@ -129,7 +129,7 @@ public class StatusDisplayManager {
                 removeStatus(uuid, display, element,false);
             }, tick);
 
-            scheduledTasks.put(uuid + element, task);
+            scheduledTasks.put(uuid + ";" + element, task);
             loadedStatusDisplay.put(uuid,display);
         }
     }
