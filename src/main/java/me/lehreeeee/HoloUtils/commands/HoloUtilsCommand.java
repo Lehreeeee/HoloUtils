@@ -3,6 +3,7 @@ package me.lehreeeee.HoloUtils.commands;
 
 import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUI;
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.managers.RedisManager;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import me.lehreeeee.HoloUtils.utils.ItemPDCEditor;
@@ -33,6 +34,11 @@ public class HoloUtilsCommand implements CommandExecutor {
             sendFeedbackMessage(sender,"<#FFA500>Who are you?! You don't have permission to do this!");
         }
 
+        if(args.length == 0){
+            sendCommandUsage(sender);
+            return true;
+        }
+
         if(args.length == 1){
             if(args[0].equalsIgnoreCase("playertitle") && sender instanceof Player player){
                 if(titleDisplayManager.getAvailableTitles(player).isEmpty()) {
@@ -60,6 +66,8 @@ public class HoloUtilsCommand implements CommandExecutor {
                 sendCommandUsage(sender);
                 return true;
             }
+
+
         }
 
         if(args[0].equalsIgnoreCase("statuseffect") && args.length == 4){
@@ -111,6 +119,11 @@ public class HoloUtilsCommand implements CommandExecutor {
                 }
                 return true;
             }
+        }
+
+        if(args[0].equalsIgnoreCase("testreward") && args.length == 3){
+            RedisManager.getInstance().publish(args[1],args[2]);
+            return true;
         }
 
         sendFeedbackMessage(sender,"<#FFA500>Unknown command. Check /HoloUtils help.");

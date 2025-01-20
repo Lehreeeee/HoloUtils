@@ -5,6 +5,7 @@ import me.lehreeeee.HoloUtils.commands.HoloUtilsCommand;
 import me.lehreeeee.HoloUtils.commands.HoloUtilsCommandTabCompleter;
 import me.lehreeeee.HoloUtils.listeners.DisplayListener;
 import me.lehreeeee.HoloUtils.listeners.PlayerProjectileListener;
+import me.lehreeeee.HoloUtils.managers.RedisManager;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -27,8 +28,11 @@ public final class HoloUtils extends JavaPlugin {
         saveDefaultConfig();
         saveCustomConfig();
 
-        TitleDisplayManager.initialize(this);
-        StatusDisplayManager.initialize(this);
+        // Wake up the managers
+        initializeManagers();
+
+        // Welcome to my yt channel, please saracabribe
+        RedisManager.getInstance().subscribe();
 
         playerProjectileListener = new PlayerProjectileListener(this);
         new DisplayListener(this);
@@ -52,11 +56,6 @@ public final class HoloUtils extends JavaPlugin {
         logger.info("Disabled HoloUtils...");
     }
 
-    private void saveCustomConfig(){
-        saveResource("DisplayTag/StatusEffects.yml", false);
-        saveResource("DisplayTag/PlayerTitles.yml", false);
-    }
-
     public void reloadData(){
         File playerTitleFile = new File(this.getDataFolder(), "/DisplayTag/PlayerTitles.yml");
         File elementalStatusFile = new File(this.getDataFolder(), "/DisplayTag/StatusEffects.yml");
@@ -78,6 +77,20 @@ public final class HoloUtils extends JavaPlugin {
 
         // Should print debug msg?
         this.debug = config.getBoolean("debug",false);
+    }
+
+    private void saveCustomConfig(){
+        saveResource("DisplayTag/StatusEffects.yml", false);
+        saveResource("DisplayTag/PlayerTitles.yml", false);
+    }
+
+    private void initializeManagers(){
+        logger.info("Initializing TitleDisplayManager...");
+        TitleDisplayManager.initialize(this);
+        logger.info("Initializing StatusDisplayManager...");
+        StatusDisplayManager.initialize(this);
+        logger.info("Initializing RedisManager...");
+        RedisManager.initialize(this);
     }
 
     public boolean shouldPrintDebug(){
