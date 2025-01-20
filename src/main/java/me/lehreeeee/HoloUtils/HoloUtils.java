@@ -1,5 +1,6 @@
 package me.lehreeeee.HoloUtils;
 
+import jdk.jshell.Snippet;
 import me.lehreeeee.HoloUtils.commands.HoloUtilsCommand;
 import me.lehreeeee.HoloUtils.commands.HoloUtilsCommandTabCompleter;
 import me.lehreeeee.HoloUtils.listeners.DisplayListener;
@@ -43,7 +44,10 @@ public final class HoloUtils extends JavaPlugin {
     @Override
     public void onDisable() {
         // Remove all loaded tags, just in case... idk if they really persist or not LOL
+        logger.info("Removing remaining player title display...");
         TitleDisplayManager.getInstance().removeAllTitles();
+        logger.info("Removing remaining status effect display...");
+        StatusDisplayManager.getInstance().removeAllStatusDisplay();
 
         logger.info("Disabled HoloUtils...");
     }

@@ -13,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -82,5 +83,10 @@ public class DisplayListener implements Listener {
             titleDisplayManager.removeTitle(entity.getUniqueId());
         else
             statusDisplayManager.removeStatusDisplay(entity.getUniqueId());
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event){
+        titleDisplayManager.removeTitle(event.getPlayer().getUniqueId());
     }
 }

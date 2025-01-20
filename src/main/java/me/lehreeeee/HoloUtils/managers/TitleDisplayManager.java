@@ -129,6 +129,7 @@ public class TitleDisplayManager {
     public void removeAllTitles(){
         if(loadedPlayerTitles.isEmpty()) return;
 
+        logger.info("Found " + loadedPlayerTitles.size() + " remaining player title display, removing them.");
         for(UUID uuid : loadedPlayerTitles.keySet()){
             TextDisplay display = loadedPlayerTitles.get(uuid);
             if(display != null){

@@ -166,6 +166,21 @@ public class StatusDisplayManager {
         debugLogger("Removed status display for entity " + uuid);
     }
 
+    public void removeAllStatusDisplay(){
+        if(loadedStatusDisplay.isEmpty()) return;
+
+        logger.info("Found " + loadedStatusDisplay.size() + " remaining status effect display, removing them.");
+        for(UUID uuid : loadedStatusDisplay.keySet()){
+            TextDisplay display = loadedStatusDisplay.get(uuid);
+            if(display != null){
+                display.remove();
+            }
+        }
+
+        loadedStatusDisplay.clear();
+        debugLogger("Removed all loaded status display");
+    }
+
     private void removeStatus(UUID uuid, TextDisplay display, String status, boolean keepDisplay){
         if(display == null){
             debugLogger("Display not found for " + uuid + ", skipping.");
