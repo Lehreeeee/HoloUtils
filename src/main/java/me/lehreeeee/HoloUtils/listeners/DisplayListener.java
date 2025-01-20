@@ -36,7 +36,7 @@ public class DisplayListener implements Listener {
         Inventory clickedInv = event.getClickedInventory();
 
         // Ignore if its not from my plugin
-        if(clickedInv == null || !(clickedInv.getHolder() instanceof PlayerTagGUIHolder) || event.getCurrentItem() == null) return;
+        if(clickedInv == null || !(clickedInv.getHolder(false) instanceof PlayerTagGUIHolder) || event.getCurrentItem() == null) return;
 
         event.setCancelled(true);
 
