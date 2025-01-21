@@ -50,7 +50,7 @@ public class DevChatManager {
         if(on){
             toggledOnDev.add(uuid);
             return true;
-        } else{
+        } else {
             toggledOnDev.remove(uuid);
             return false;
         }
@@ -106,6 +106,8 @@ public class DevChatManager {
                     player.sendMessage(finalMessage);
                 }
             }
+
+            logger.info(MessageHelper.getPlainText(MessageHelper.revert(finalMessage)));
         } catch (JsonSyntaxException e){
             logger.warning("Invalid JSON format received from devchat channel - " + data);
         }

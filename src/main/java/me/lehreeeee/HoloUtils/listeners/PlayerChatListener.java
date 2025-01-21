@@ -30,7 +30,7 @@ public class PlayerChatListener implements Listener {
         devChatManager.publishMessage(player, MessageHelper.revert(event.message()));
     }
 
-    // Legacy support
+    // This event is called before AsyncChatEvent, need to cancel this cuz i only need AsyncChatEvent
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event){
         DevChatManager devChatManager = DevChatManager.getInstance();

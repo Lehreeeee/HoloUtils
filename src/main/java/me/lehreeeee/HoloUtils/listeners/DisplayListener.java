@@ -2,6 +2,7 @@ package me.lehreeeee.HoloUtils.listeners;
 
 import me.lehreeeee.HoloUtils.GUI.PlayerTagGUIHolder;
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.managers.DevChatManager;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import org.bukkit.Bukkit;
@@ -87,6 +88,10 @@ public class DisplayListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
-        titleDisplayManager.removeTitle(event.getPlayer().getUniqueId());
+        UUID uuid = event.getPlayer().getUniqueId();
+        titleDisplayManager.removeTitle(uuid);
+
+        // Hehe, idw make another event listener :)
+        DevChatManager.getInstance().toggleDevChat(uuid,false);
     }
 }

@@ -36,15 +36,15 @@ public class DevChatCommand implements CommandExecutor {
                 boolean toggledON = devChatManager.toggleDevChat(player.getUniqueId(), !devChatManager.hasDevChatOn(player.getUniqueId()));
 
                 if(toggledON){
-                    sendFeedbackMessage(sender,"<#FFA500>Toggled on devchat.");
+                    sendFeedbackMessage(sender,"<#FFA500>Toggled <green>on <#FFA500>dev chat.");
                 } else{
-                    sendFeedbackMessage(sender,"<#FFA500>Toggled off devchat.");
+                    sendFeedbackMessage(sender,"<#FFA500>Toggled <red>off <#FFA500>dev chat.");
                 }
 
                 return true;
             }
 
-            sendFeedbackMessage(sender,"Console cannot toggle devchat, just use /devchat [message] :amewtf:");
+            sendFeedbackMessage(sender,"Console cannot toggle dev chat, just use /devchat [message] :amewtf:");
             return true;
         }
 
@@ -59,13 +59,13 @@ public class DevChatCommand implements CommandExecutor {
                 // Toggle on if not already toggled on
                 if(args[0].equalsIgnoreCase("on") && !devChatManager.hasDevChatOn(player.getUniqueId())){
                     devChatManager.toggleDevChat(player.getUniqueId(),true);
-                    sendFeedbackMessage(sender,"<#FFA500>Toggled on devchat.");
+                    sendFeedbackMessage(sender,"<#FFA500>Toggled <green>on <#FFA500>dev chat.");
                     return true;
                 }
                 // Toggle off if already toggled on
                 if(args[0].equalsIgnoreCase("off") && devChatManager.hasDevChatOn(player.getUniqueId())){
                     devChatManager.toggleDevChat(player.getUniqueId(),false);
-                    sendFeedbackMessage(sender,"<#FFA500>Toggled off devchat.");
+                    sendFeedbackMessage(sender,"<#FFA500>Toggled <red>off <#FFA500>dev chat.");
                     return true;
                 }
             }
