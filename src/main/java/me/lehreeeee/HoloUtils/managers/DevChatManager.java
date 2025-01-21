@@ -3,14 +3,11 @@ package me.lehreeeee.HoloUtils.managers;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,14 +16,14 @@ import java.util.logging.Logger;
 
 public class DevChatManager {
     private static DevChatManager instance;
-    private final HoloUtils plugin;
     private final Logger logger;
-    private final List<UUID> toggledOnDev = new ArrayList<>();
+
     private String prefix = "<aqua>[<red>Dev<aqua>]";
 
-    private DevChatManager(HoloUtils plugin){
-        this.plugin = plugin;
-        this.logger = plugin.getLogger();
+    private final List<UUID> toggledOnDev = new ArrayList<>();
+
+    private DevChatManager(Logger logger){
+        this.logger = logger;
     }
 
     public static DevChatManager getInstance(){
@@ -36,9 +33,9 @@ public class DevChatManager {
         return instance;
     }
 
-    public static void initialize(HoloUtils plugin) {
+    public static void initialize(Logger logger) {
         if (instance == null) {
-            instance = new DevChatManager(plugin);
+            instance = new DevChatManager(logger);
         }
     }
 

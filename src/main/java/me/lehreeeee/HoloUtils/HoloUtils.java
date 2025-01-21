@@ -23,7 +23,6 @@ public final class HoloUtils extends JavaPlugin {
 
     private final Logger logger = getLogger();
     private PlayerProjectileListener playerProjectileListener;
-    private PlayerChatListener playerChatListener;
     private boolean debug = false;
 
     @Override
@@ -39,7 +38,7 @@ public final class HoloUtils extends JavaPlugin {
         RedisManager.getInstance().subscribe();
 
         playerProjectileListener = new PlayerProjectileListener(this);
-        playerChatListener = new PlayerChatListener(this);
+        new PlayerChatListener(this);
 
         new DisplayListener(this);
 
@@ -97,9 +96,9 @@ public final class HoloUtils extends JavaPlugin {
         logger.info("Initializing StatusDisplayManager...");
         StatusDisplayManager.initialize(this);
         logger.info("Initializing RedisManager...");
-        RedisManager.initialize(this);
+        RedisManager.initialize(logger);
         logger.info("Initializing DevChatManager...");
-        DevChatManager.initialize(this);
+        DevChatManager.initialize(logger);
     }
 
     private void loadCommands(){
@@ -107,8 +106,8 @@ public final class HoloUtils extends JavaPlugin {
         getCommand("holoutils").setExecutor(new HoloUtilsCommand(this));
         getCommand("holoutils").setTabCompleter(new HoloUtilsCommandTabCompleter(this));
         logger.info("Loading adminchat commands...");
-        getCommand("devchat").setExecutor(new DevChatCommand(this));
-        getCommand("devchat").setTabCompleter(new DevChatCommandTabCompleter(this));
+        getCommand("devchat").setExecutor(new DevChatCommand(logger));
+        getCommand("devchat").setTabCompleter(new DevChatCommandTabCompleter());
     }
 
     public boolean shouldPrintDebug(){

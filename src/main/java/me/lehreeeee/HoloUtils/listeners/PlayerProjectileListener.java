@@ -1,20 +1,15 @@
 package me.lehreeeee.HoloUtils.listeners;
 
-import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import me.lehreeeee.HoloUtils.HoloUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -22,6 +17,7 @@ public class PlayerProjectileListener implements Listener {
 
     private final HoloUtils plugin;
     private final Logger logger;
+
     private Set<String> disabledWorlds = new HashSet<>();
 
     public PlayerProjectileListener(HoloUtils plugin){

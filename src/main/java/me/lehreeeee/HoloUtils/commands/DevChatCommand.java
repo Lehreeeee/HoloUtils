@@ -1,7 +1,6 @@
 
 package me.lehreeeee.HoloUtils.commands;
 
-import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.DevChatManager;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.command.Command;
@@ -13,13 +12,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.logging.Logger;
 
 public class DevChatCommand implements CommandExecutor {
-    private final HoloUtils plugin;
     private final Logger logger;
 
 
-    public DevChatCommand(HoloUtils plugin) {
-        this.plugin = plugin;
-        this.logger = plugin.getLogger();
+    public DevChatCommand(Logger logger) {
+        this.logger = logger;
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){

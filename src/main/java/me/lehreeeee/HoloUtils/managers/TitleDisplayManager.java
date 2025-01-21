@@ -15,15 +15,19 @@ import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public class TitleDisplayManager {
     private static TitleDisplayManager instance;
     private final HoloUtils plugin;
     private final Logger logger;
+
     private String GUIName = "<white>[<aqua>Title Display<white>]";
     private float titleHeight = 0.6F;
+
     private final Map<String,String> playerTitles = new HashMap<>();
     private final Map<UUID,TextDisplay> loadedPlayerTitles = new HashMap<>();
 
@@ -88,13 +92,8 @@ public class TitleDisplayManager {
             return;
         }
 
-        // Default title is the title name
-        String title = titleName;
-
         // Tag name has value? Replace with the actual title
-        if(playerTitles.containsKey(titleName)){
-            title = playerTitles.get(titleName);
-        }
+        String title = playerTitles.getOrDefault(titleName, titleName);
 
         // Does the entity have an existing title already? Remove it first if so
         if(loadedPlayerTitles.containsKey(uuid)){

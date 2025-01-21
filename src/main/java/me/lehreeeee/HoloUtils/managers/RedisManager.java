@@ -1,6 +1,5 @@
 package me.lehreeeee.HoloUtils.managers;
 
-import me.lehreeeee.HoloUtils.HoloUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
@@ -9,12 +8,10 @@ import java.util.logging.Logger;
 
 public class RedisManager {
     private static RedisManager instance;
-    private final HoloUtils plugin;
     private final Logger logger;
 
-    private RedisManager(HoloUtils plugin){
-        this.plugin = plugin;
-        this.logger = plugin.getLogger();
+    private RedisManager(Logger logger){
+        this.logger = logger;
     }
 
     public static RedisManager getInstance(){
@@ -24,9 +21,9 @@ public class RedisManager {
         return instance;
     }
 
-    public static void initialize(HoloUtils plugin) {
+    public static void initialize(Logger logger) {
         if (instance == null) {
-            instance = new RedisManager(plugin);
+            instance = new RedisManager(logger);
         }
     }
 

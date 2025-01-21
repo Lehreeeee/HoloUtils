@@ -5,6 +5,7 @@ import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.NotNull;
 
 public class PlayerTagGUIHolder implements InventoryHolder {
 
@@ -15,7 +16,7 @@ public class PlayerTagGUIHolder implements InventoryHolder {
     }
 
     @Override
-    public Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         return this.inventory;
     }
 }

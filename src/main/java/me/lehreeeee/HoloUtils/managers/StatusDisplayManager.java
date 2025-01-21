@@ -23,10 +23,11 @@ public class StatusDisplayManager {
     private static StatusDisplayManager instance;
     private final HoloUtils plugin;
     private final Logger logger;
+
     private float statusHeight = 0.6F;
+
     private final Map<String,String> statusEffects = new HashMap<>();
     private final Map<UUID,TextDisplay> loadedStatusDisplay = new HashMap<>();
-    // String/Key is [uuid];[status_effect]
     private final Map<String, BukkitTask> scheduledTasks = new HashMap<>();
 
     private StatusDisplayManager(HoloUtils plugin){
