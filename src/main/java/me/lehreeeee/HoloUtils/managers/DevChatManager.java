@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -62,9 +63,20 @@ public class DevChatManager {
     public void publishMessage(CommandSender sender, String message){
         // Default sender is yagoo, most likely console sender
         String messageSender = "<gold>Yagoo";
+
         // Update sender if its player
         if(sender instanceof Player player){
             messageSender = MessageHelper.revert(player.displayName());
+
+            // TODO: Maybe add [item] for showing item in chat when hovered
+            //if(message.contains("[item]")){
+            //    ItemStack itemHeld = player.getInventory().getItemInMainHand();
+            //    Component itemHover = Component.text("[item]").hoverEvent(itemHeld);
+            //    logger.info(itemHover.toString());
+//
+            //    String serializedComponent = GsonComponentSerializer.gson().serialize(itemHover);
+            //    message = message.replace("[item]", serializedComponent);
+            //}
         }
 
         JsonObject json = new JsonObject();

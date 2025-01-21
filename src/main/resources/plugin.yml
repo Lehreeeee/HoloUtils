@@ -4,6 +4,8 @@ main: me.lehreeeee.HoloUtils.HoloUtils
 author: Lehreeeee
 api-version: '1.21'
 
+loadbefore: [mcMMO]
+
 commands:
   holoutils:
     description: Main command for HoloUtils
