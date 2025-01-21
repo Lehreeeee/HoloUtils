@@ -98,7 +98,7 @@ public class DevChatManager {
 
             // Process final message to be sent to admin
             Component finalMessage = MessageHelper.process(prefix + "<aqua>["
-                    + json.get("messageSender").getAsString() + "<aqua>] "
+                    + json.get("messageSender").getAsString() + "<reset><aqua>] "
                     + json.get("message").getAsString().replace("\\<", "<"));
 
             for (Player player : Bukkit.getOnlinePlayers()) {
