@@ -32,6 +32,7 @@ public class HoloUtilsCommand implements CommandExecutor {
         // Development mode, only admin can use
         if(!sender.hasPermission("holoutils.admin")){
             sendFeedbackMessage(sender,"<#FFA500>Who are you?! You don't have permission to do this!");
+            return true;
         }
 
         if(args.length == 0){
@@ -121,7 +122,7 @@ public class HoloUtilsCommand implements CommandExecutor {
             }
         }
 
-        if(args[0].equalsIgnoreCase("testreward") && args.length == 3){
+        if(args[0].equalsIgnoreCase("testredis") && args.length == 3){
             RedisManager.getInstance().publish(args[1],args[2]);
             return true;
         }

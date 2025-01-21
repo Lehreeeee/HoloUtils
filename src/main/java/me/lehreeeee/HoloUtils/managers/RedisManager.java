@@ -34,20 +34,18 @@ public class RedisManager {
         try(Jedis subscriber = new Jedis("localhost", 6379)){
             subscriber.connect();
 
-            String[] channels = {"test", "test2"};
-            logger.info("Subscribing to channels " + Arrays.toString(channels));
+            String[] channels = {"holo-test", "holo-devchat"};
 
-            new Thread("Holo-Redis-Subscriber"){
+            new Thread("Holo Redis Subscriber Thread"){
                 @Override
                 public void run(){
 
-                    logger.info("Stared subscriber thread - " + this.getName());
+                    logger.info("Started subscriber thread - " + this.getName());
+                    logger.info("Subscribing to channels " + Arrays.toString(channels));
                     subscriber.subscribe(new JedisPubSub(){
                         @Override
                         public void onMessage(String channel, String data){
-                            if(channel.equals("test") || channel.equals("test2")){
-                                logger.info("Received data from channel " + channel + ". Data - " + data);
-                            }
+                            handleMessage(channel,data);
                         }
                     }, channels);
                 }
@@ -58,11 +56,21 @@ public class RedisManager {
     }
 
     public void publish(String channel,  String data){
-        logger.info("Publishing data to channel" + channel + ". Data - " + data);
+        //logger.info("Publishing data to channel " + channel + ". Data - " + data);
         try(Jedis publisher = new Jedis("localhost", 6379)){
             publisher.publish(channel, data);
         } catch (Exception e) {
             logger.severe("Failed to publish data to channel " + channel + ". Error: " + e.getMessage());
+        }
+    }
+
+    private void handleMessage(String channel, String data){
+        if(channel.equals("holo-test")){
+            logger.info("Received data from test channel " + channel + ". Data - " + data);
+        }
+        if(channel.equals("holo-devchat")){
+            //logger.info("Received devchat data - " + data);
+            DevChatManager.getInstance().sendMessage(data);
         }
     }
 }

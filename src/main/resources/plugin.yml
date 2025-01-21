@@ -1,6 +1,7 @@
 name: HoloUtils
 version: ${project.version}
 main: me.lehreeeee.HoloUtils.HoloUtils
+author: Lehreeeee
 api-version: '1.21'
 
 commands:
@@ -8,3 +9,7 @@ commands:
     description: Main command for HoloUtils
     aliases: [hu, hutils]
     permission: holoutils.admin
+  devchat:
+    description: Command for devchat
+    aliases: [a, dchat]
+    permission: holoutils.devchat

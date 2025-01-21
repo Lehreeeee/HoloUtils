@@ -13,7 +13,7 @@ import java.util.List;
 
 public class HoloUtilsCommandTabCompleter implements TabCompleter {
     private final HoloUtils plugin;
-    private final List<String> commands = List.of("reload", "help", "playertitle", "statuseffect","pdc");
+    private final List<String> commands = List.of("reload", "help", "playertitle", "statuseffect","pdc","testredis");
     private final List<String> pdcActions = List.of("get","set","remove");
     private final List<String> typeNames = List.of(
             "STRING",

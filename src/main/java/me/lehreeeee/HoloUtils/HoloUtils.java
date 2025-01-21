@@ -1,10 +1,13 @@
 package me.lehreeeee.HoloUtils;
 
-import jdk.jshell.Snippet;
+import me.lehreeeee.HoloUtils.commands.DevChatCommand;
+import me.lehreeeee.HoloUtils.commands.DevChatCommandTabCompleter;
 import me.lehreeeee.HoloUtils.commands.HoloUtilsCommand;
 import me.lehreeeee.HoloUtils.commands.HoloUtilsCommandTabCompleter;
 import me.lehreeeee.HoloUtils.listeners.DisplayListener;
+import me.lehreeeee.HoloUtils.listeners.PlayerChatListener;
 import me.lehreeeee.HoloUtils.listeners.PlayerProjectileListener;
+import me.lehreeeee.HoloUtils.managers.DevChatManager;
 import me.lehreeeee.HoloUtils.managers.RedisManager;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
@@ -20,6 +23,7 @@ public final class HoloUtils extends JavaPlugin {
 
     private final Logger logger = getLogger();
     private PlayerProjectileListener playerProjectileListener;
+    private PlayerChatListener playerChatListener;
     private boolean debug = false;
 
     @Override
@@ -35,10 +39,11 @@ public final class HoloUtils extends JavaPlugin {
         RedisManager.getInstance().subscribe();
 
         playerProjectileListener = new PlayerProjectileListener(this);
+        playerChatListener = new PlayerChatListener(this);
+
         new DisplayListener(this);
 
-        getCommand("holoutils").setExecutor(new HoloUtilsCommand(this));
-        getCommand("holoutils").setTabCompleter(new HoloUtilsCommandTabCompleter(this));
+        loadCommands();
 
         reloadData();
 
@@ -57,31 +62,33 @@ public final class HoloUtils extends JavaPlugin {
     }
 
     public void reloadData(){
-        File playerTitleFile = new File(this.getDataFolder(), "/DisplayTag/PlayerTitles.yml");
-        File elementalStatusFile = new File(this.getDataFolder(), "/DisplayTag/StatusEffects.yml");
-
-        // Create default if not exist
-        if(!playerTitleFile.exists() || !elementalStatusFile.exists()){
-            this.saveCustomConfig();
-        }
-
+        saveCustomConfig();
         saveDefaultConfig();
+
         FileConfiguration config = this.getConfig();
-        YamlConfiguration playerTitleConfig = YamlConfiguration.loadConfiguration(playerTitleFile);
-        YamlConfiguration elementalStatusConfig = YamlConfiguration.loadConfiguration(elementalStatusFile);
+        YamlConfiguration playerTitleConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/DisplayTag/PlayerTitles.yml"));
+        YamlConfiguration elementalStatusConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/DisplayTag/StatusEffects.yml"));
 
         playerProjectileListener.setDisabledWorlds(new HashSet<>(config.getStringList("arrow-shoots-thru-players-worlds")));
 
         TitleDisplayManager.getInstance().loadPlayerTitlesConfig(playerTitleConfig);
         StatusDisplayManager.getInstance().loadStatusEffectsConfig(elementalStatusConfig);
+        DevChatManager.getInstance().setPrefix(config.getString("admin-chat-prefix"));
 
         // Should print debug msg?
         this.debug = config.getBoolean("debug",false);
     }
 
     private void saveCustomConfig(){
-        saveResource("DisplayTag/StatusEffects.yml", false);
-        saveResource("DisplayTag/PlayerTitles.yml", false);
+        File playerTitleFile = new File(this.getDataFolder(), "/DisplayTag/PlayerTitles.yml");
+        File elementalStatusFile = new File(this.getDataFolder(), "/DisplayTag/StatusEffects.yml");
+
+        // Create default if not exist
+        if(!playerTitleFile.exists() || !elementalStatusFile.exists()) {
+            logger.info("Custom config file not found, creating default config.");
+            saveResource("DisplayTag/StatusEffects.yml", false);
+            saveResource("DisplayTag/PlayerTitles.yml", false);
+        }
     }
 
     private void initializeManagers(){
@@ -91,6 +98,17 @@ public final class HoloUtils extends JavaPlugin {
         StatusDisplayManager.initialize(this);
         logger.info("Initializing RedisManager...");
         RedisManager.initialize(this);
+        logger.info("Initializing DevChatManager...");
+        DevChatManager.initialize(this);
+    }
+
+    private void loadCommands(){
+        logger.info("Loading holoutils commands...");
+        getCommand("holoutils").setExecutor(new HoloUtilsCommand(this));
+        getCommand("holoutils").setTabCompleter(new HoloUtilsCommandTabCompleter(this));
+        logger.info("Loading adminchat commands...");
+        getCommand("devchat").setExecutor(new DevChatCommand(this));
+        getCommand("devchat").setTabCompleter(new DevChatCommandTabCompleter(this));
     }
 
     public boolean shouldPrintDebug(){
