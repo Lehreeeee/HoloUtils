@@ -71,13 +71,10 @@ public class DevChatCommand implements CommandExecutor {
                 sendCommandUsage(sender);
                 return true;
             }
-
-            // If none the above, send it as message
-            DevChatManager.getInstance().publishMessage(sender, String.join(" ", args));
-            return true;
         }
 
-        sendFeedbackMessage(sender,"<#FFA500>Unknown command. Check /devchat help.");
+        // If none the above, send it as message
+        DevChatManager.getInstance().publishMessage(sender, String.join(" ", args));
         return true;
     }
 
