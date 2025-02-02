@@ -5,3 +5,7 @@ arrow-shoots-thru-players-worlds:
   - world
 
 admin-chat-prefix: "<aqua>[<red>Dev<aqua>]"
+
+# To fix immortal mobs by checking if mob's health is still > 0 after death, force remove it if true.
+# Limitation of this option is that cancelevent ~onDeath in MythicMobs will not be usable anymore.
+fix-immortal-mob: false

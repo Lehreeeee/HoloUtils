@@ -13,9 +13,13 @@ import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
@@ -24,6 +28,7 @@ public final class HoloUtils extends JavaPlugin {
     private final Logger logger = getLogger();
     private PlayerProjectileListener playerProjectileListener;
     private boolean debug = false;
+    private boolean fixImmortal = false;
 
     @Override
     public void onEnable() {
@@ -76,6 +81,24 @@ public final class HoloUtils extends JavaPlugin {
 
         // Should print debug msg?
         this.debug = config.getBoolean("debug",false);
+
+        // Should plugin check for immortal mob and remove them?
+        this.fixImmortal = config.getBoolean("fix-immortal-mob",false);
+    }
+
+    public void checkImmortal(Entity entity){
+        if(!(entity instanceof LivingEntity livingEntity) || !fixImmortal) return;
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (livingEntity.getHealth() > 0) {
+                    logger.info(MessageFormat.format("Entity {0} or {1} is still alive after death event, force removing.",
+                            entity.getUniqueId(),entity.getName()));
+                    entity.remove();
+                }
+            }
+        }.runTaskLater(this, 1L);
     }
 
     private void saveCustomConfig(){

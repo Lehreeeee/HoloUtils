@@ -4,7 +4,10 @@ main: me.lehreeeee.HoloUtils.HoloUtils
 author: Lehreeeee
 api-version: '1.21'
 
+# To steal their /a command :)
 loadbefore: [mcMMO]
+# Optional
+softdepend: [PlaceholderAPI]
 
 commands:
   holoutils:

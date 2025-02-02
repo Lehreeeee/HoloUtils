@@ -24,11 +24,13 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.UUID;
 
 public class DisplayListener implements Listener {
+    private final HoloUtils plugin;
     private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
     private final StatusDisplayManager statusDisplayManager = StatusDisplayManager.getInstance();
     private final NamespacedKey titleNameNSK = new NamespacedKey("holoutils","titlename");
 
     public DisplayListener(HoloUtils plugin){
+        this.plugin = plugin;
         Bukkit.getPluginManager().registerEvents(this,plugin);
     }
 
@@ -82,8 +84,10 @@ public class DisplayListener implements Listener {
         Entity entity = event.getEntity();
         if(entity instanceof Player)
             titleDisplayManager.removeTitle(entity.getUniqueId());
-        else
+        else{
             statusDisplayManager.removeStatusDisplay(entity.getUniqueId());
+            plugin.checkImmortal(entity);
+        }
     }
 
     @EventHandler
