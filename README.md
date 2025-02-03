@@ -5,6 +5,8 @@ HoloUtils is a Minecraft plugin that provides several utilities for HoloCraft De
 The plugin also comes with some small custom features like player title display to prevent making 1 plugin for every small feature.
 Custom bug fixes for other will also be implemented in this plugin.
 
+This plugin is primarily designed specifically for [**HoloCraft Minecraft Server**](https://discord.gg/MaZzQpCCqf). Most features are developed to suit the specific needs of our server, and functionality may not be universally applicable to other environments. While some features may be useful outside of HoloCraft, this plugin is not intended for general-purpose use.
+
 ## Features
 - Network Developer Chat using Redis Server, allowing developer from any server in the network to communicate with each other.
 - Player title display, can be used to display title on top of player's head. (Mainly used for title achieved by completing some challages or participating in some events)
