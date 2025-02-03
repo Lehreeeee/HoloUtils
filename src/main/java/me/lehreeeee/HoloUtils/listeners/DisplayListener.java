@@ -10,6 +10,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
@@ -34,7 +35,7 @@ public class DisplayListener implements Listener {
         Bukkit.getPluginManager().registerEvents(this,plugin);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event){
         Inventory clickedInv = event.getClickedInventory();
 
@@ -67,19 +68,19 @@ public class DisplayListener implements Listener {
     }
 
     // For non-player only
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onEntityTeleport(EntityTeleportEvent event){
         statusDisplayManager.updateLocation(event.getEntity().getUniqueId(),event.getTo());
     }
 
     // For player only
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event){
         titleDisplayManager.updateLocation(event.getPlayer().getUniqueId(),event.getTo());
     }
 
     // This is for both LOL
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event){
         Entity entity = event.getEntity();
         if(entity instanceof Player)
@@ -90,7 +91,7 @@ public class DisplayListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerQuit(PlayerQuitEvent event){
         UUID uuid = event.getPlayer().getUniqueId();
         titleDisplayManager.removeTitle(uuid);

@@ -2,7 +2,7 @@ debug: false
 
 # PvE world already let arrow go thru, it's useless now :clown:
 arrow-shoots-thru-players-worlds:
-  - world
+  - example
 
 # Configs for developer chat
 dev-chat:
@@ -10,6 +10,7 @@ dev-chat:
   color: "<aqua>"
 
 # Configs for Redis server that defaults to localhost:6379
+# Usage: Developer chat
 # Requires server restart to reconnect because we only use localhost anyway and idh time to implement it yet :)
 redis:
   host: localhost
