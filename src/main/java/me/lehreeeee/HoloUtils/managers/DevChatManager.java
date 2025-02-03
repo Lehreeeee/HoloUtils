@@ -7,6 +7,7 @@ import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -18,7 +19,8 @@ public class DevChatManager {
     private static DevChatManager instance;
     private final Logger logger;
 
-    private String prefix = "<aqua>[<red>Dev<aqua>]";
+    private String devChatPrefix = "<aqua>[<red>Dev<aqua>]";
+    private String devChatColor = "<aqua>";
 
     private final List<UUID> toggledOnDev = new ArrayList<>();
 
@@ -39,8 +41,13 @@ public class DevChatManager {
         }
     }
 
-    public void setPrefix(String prefix){
-        this.prefix = prefix;
+    public void loadDevChatConfig(ConfigurationSection devChatConfig){
+        devChatPrefix = devChatConfig != null ? devChatConfig.getString("prefix", "<aqua>[<red>Dev<aqua>]") : "<aqua>[<red>Dev<aqua>]";
+        devChatColor = devChatConfig != null ? devChatConfig.getString("color", "<aqua>") : "<aqua>";
+
+        if(devChatConfig == null){
+            logger.info("Dev chat config section not found, using default configs.");
+        }
     }
 
     public boolean toggleDevChat(UUID uuid, boolean on){
@@ -94,8 +101,8 @@ public class DevChatManager {
             }
 
             // Process final message to be sent to admin
-            Component finalMessage = MessageHelper.process(prefix + "<aqua>["
-                    + json.get("messageSender").getAsString() + "<reset><aqua>] "
+            Component finalMessage = MessageHelper.process(devChatPrefix + "<aqua>["
+                    + json.get("messageSender").getAsString() + "<reset><aqua>] " + devChatColor
                     + json.get("message").getAsString().replace("\\<", "<"));
 
             for (Player player : Bukkit.getOnlinePlayers()) {

@@ -4,7 +4,18 @@ debug: false
 arrow-shoots-thru-players-worlds:
   - world
 
-admin-chat-prefix: "<aqua>[<red>Dev<aqua>]"
+# Configs for developer chat
+dev-chat:
+  prefix: "<aqua>[<red>Dev<aqua>]"
+  color: "<aqua>"
+
+# Configs for Redis server that defaults to localhost:6379
+# Requires server restart to reconnect because we only use localhost anyway and idh time to implement it yet :)
+redis:
+  host: localhost
+  port: 6379
+  username: ''
+  password: ''
 
 # To fix immortal mobs by checking if mob's health is still > 0 after death, force remove it if true.
 # Limitation of this option is that cancelevent ~onDeath in MythicMobs will not be usable anymore.

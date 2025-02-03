@@ -1,14 +1,21 @@
 package me.lehreeeee.HoloUtils.managers;
 
+import org.bukkit.configuration.ConfigurationSection;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class RedisManager {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(RedisManager.class);
     private static RedisManager instance;
     private final Logger logger;
+    private String redisHost = "localhost";
+    private Integer redisPort = 6379;
+    private String redisUserName, redisPassword = "";
 
     private RedisManager(Logger logger){
         this.logger = logger;
@@ -22,13 +29,33 @@ public class RedisManager {
     }
 
     public static void initialize(Logger logger) {
-        if (instance == null) {
+        if(instance == null){
             instance = new RedisManager(logger);
         }
     }
 
+    public void loadRedisConfig(ConfigurationSection redisConfig) {
+        redisHost = redisConfig != null ? redisConfig.getString("host", "localhost") : "localhost";
+        redisPort = redisConfig != null ? redisConfig.getInt("port", 6379) : 6379;
+
+        if(redisConfig == null){
+            logger.info("Redis config section not found, using default - localhost:6379");
+            return;
+        }
+
+        redisUserName = redisConfig.getString("username", "");
+        redisPassword = redisConfig.getString("password", "");
+
+        logger.info(MessageFormat.format("Loaded Redis config, will be connecting to {0}:{1}",redisHost,redisPort.toString()));
+    }
+
     public void subscribe(){
-        try(Jedis subscriber = new Jedis("localhost", 6379)){
+        try(Jedis subscriber = new Jedis(redisHost, redisPort)){
+            if(redisPassword != null && !redisPassword.isEmpty()){
+                logger.info("Found redis password, performing authentication.");
+                subscriber.auth(redisUserName,redisPassword);
+            }
+
             subscriber.connect();
 
             String[] channels = {"holo-test", "holo-devchat"};

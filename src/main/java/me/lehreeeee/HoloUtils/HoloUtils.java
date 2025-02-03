@@ -39,9 +39,6 @@ public final class HoloUtils extends JavaPlugin {
         // Wake up the managers
         initializeManagers();
 
-        // Welcome to my yt channel, please saracabribe
-        RedisManager.getInstance().subscribe();
-
         playerProjectileListener = new PlayerProjectileListener(this);
         new PlayerChatListener(this);
 
@@ -50,6 +47,9 @@ public final class HoloUtils extends JavaPlugin {
         loadCommands();
 
         reloadData();
+
+        // Welcome to my yt channel, please saracabribe
+        RedisManager.getInstance().subscribe();
 
         logger.info("Enabled HoloUtils...");
     }
@@ -77,7 +77,8 @@ public final class HoloUtils extends JavaPlugin {
 
         TitleDisplayManager.getInstance().loadPlayerTitlesConfig(playerTitleConfig);
         StatusDisplayManager.getInstance().loadStatusEffectsConfig(elementalStatusConfig);
-        DevChatManager.getInstance().setPrefix(config.getString("admin-chat-prefix"));
+        DevChatManager.getInstance().loadDevChatConfig(config.getConfigurationSection("dev-chat"));
+        RedisManager.getInstance().loadRedisConfig(config.getConfigurationSection("redis"));
 
         // Should print debug msg?
         this.debug = config.getBoolean("debug",false);
