@@ -6,7 +6,7 @@
 
     <groupId>me.lehreeeee</groupId>
     <artifactId>HoloUtils</artifactId>
-    <version>1.6.1</version>
+    <version>1.7.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>HoloUtils</name>
@@ -63,6 +63,11 @@
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
+        <repository>
+            <id>nexus</id>
+            <name>Lumine Public</name>
+            <url>https://mvn.lumine.io/repository/maven-public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -82,6 +87,12 @@
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
             <version>2.11.6</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ticxo.modelengine</groupId>
+            <artifactId>ModelEngine</artifactId>
+            <version>R4.0.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
