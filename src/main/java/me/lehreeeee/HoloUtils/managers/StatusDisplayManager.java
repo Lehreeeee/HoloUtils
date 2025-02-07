@@ -132,7 +132,6 @@ public class StatusDisplayManager {
 
             // Add on top of the entity and make it visible
             mountDisplay(targetEntity,display);
-            display.setVisibleByDefault(true);
 
             // Schedule for removal
             BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -196,6 +195,7 @@ public class StatusDisplayManager {
         // Use the basic mount if its not a modeled entity.
         if(!ModelEngineAPI.isModeledEntity(targetEntity.getUniqueId())){
             targetEntity.addPassenger(display);
+            display.setVisibleByDefault(true);
             return;
         }
 
@@ -214,6 +214,7 @@ public class StatusDisplayManager {
 
                 debugLogger("Found statuseffect seat, mounting the display.");
                 mountManager.mountPassenger("statuseffect", display, MountControllerTypes.WALKING);
+                display.setVisibleByDefault(true);
 
                 // Exit after first statuseffect seat is found, it will be used to attach status display.
                 foundSeat = true;
@@ -221,7 +222,7 @@ public class StatusDisplayManager {
             }
         }
 
-        // statuseffect seat not found, sends a warning to tell dev to add it
+        // statuseffect seat not found, sends a warning to tell dev to add it and do not show it (To avoid player confusion)
         if(!foundSeat){
             logger.warning("Unable to find a seat to mount status display for entity - " + targetEntity.getName()
                     + ". Please follow the instructions in /HoloUtils/DisplayTag/StatusEffects.yml to fix this.");
