@@ -14,7 +14,7 @@ This plugin is primarily designed specifically for [**HoloCraft Minecraft Server
 - Allow player's arrow to go through other players in some worlds, useful for multiplayer boss fight.
 - Commands to get/set/remove data in item's PDC in main hand. (Supported datatypes: STRING, INTEGER, FLOAT, DOUBLE, LONG, BYTE)
 
-## Bug fixes implemented
+## Bug Fixes Implemented
 - Certain plugins in the server are causing mob to be alive and immortal even after death, this is fixed by force removing the immortal mob if they have >0 Health after death event is fired.
 
 (Limitation: `- cancelevent{sync=true} @self ~onDeath` can no longer be used in MythicMobs as this option will still force remove the mob)
@@ -23,6 +23,11 @@ This plugin is primarily designed specifically for [**HoloCraft Minecraft Server
 - Network rewards either using MySQL or Redis. Allows developers to give rewards to players in Event Server and players can choose to claim from any other server in the network.
 - Usage of placeholder in player title display or mob status effect display.
 - Animation in player title display.
+
+## Possible Future Updates (Unconfirmed)
+- Automatically update outdated configuration files
+- Implement our own MMOInventory because its development/update is too slow and i need to add some custom features :amewtf:
+- Network developer storage, to store items that can be taken out in another server for testing or whatever purposes.
 
 ## Dependencies
 - **PlaceholderAPI** [Link here](https://www.spigotmc.org/resources/placeholderapi.6245/) (Soft Depend - Needed to use placeholders in player title display or mob status effect display)
