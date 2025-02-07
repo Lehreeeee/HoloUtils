@@ -2,14 +2,10 @@ package me.lehreeeee.HoloUtils.managers;
 
 import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.model.ActiveModel;
-import com.ticxo.modelengine.api.model.ModeledEntity;
-import com.ticxo.modelengine.api.model.bone.ModelBone;
-import com.ticxo.modelengine.api.model.bone.behavior.BoneBehavior;
 import com.ticxo.modelengine.api.model.bone.manager.MountManager;
 import com.ticxo.modelengine.api.mount.controller.MountControllerTypes;
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
-import org.apache.maven.model.Model;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -34,6 +30,7 @@ public class StatusDisplayManager {
     private final Logger logger;
 
     private float statusHeight = 0.6F;
+    private final boolean modelEngineAvailable;
 
     private final Map<String,String> statusEffects = new HashMap<>();
     private final Map<UUID,TextDisplay> loadedStatusDisplay = new HashMap<>();
@@ -42,6 +39,7 @@ public class StatusDisplayManager {
     private StatusDisplayManager(HoloUtils plugin){
         this.plugin = plugin;
         this.logger = plugin.getLogger();
+        this.modelEngineAvailable = Bukkit.getPluginManager().getPlugin("ModelEngine") != null;
     }
 
     public static StatusDisplayManager getInstance(){
@@ -193,7 +191,7 @@ public class StatusDisplayManager {
     private void mountDisplay(Entity targetEntity, TextDisplay display){
 
         // Use the basic mount if its not a modeled entity.
-        if(!ModelEngineAPI.isModeledEntity(targetEntity.getUniqueId())){
+        if (!modelEngineAvailable || !ModelEngineAPI.isModeledEntity(targetEntity.getUniqueId())) {
             targetEntity.addPassenger(display);
             display.setVisibleByDefault(true);
             return;
