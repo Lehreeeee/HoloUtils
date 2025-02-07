@@ -40,7 +40,7 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
             }
 
             if(args[0].equalsIgnoreCase("statuseffect")){
-                return List.of("[UUID]");
+                return List.of("[uuid]");
             }
         }
 
@@ -65,7 +65,7 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
             }
 
             if(args[0].equalsIgnoreCase("statuseffect")){
-                return List.of("[Duration_in_ticks]");
+                return List.of("[ticks]");
             }
         }
 

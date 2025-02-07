@@ -142,19 +142,23 @@ public class HoloUtilsCommand implements CommandExecutor {
             sender.sendMessage(MessageHelper.process("<#FFA500>Command Usage:",true));
             sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils help <white>-<aqua> Show command usage.",false));
             sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils reload <white>-<aqua> Take a guess.",false));
-            sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils playertag <white>-<aqua> Open gui to select display tag, must have atleast 1 tag permission to use.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils playertitle <white>-<aqua> Open gui to select display tag, must have atleast 1 tag permission to use.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils statuseffect [uuid] [effect] [ticks] <white>-<aqua> Apply status effect display on the mob.",false));
             sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils pdc get [namespacedkey] <white>-<aqua> Get the value of the namespaced key in mainhand item's pdc.",false));
             sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils pdc remove [namespacedkey] <white>-<aqua> Remove the data from mainhand item's pdc.",false));
             sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils pdc set [namespace] [key] [datatype] [value] <white>-<aqua> Add data to mainhand item's pdc.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils testredis <white>-<aqua> For debug purpose, don't touch if you don't know what it does.",false));
         }
         else{
             logger.info("Command Usage:");
             logger.info("/HoloUtils help - Show command usage.");
             logger.info("/HoloUtils reload - Take a guess.");
-            logger.info("/HoloUtils playertag - Open gui to select display tag, must have atleast 1 tag permission to use.");
+            logger.info("/HoloUtils playertitle - Open gui to select display tag, must have atleast 1 tag permission to use.");
+            logger.info("/HoloUtils statuseffect [uuid] [effect] [ticks] - Apply status effect display on the mob.");
             logger.info("/HoloUtils pdc get [namespacedkey] - Get the value of the namespaced key in mainhand item's pdc.");
             logger.info("/HoloUtils pdc remove [namespacedkey] - Remove the data from mainhand item's pdc.");
             logger.info("/HoloUtils pdc set [namespace] [key] [datatype] [value] - Add data to mainhand item's pdc.");
+            logger.info("/HoloUtils testredis - For debug purpose, don't touch if you don't know what it does.");
         }
     }
 }
