@@ -1,7 +1,6 @@
 package me.lehreeeee.HoloUtils.managers;
 
 import org.bukkit.configuration.ConfigurationSection;
-import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
@@ -10,7 +9,6 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class RedisManager {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(RedisManager.class);
     private static RedisManager instance;
     private final Logger logger;
     private String redisHost = "localhost";
@@ -75,7 +73,7 @@ public class RedisManager {
                 }
             }.start();
         } catch (Exception e) {
-            logger.severe("Failed to subscribe to channels " + ". Error: " + e.getMessage());
+            logger.severe("Failed to subscribe to channels" + ". Error: " + e.getMessage());
         }
     }
 

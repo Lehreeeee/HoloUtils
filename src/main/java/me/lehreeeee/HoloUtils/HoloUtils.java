@@ -7,10 +7,7 @@ import me.lehreeeee.HoloUtils.commands.HoloUtilsCommandTabCompleter;
 import me.lehreeeee.HoloUtils.listeners.DisplayListener;
 import me.lehreeeee.HoloUtils.listeners.PlayerChatListener;
 import me.lehreeeee.HoloUtils.listeners.PlayerProjectileListener;
-import me.lehreeeee.HoloUtils.managers.DevChatManager;
-import me.lehreeeee.HoloUtils.managers.RedisManager;
-import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
-import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
+import me.lehreeeee.HoloUtils.managers.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
@@ -50,6 +47,7 @@ public final class HoloUtils extends JavaPlugin {
 
         // Welcome to my yt channel, please saracabribe
         RedisManager.getInstance().subscribe();
+        MySQLManager.getInstance().connect();
 
         logger.info("Enabled HoloUtils...");
     }
@@ -61,6 +59,8 @@ public final class HoloUtils extends JavaPlugin {
         TitleDisplayManager.getInstance().removeAllTitles();
         logger.info("Removing remaining status effect display...");
         StatusDisplayManager.getInstance().removeAllStatusDisplay();
+
+        MySQLManager.getInstance().disconnect();
 
         logger.info("Disabled HoloUtils...");
     }
@@ -79,6 +79,7 @@ public final class HoloUtils extends JavaPlugin {
         StatusDisplayManager.getInstance().loadStatusEffectsConfig(elementalStatusConfig);
         DevChatManager.getInstance().loadDevChatConfig(config.getConfigurationSection("dev-chat"));
         RedisManager.getInstance().loadRedisConfig(config.getConfigurationSection("redis"));
+        MySQLManager.getInstance().loadMySQLConfig(config.getConfigurationSection("mysql"));
 
         // Should print debug msg?
         this.debug = config.getBoolean("debug",false);
@@ -123,6 +124,8 @@ public final class HoloUtils extends JavaPlugin {
         RedisManager.initialize(logger);
         logger.info("Initializing DevChatManager...");
         DevChatManager.initialize(logger);
+        logger.info("Initializing MySQLManager...");
+        MySQLManager.initialize(logger);
     }
 
     private void loadCommands(){

@@ -3,6 +3,7 @@ package me.lehreeeee.HoloUtils.commands;
 
 import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUI;
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.managers.MySQLManager;
 import me.lehreeeee.HoloUtils.managers.RedisManager;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
@@ -68,7 +69,6 @@ public class HoloUtilsCommand implements CommandExecutor {
                 return true;
             }
 
-
         }
 
         if(args[0].equalsIgnoreCase("statuseffect") && args.length == 4){
@@ -124,6 +124,11 @@ public class HoloUtilsCommand implements CommandExecutor {
 
         if(args[0].equalsIgnoreCase("testredis") && args.length == 3){
             RedisManager.getInstance().publish(args[1],args[2]);
+            return true;
+        }
+
+        if(args[0].equalsIgnoreCase("test") && args.length == 2){
+            MySQLManager.getInstance().query(args[1]);
             return true;
         }
 
