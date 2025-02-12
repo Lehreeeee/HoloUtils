@@ -4,8 +4,10 @@ import com.zaxxer.hikari.HikariConfig;
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.io.BukkitObjectInputStream;
 
@@ -55,6 +57,14 @@ public class MySQLManager {
         config.setPassword(password);
 
         dataSource = new HikariDataSource(config);
+        logger.info("HikariCP connection pool opened.");
+    }
+
+    public void closeConnectionPool(){
+        if(dataSource != null){
+            dataSource.close();
+            logger.info("HikariCP connection pool closed.");
+        }
     }
 
     public void query(String uuid){
@@ -91,6 +101,9 @@ public class MySQLManager {
             // Read item count
             int size = bukkitObjectInputStream.readInt();
             logger.info("Item count: " + size);
+
+            ItemStack shulker = new ItemStack(Material.ORANGE_SHULKER_BOX,1);
+            BlockStateMeta bsm = (BlockStateMeta) shulker.getItemMeta();
 
             for (int i = 0; i < size; i++) {
                 // Read item slot

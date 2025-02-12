@@ -58,6 +58,7 @@ public final class HoloUtils extends JavaPlugin {
         TitleDisplayManager.getInstance().removeAllTitles();
         logger.info("Removing remaining status effect display...");
         StatusDisplayManager.getInstance().removeAllStatusDisplay();
+        MySQLManager.getInstance().closeConnectionPool();
 
         logger.info("Disabled HoloUtils...");
     }
