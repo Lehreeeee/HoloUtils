@@ -5,7 +5,10 @@ import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -16,6 +19,7 @@ import java.sql.*;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -55,6 +59,7 @@ public class MySQLManager {
         config.setJdbcUrl(url);
         config.setUsername(user);
         config.setPassword(password);
+        config.setPoolName("HoloUtils-Connection-Pool");
 
         dataSource = new HikariDataSource(config);
         logger.info("HikariCP connection pool opened.");
@@ -102,8 +107,11 @@ public class MySQLManager {
             int size = bukkitObjectInputStream.readInt();
             logger.info("Item count: " + size);
 
+            Player player = Bukkit.getPlayer(UUID.fromString(uuid));
             ItemStack shulker = new ItemStack(Material.ORANGE_SHULKER_BOX,1);
             BlockStateMeta bsm = (BlockStateMeta) shulker.getItemMeta();
+            ShulkerBox shulkerBox = (ShulkerBox) bsm.getBlockState();
+            Inventory inventory = shulkerBox.getInventory();
 
             for (int i = 0; i < size; i++) {
                 // Read item slot
@@ -115,7 +123,16 @@ public class MySQLManager {
                 ItemStack itemStack = (ItemStack) bukkitObjectInputStream.readObject();
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 logger.info("Item display name: " + MessageHelper.getPlainText(MessageHelper.revert(itemMeta.displayName())));
+                inventory.addItem(itemStack);
             }
+
+            if(player != null){
+                logger.info("Finished reading all items, giving shulker box to player: " + player.getName());
+                bsm.setBlockState(shulkerBox);
+                shulker.setItemMeta(bsm);
+                player.getInventory().addItem(shulker);
+            }
+
             bukkitObjectInputStream.close();
         } catch (Exception e) {
             logger.severe("Failed to decode/deserialize inventory." + " Error: " + e.getMessage());
