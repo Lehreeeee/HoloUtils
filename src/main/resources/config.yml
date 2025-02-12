@@ -19,14 +19,18 @@ redis:
   password: ''
 
 # Configs for MYySQL server that defaults to localhost:3306
-# Usage: MMOInventory Rework
+# Usage: Accessory Rework
 mysql:
   host: localhost
   port: 3306
   username: ''
   password: ''
-  database: 'database_name'
+  database: database_name
 
 # To fix immortal mobs by checking if mob's health is still > 0 after death, force remove it if true.
 # Limitation of this option is that cancelevent ~onDeath in MythicMobs will not be usable anymore.
 fix-immortal-mob: false
+
+# DO NOT TOUCH BEFORE ACCESSORY REWORK UPDATE
+# Requires a server restart
+enable-claimaccessories-command: false

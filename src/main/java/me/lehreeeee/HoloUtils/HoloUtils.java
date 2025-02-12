@@ -23,6 +23,7 @@ public final class HoloUtils extends JavaPlugin {
     private PlayerProjectileListener playerProjectileListener;
     private boolean debug = false;
     private boolean fixImmortal = false;
+    private boolean enableClaimaccessoriesCommand = false;
 
     @Override
     public void onEnable() {
@@ -74,13 +75,20 @@ public final class HoloUtils extends JavaPlugin {
         StatusDisplayManager.getInstance().loadStatusEffectsConfig(elementalStatusConfig);
         DevChatManager.getInstance().loadDevChatConfig(config.getConfigurationSection("dev-chat"));
         RedisManager.getInstance().loadRedisConfig(config.getConfigurationSection("redis"));
-        MySQLManager.getInstance().loadMySQLConfig(config.getConfigurationSection("mysql"));
+
+        // TODO: To be removed after 3 months
+        this.enableClaimaccessoriesCommand = config.getBoolean("enable-claimaccessories-command",false);
+        if(enableClaimaccessoriesCommand){
+            MySQLManager.getInstance().loadMySQLConfig(config.getConfigurationSection("mysql"));
+        }
 
         // Should print debug msg?
         this.debug = config.getBoolean("debug",false);
 
         // Should plugin check for immortal mob and remove them?
         this.fixImmortal = config.getBoolean("fix-immortal-mob",false);
+
+
     }
 
     public void checkImmortal(Entity entity){
@@ -119,8 +127,12 @@ public final class HoloUtils extends JavaPlugin {
         RedisManager.initialize(logger);
         logger.info("Initializing DevChatManager...");
         DevChatManager.initialize(logger);
-        logger.info("Initializing MySQLManager...");
-        MySQLManager.initialize(this);
+
+        // TODO: To be removed after 3 months
+        if(enableClaimaccessoriesCommand){
+            logger.info("Initializing MySQLManager...");
+            MySQLManager.initialize(this);
+        }
     }
 
     private void loadCommands(){
@@ -130,8 +142,12 @@ public final class HoloUtils extends JavaPlugin {
         logger.info("Loading adminchat commands...");
         getCommand("devchat").setExecutor(new DevChatCommand(logger));
         getCommand("devchat").setTabCompleter(new DevChatCommandTabCompleter());
-        logger.info("Loading claimaccessories commands...");
-        getCommand("claimaccessories").setExecutor(new ClaimAccessoriesCommand(logger));
+
+        // TODO: To be removed after 3 months
+        if(enableClaimaccessoriesCommand){
+            logger.info("Loading claimaccessories commands...");
+            getCommand("claimaccessories").setExecutor(new ClaimAccessoriesCommand(logger));
+        }
     }
 
     public boolean shouldPrintDebug(){
