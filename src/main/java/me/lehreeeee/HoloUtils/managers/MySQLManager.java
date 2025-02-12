@@ -88,6 +88,7 @@ public class MySQLManager {
                     Bukkit.getScheduler().runTask(plugin, () -> decodeInventory(inventoryBase64, uuid));
                 } else {
                     logger.info("Entry not found or inventory empty, considered claimed for " + uuid);
+                    sendFeedbackMessage(Bukkit.getPlayer(uuid),"<#FFA500>You have no unclaimed accessories.");
                 }
             } catch (SQLException e) {
                 logger.severe("Failed to query from MySQL server." + " Error: " + e.getMessage());
@@ -134,9 +135,6 @@ public class MySQLManager {
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                     updateEntryforClaimedPlayer(uuid);
                 });
-
-                // Also remove perm to avoid unneeded query
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"lp user " + player.getName() + " permission unset holoutils.claim_accessories");
             }
 
             bukkitObjectInputStream.close();
