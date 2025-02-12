@@ -2,6 +2,7 @@ package me.lehreeeee.HoloUtils.managers;
 
 import com.zaxxer.hikari.HikariConfig;
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
@@ -15,6 +16,7 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import java.io.ByteArrayInputStream;
 import java.sql.*;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.logging.Logger;
 import com.zaxxer.hikari.HikariDataSource;
@@ -82,8 +84,6 @@ public class MySQLManager {
 
                 if(result.next()){
                     String inventoryBase64 = result.getString("inventory");
-                    logger.info("Found entry for " + uuid + ", giving back the items");
-
                     // Back to server main thread
                     Bukkit.getScheduler().runTask(plugin, () -> decodeInventory(inventoryBase64, uuid));
                 } else {
@@ -97,10 +97,7 @@ public class MySQLManager {
 
     private void decodeInventory(String inventoryBase64, String uuid){
         try{
-            byte[] inventoryBytes = Base64.getDecoder().decode(inventoryBase64);
-            //logger.info("Decoded inventory: " + new String(inventoryBytes));
-
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(inventoryBytes);
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(inventoryBase64));
             BukkitObjectInputStream bukkitObjectInputStream = new BukkitObjectInputStream(byteArrayInputStream);
 
             // Read item count
@@ -121,10 +118,17 @@ public class MySQLManager {
             }
 
             if(player != null){
-                logger.info("Finished reading all items, giving shulker box to player: " + player.getName());
                 bsm.setBlockState(shulkerBox);
                 shulker.setItemMeta(bsm);
-                player.getInventory().addItem(shulker);
+                HashMap<Integer,ItemStack> extraItems = player.getInventory().addItem(shulker);
+
+                // Inventory full, return and ask to clear inventory
+                if(!extraItems.isEmpty()){
+                    sendFeedbackMessage(player,"<#FFA500>Your inventory is full, please clear up some space first.");
+                    return;
+                } else {
+                    sendFeedbackMessage(player,"<#FFA500>Successfully claimed old accessories. You should find a orange shulker box in your inventory.");
+                }
 
                 // Done giving items to player, update entry from table to prevent 2nd claim
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -154,6 +158,12 @@ public class MySQLManager {
         } catch (SQLException e){
             logger.severe("Failed to update entry for claimed player." + " Error: " + e.getMessage());
         }
+    }
+
+    private void sendFeedbackMessage(Player player, String msg){
+        logger.info(MessageHelper.getPlainText(msg));
+
+        if(player != null) player.sendMessage(MessageHelper.process(msg,true));
     }
 }
 
