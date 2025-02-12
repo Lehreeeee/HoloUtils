@@ -87,8 +87,7 @@ public class MySQLManager {
                     // Back to server main thread
                     Bukkit.getScheduler().runTask(plugin, () -> decodeInventory(inventoryBase64, uuid));
                 } else {
-                    logger.info("Entry not found or inventory empty, considered claimed for " + uuid);
-                    sendFeedbackMessage(Bukkit.getPlayer(uuid),"<#FFA500>You have no unclaimed accessories.");
+                    sendFeedbackMessage(Bukkit.getPlayer(UUID.fromString(uuid)),"<#FFA500>You have no unclaimed accessories.");
                 }
             } catch (SQLException e) {
                 logger.severe("Failed to query from MySQL server." + " Error: " + e.getMessage());
