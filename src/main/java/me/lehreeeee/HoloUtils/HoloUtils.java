@@ -1,9 +1,6 @@
 package me.lehreeeee.HoloUtils;
 
-import me.lehreeeee.HoloUtils.commands.DevChatCommand;
-import me.lehreeeee.HoloUtils.commands.DevChatCommandTabCompleter;
-import me.lehreeeee.HoloUtils.commands.HoloUtilsCommand;
-import me.lehreeeee.HoloUtils.commands.HoloUtilsCommandTabCompleter;
+import me.lehreeeee.HoloUtils.commands.*;
 import me.lehreeeee.HoloUtils.listeners.DisplayListener;
 import me.lehreeeee.HoloUtils.listeners.PlayerChatListener;
 import me.lehreeeee.HoloUtils.listeners.PlayerProjectileListener;
@@ -133,6 +130,8 @@ public final class HoloUtils extends JavaPlugin {
         logger.info("Loading adminchat commands...");
         getCommand("devchat").setExecutor(new DevChatCommand(logger));
         getCommand("devchat").setTabCompleter(new DevChatCommandTabCompleter());
+        logger.info("Loading claimaccessories commands...");
+        getCommand("claimaccessories").setExecutor(new ClaimAccessoriesCommand(logger));
     }
 
     public boolean shouldPrintDebug(){

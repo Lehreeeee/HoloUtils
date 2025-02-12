@@ -13,7 +13,7 @@ import java.util.List;
 
 public class HoloUtilsCommandTabCompleter implements TabCompleter {
     private final HoloUtils plugin;
-    private final List<String> commands = List.of("reload", "help", "playertitle", "statuseffect", "pdc", "testredis", "claim_accessories");
+    private final List<String> commands = List.of("reload", "help", "playertitle", "statuseffect", "pdc", "testredis");
     private final List<String> pdcActions = List.of("get", "set", "remove");
     private final List<String> typeNames = List.of(
             "STRING",
@@ -30,11 +30,6 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        // Hide from players
-        if(!sender.hasPermission("holoutils.admin")){
-            return null;
-        }
-
         if(args.length == 1){
             return commands;
         }

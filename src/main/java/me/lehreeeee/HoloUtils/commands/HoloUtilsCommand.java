@@ -30,22 +30,14 @@ public class HoloUtilsCommand implements CommandExecutor {
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){
-        if(args.length == 0){
-            sendCommandUsage(sender);
-            return true;
-        }
-
-        /*
-        TODO: Temporary command for accessories rework. Remove after 3 months along with mmoinventory_inventories_rework table.
-        */
-        if(args[0].equalsIgnoreCase("claim_accessories") && sender instanceof Player player && player.hasPermission("holoutils.claim_accessories")){
-            MySQLManager.getInstance().claimOldAccessories(player.getUniqueId().toString());
-            return true;
-        }
-
-        // Below are all developer commands, only admin can use
+        // Only admin can use
         if(!sender.hasPermission("holoutils.admin")){
             sendFeedbackMessage(sender,"<#FFA500>Who are you?! You don't have permission to do this!");
+            return true;
+        }
+
+        if(args.length == 0){
+            sendCommandUsage(sender);
             return true;
         }
 
