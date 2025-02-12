@@ -30,14 +30,22 @@ public class HoloUtilsCommand implements CommandExecutor {
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){
-        // Development mode, only admin can use
-        if(!sender.hasPermission("holoutils.admin")){
-            sendFeedbackMessage(sender,"<#FFA500>Who are you?! You don't have permission to do this!");
+        if(args.length == 0){
+            sendCommandUsage(sender);
             return true;
         }
 
-        if(args.length == 0){
-            sendCommandUsage(sender);
+        /*
+        TODO: Temporary command for accessories rework. Remove after 3 months along with mmoinventory_inventories_rework table.
+        */
+        if(args[0].equalsIgnoreCase("claim_accessories") && sender instanceof Player player && player.hasPermission("holoutils.claim_accessories")){
+            MySQLManager.getInstance().claimOldAccessories(player.getUniqueId().toString());
+            return true;
+        }
+
+        // Below are all developer commands, only admin can use
+        if(!sender.hasPermission("holoutils.admin")){
+            sendFeedbackMessage(sender,"<#FFA500>Who are you?! You don't have permission to do this!");
             return true;
         }
 
@@ -68,7 +76,6 @@ public class HoloUtilsCommand implements CommandExecutor {
                 sendCommandUsage(sender);
                 return true;
             }
-
         }
 
         if(args[0].equalsIgnoreCase("statuseffect") && args.length == 4){
@@ -124,11 +131,6 @@ public class HoloUtilsCommand implements CommandExecutor {
 
         if(args[0].equalsIgnoreCase("testredis") && args.length == 3){
             RedisManager.getInstance().publish(args[1],args[2]);
-            return true;
-        }
-
-        if(args[0].equalsIgnoreCase("test") && args.length == 2){
-            MySQLManager.getInstance().query(args[1]);
             return true;
         }
 

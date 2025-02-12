@@ -19,7 +19,7 @@ redis:
   password: ''
 
 # Configs for MYySQL server that defaults to localhost:3306
-# Usage: MMOInventory
+# Usage: MMOInventory Rework
 mysql:
   host: localhost
   port: 3306

@@ -13,7 +13,6 @@ commands:
   holoutils:
     description: Main command for HoloUtils
     aliases: [hu, hutils]
-    permission: holoutils.admin
   devchat:
     description: Command for devchat
     aliases: [a]
