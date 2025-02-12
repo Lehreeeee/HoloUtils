@@ -146,6 +146,12 @@ public class HoloUtilsCommand implements CommandExecutor {
 
     private void sendCommandUsage(CommandSender sender){
         if (sender instanceof Player) {
+            // Dont send if not admin
+            if(!sender.hasPermission("holoutils.admin")) {
+                sendFeedbackMessage(sender,"<#FFA500>Who are you?! You don't have permission to do this!");
+                return;
+            }
+
             sender.sendMessage(MessageHelper.process("<#FFA500>Command Usage:",true));
             sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils help <white>-<aqua> Show command usage.",false));
             sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils reload <white>-<aqua> Take a guess.",false));

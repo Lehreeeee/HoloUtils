@@ -30,6 +30,11 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        // Hide from players
+        if(!sender.hasPermission("holoutils.admin")){
+            return null;
+        }
+
         if(args.length == 1){
             return commands;
         }
