@@ -47,7 +47,6 @@ public final class HoloUtils extends JavaPlugin {
 
         // Welcome to my yt channel, please saracabribe
         RedisManager.getInstance().subscribe();
-        MySQLManager.getInstance().connect();
 
         logger.info("Enabled HoloUtils...");
     }
@@ -59,8 +58,6 @@ public final class HoloUtils extends JavaPlugin {
         TitleDisplayManager.getInstance().removeAllTitles();
         logger.info("Removing remaining status effect display...");
         StatusDisplayManager.getInstance().removeAllStatusDisplay();
-
-        MySQLManager.getInstance().disconnect();
 
         logger.info("Disabled HoloUtils...");
     }
@@ -125,7 +122,7 @@ public final class HoloUtils extends JavaPlugin {
         logger.info("Initializing DevChatManager...");
         DevChatManager.initialize(logger);
         logger.info("Initializing MySQLManager...");
-        MySQLManager.initialize(logger);
+        MySQLManager.initialize(this);
     }
 
     private void loadCommands(){
