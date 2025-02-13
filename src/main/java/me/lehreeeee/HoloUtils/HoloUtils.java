@@ -8,6 +8,7 @@ import me.lehreeeee.HoloUtils.managers.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -92,7 +93,8 @@ public final class HoloUtils extends JavaPlugin {
     }
 
     public void checkImmortal(Entity entity){
-        if(!(entity instanceof LivingEntity livingEntity) || !fixImmortal) return;
+        // Ignore Ender Dragon, or it will force remove before its death animation, making it unkillable edrag
+        if(!(entity instanceof LivingEntity livingEntity) || !fixImmortal || livingEntity.getType() == EntityType.ENDER_DRAGON) return;
 
         new BukkitRunnable() {
             @Override
