@@ -21,3 +21,6 @@ commands:
   claimaccessories:
     description: Command for claiming accessories
     permission: holoutils.claimaccessories
+  reroll:
+    description: Command for rerolling mmoitem's random stats
+    permission: holoutils.reroll

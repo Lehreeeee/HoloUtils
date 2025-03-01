@@ -16,6 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public final class HoloUtils extends JavaPlugin {
@@ -109,14 +110,19 @@ public final class HoloUtils extends JavaPlugin {
     }
 
     private void saveCustomConfig(){
-        File playerTitleFile = new File(this.getDataFolder(), "/DisplayTag/PlayerTitles.yml");
-        File elementalStatusFile = new File(this.getDataFolder(), "/DisplayTag/StatusEffects.yml");
+        Set<String> customConfigs = Set.of(
+                "DisplayTag/PlayerTitles.yml",
+                "DisplayTag/StatusEffects.yml",
+                "rerolls.yml"
+        );
 
-        // Create default if not exist
-        if(!playerTitleFile.exists() || !elementalStatusFile.exists()) {
-            logger.info("Custom config file not found, creating default config.");
-            saveResource("DisplayTag/StatusEffects.yml", false);
-            saveResource("DisplayTag/PlayerTitles.yml", false);
+        File dataFolder = this.getDataFolder();
+
+        for(String path : customConfigs){
+            if(!(new File(dataFolder, path).exists())){
+                logger.info("Unable to locate " + path + ", creating new one.");
+                saveResource(path,false);
+            }
         }
     }
 
@@ -144,6 +150,8 @@ public final class HoloUtils extends JavaPlugin {
         logger.info("Loading adminchat commands...");
         getCommand("devchat").setExecutor(new DevChatCommand(logger));
         getCommand("devchat").setTabCompleter(new DevChatCommandTabCompleter());
+        logger.info("Loading Reroll commands...");
+        getCommand("reroll").setExecutor(new RerollCommand(logger));
 
         // TODO: To be removed after 3 months
         if(enableClaimaccessoriesCommand){
