@@ -7,11 +7,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
-public class PlayerTagGUIHolder implements InventoryHolder {
+public class PlayerTitleGUIHolder implements InventoryHolder {
 
     private final Inventory inventory;
 
-    public PlayerTagGUIHolder() {
+    public PlayerTitleGUIHolder() {
         this.inventory = Bukkit.createInventory(this, 54, MessageHelper.process(TitleDisplayManager.getInstance().getGUIName()));
     }
 

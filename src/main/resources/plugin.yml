@@ -7,7 +7,7 @@ api-version: '1.21'
 # To steal their /a command :)
 loadbefore: [mcMMO]
 # Optional
-softdepend: [PlaceholderAPI, ModelEngine]
+softdepend: [PlaceholderAPI, ModelEngine, MMOItems]
 
 commands:
   holoutils:

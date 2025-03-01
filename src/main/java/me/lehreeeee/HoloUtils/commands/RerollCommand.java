@@ -2,6 +2,7 @@
 package me.lehreeeee.HoloUtils.commands;
 
 import me.lehreeeee.HoloUtils.GUI.RerollGUI;
+import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,10 +14,11 @@ import java.util.logging.Logger;
 
 public class RerollCommand implements CommandExecutor {
     private final Logger logger;
+    private final HoloUtils plugin;
 
-
-    public RerollCommand(Logger logger) {
-        this.logger = logger;
+    public RerollCommand(HoloUtils plugin) {
+        this.plugin = plugin;
+        this.logger = plugin.getLogger();
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){

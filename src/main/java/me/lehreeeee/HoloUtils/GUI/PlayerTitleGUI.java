@@ -18,7 +18,7 @@ public class PlayerTitleGUI {
 
     public Inventory createPlayerTitleGUI(Player player){
         TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
-        Inventory inv = new PlayerTagGUIHolder().getInventory();
+        Inventory inv = new PlayerTitleGUIHolder().getInventory();
 
 
         // Glass Pane to fill the border

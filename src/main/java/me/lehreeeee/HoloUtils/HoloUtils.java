@@ -2,9 +2,11 @@ package me.lehreeeee.HoloUtils;
 
 import me.lehreeeee.HoloUtils.commands.*;
 import me.lehreeeee.HoloUtils.listeners.DisplayListener;
+import me.lehreeeee.HoloUtils.listeners.InventoryListener;
 import me.lehreeeee.HoloUtils.listeners.PlayerChatListener;
 import me.lehreeeee.HoloUtils.listeners.PlayerProjectileListener;
 import me.lehreeeee.HoloUtils.managers.*;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
@@ -26,9 +28,12 @@ public final class HoloUtils extends JavaPlugin {
     private boolean debug = false;
     private boolean fixImmortal = false;
     private boolean enableClaimaccessoriesCommand = false;
+    private boolean MMOItemsAvailable = false;
 
     @Override
     public void onEnable() {
+        this.MMOItemsAvailable = Bukkit.getPluginManager().getPlugin("MMOItems") != null;
+
         // Save the default config.yml
         saveDefaultConfig();
         saveCustomConfig();
@@ -38,8 +43,8 @@ public final class HoloUtils extends JavaPlugin {
 
         playerProjectileListener = new PlayerProjectileListener(this);
         new PlayerChatListener(this);
-
         new DisplayListener(this);
+        new InventoryListener(this);
 
         loadCommands();
 
@@ -150,8 +155,11 @@ public final class HoloUtils extends JavaPlugin {
         logger.info("Loading adminchat commands...");
         getCommand("devchat").setExecutor(new DevChatCommand(logger));
         getCommand("devchat").setTabCompleter(new DevChatCommandTabCompleter());
-        logger.info("Loading Reroll commands...");
-        getCommand("reroll").setExecutor(new RerollCommand(logger));
+
+        if(MMOItemsAvailable){
+            logger.info("Found MMOItems, loading reroll commands...");
+            getCommand("reroll").setExecutor(new RerollCommand(this));
+        }
 
         // TODO: To be removed after 3 months
         if(enableClaimaccessoriesCommand){
