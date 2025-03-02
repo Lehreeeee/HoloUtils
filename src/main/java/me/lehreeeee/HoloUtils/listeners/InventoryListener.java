@@ -4,9 +4,9 @@ import io.lumine.mythic.lib.api.item.NBTItem;
 import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUIHolder;
 import me.lehreeeee.HoloUtils.GUI.RerollGUI;
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.managers.RerollManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -24,7 +24,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -113,6 +112,8 @@ public class InventoryListener implements Listener {
             if(NBTItem.get(cursorItem).hasType()) {
                 clickedInv.setItem(11, cursorItem);
                 player.setItemOnCursor(null);
+
+                updateDiceLore(clickedInv,RerollSlotAction.IN);
             } else { // Else put back the pane
                 ItemStack glassPane = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
                 ItemMeta glassPaneMeta = glassPane.getItemMeta();
@@ -120,6 +121,8 @@ public class InventoryListener implements Listener {
                 glassPane.setItemMeta(glassPaneMeta);
 
                 clickedInv.setItem(11, glassPane);
+
+                updateDiceLore(clickedInv,RerollSlotAction.OUT);
             }
 
             return;
@@ -147,22 +150,25 @@ public class InventoryListener implements Listener {
         }
     }
 
-    private void updateDiceLore(Inventory rerollGUI, String action){
-        ItemStack dice = rerollGUI.getItem(31);
+    private void updateDiceLore(Inventory rerollGUI, RerollSlotAction action){
+        ItemStack dice = rerollGUI.getItem(15);
 
         if (dice == null || !dice.hasItemMeta()) return;
 
         ItemMeta itemMeta = dice.getItemMeta();
-        List<Component> diceLore = itemMeta.lore();
 
-        if(diceLore == null) return;
+        logger.info("Updating dice lore for action: " + action);
+        switch(action){
+            case IN -> {
+                ItemStack item = rerollGUI.getItem(11);
+                NBTItem nbtItem = NBTItem.get(item);
+                String entryName = nbtItem.getType() + ":" + nbtItem.getString("MMOITEMS_ITEM_ID");
 
-        logger.info("Moving item " + action);
-        if(action.equalsIgnoreCase("in")){
-            diceLore.add(MessageHelper.process("<gold>Requirements here!"));
-        } else if(action.equalsIgnoreCase("out")){
-            diceLore.clear();
-            itemMeta.lore(RerollGUI.getDefaultDiceLore());
+                itemMeta.lore(RerollManager.getInstance().getRequirementsLore(entryName));
+            }
+            case OUT -> {
+                itemMeta.lore(RerollManager.getInstance().getDefaultDiceLore());
+            }
         }
 
         dice.setItemMeta(itemMeta);

@@ -69,25 +69,33 @@ public final class HoloUtils extends JavaPlugin {
     }
 
     public void reloadData(){
+        // Make sure files exist
         saveCustomConfig();
         saveDefaultConfig();
 
-        FileConfiguration config = this.getConfig();
+        // Custom config files
         YamlConfiguration playerTitleConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/DisplayTag/PlayerTitles.yml"));
         YamlConfiguration elementalStatusConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/DisplayTag/StatusEffects.yml"));
-
-        playerProjectileListener.setDisabledWorlds(new HashSet<>(config.getStringList("arrow-shoots-thru-players-worlds")));
+        YamlConfiguration rerollConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/rerolls.yml"));
 
         TitleDisplayManager.getInstance().loadPlayerTitlesConfig(playerTitleConfig);
         StatusDisplayManager.getInstance().loadStatusEffectsConfig(elementalStatusConfig);
+        if(MMOItemsAvailable){
+            RerollManager.getInstance().loadRerollConfig(rerollConfig);
+        }
+
+        // Base config file
+        FileConfiguration config = this.getConfig();
+
         DevChatManager.getInstance().loadDevChatConfig(config.getConfigurationSection("dev-chat"));
         RedisManager.getInstance().loadRedisConfig(config.getConfigurationSection("redis"));
-
         // TODO: To be removed after 3 months
         this.enableClaimaccessoriesCommand = config.getBoolean("enable-claimaccessories-command",false);
         if(enableClaimaccessoriesCommand){
             MySQLManager.getInstance().loadMySQLConfig(config.getConfigurationSection("mysql"));
         }
+
+        playerProjectileListener.setDisabledWorlds(new HashSet<>(config.getStringList("arrow-shoots-thru-players-worlds")));
 
         // Should print debug msg?
         this.debug = config.getBoolean("debug",false);
@@ -140,6 +148,11 @@ public final class HoloUtils extends JavaPlugin {
         RedisManager.initialize(logger);
         logger.info("Initializing DevChatManager...");
         DevChatManager.initialize(logger);
+
+        if(MMOItemsAvailable){
+            logger.info("Found MMOItems, initializing RerollManager");
+            RerollManager.initialize(this);
+        }
 
         // TODO: To be removed after 3 months
         if(enableClaimaccessoriesCommand){

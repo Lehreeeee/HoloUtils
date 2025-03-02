@@ -2,8 +2,8 @@ package me.lehreeeee.HoloUtils.GUI;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
+import me.lehreeeee.HoloUtils.managers.RerollManager;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
@@ -13,7 +13,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.UUID;
 
 public class RerollGUI implements InventoryHolder {
@@ -48,14 +47,14 @@ public class RerollGUI implements InventoryHolder {
         SkullMeta skullMeta = (SkullMeta) diceHead.getItemMeta();
 
         if(skullMeta != null){
-            skullMeta.displayName(MessageHelper.process("<!i><red>Reroll"));
+            skullMeta.displayName(MessageHelper.process("<!i><red>Reroll!"));
             String base64 = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTFiZDljOGNmZjQ1ZThjZDdjNjdiMzBhNzc5YjQwNWNmOWMyYzRlY2U5ZDEzMTRmOTdmY2EwYjRmZmM4YzFjNSJ9fX0=";
 
             PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
             profile.getProperties().add((new ProfileProperty("textures", base64)));
             skullMeta.setPlayerProfile(profile);
 
-            skullMeta.lore(getDefaultDiceLore());
+            skullMeta.lore(RerollManager.getInstance().getDefaultDiceLore());
 
             diceHead.setItemMeta(skullMeta);
         }
@@ -70,12 +69,5 @@ public class RerollGUI implements InventoryHolder {
         glassPane.setItemMeta(glassPaneMeta);
 
         inventory.setItem(11,glassPane);
-    }
-
-    public static List<Component> getDefaultDiceLore(){
-        return List.of(
-                MessageHelper.process("<!i><red>Put the item in to check"),
-                MessageHelper.process("<!i><red>requirements for rerolling stats.")
-        );
     }
 }
