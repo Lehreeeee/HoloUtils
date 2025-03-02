@@ -10,10 +10,14 @@ import net.Indyuce.mmoitems.api.util.MMOItemReforger;
 import net.kyori.adventure.text.Component;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.util.ArrayList;
@@ -98,7 +102,14 @@ public class RerollManager {
             return null;
         }
 
-        MMOItemReforger reforger = new MMOItemReforger(nbtItem);
+        // Reroll starts
+        // Add info into pdc to let ItemsUpdater know this is a reroll item, don't overwrite the random stats.
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+        pdc.set(new NamespacedKey("holoutils","reroll"), PersistentDataType.BOOLEAN, true);
+        itemStack.setItemMeta(itemMeta);
+
+        MMOItemReforger reforger = new MMOItemReforger(itemStack);
         reforger.reforge(MMOItems.plugin.getLanguage().revisionOptions);
 
         return reforger.getResult();
