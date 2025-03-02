@@ -129,7 +129,12 @@ public class InventoryListener implements Listener {
         }
 
         if(clickedSlot == 15) {
-            player.sendMessage(MessageHelper.process("<gold>Rerolling!",true));
+            ItemStack updatedItem = RerollManager.getInstance().reroll(clickedInv.getItem(11), player);
+
+            if(updatedItem != null) {
+                player.sendMessage(MessageHelper.process("<aqua>[<gold>Reroll<aqua>] <gold>Item stats have been rerolled! How did it turn out?",false));
+                clickedInv.setItem(11, updatedItem);
+            }
         }
     }
 
@@ -157,14 +162,13 @@ public class InventoryListener implements Listener {
 
         ItemMeta itemMeta = dice.getItemMeta();
 
-        logger.info("Updating dice lore for action: " + action);
         switch(action){
             case IN -> {
                 ItemStack item = rerollGUI.getItem(11);
                 NBTItem nbtItem = NBTItem.get(item);
                 String entryName = nbtItem.getType() + ":" + nbtItem.getString("MMOITEMS_ITEM_ID");
 
-                itemMeta.lore(RerollManager.getInstance().getRequirementsLore(entryName, player));
+                itemMeta.lore(RerollManager.getInstance().getRequirementsLoreList(entryName, player));
             }
             case OUT -> {
                 itemMeta.lore(RerollManager.getInstance().getDefaultDiceLore());

@@ -47,7 +47,7 @@ public class RerollGUI implements InventoryHolder {
         SkullMeta skullMeta = (SkullMeta) diceHead.getItemMeta();
 
         if(skullMeta != null){
-            skullMeta.displayName(MessageHelper.process("<red>Reroll!"));
+            skullMeta.displayName(MessageHelper.process("<white>\uD83C\uDFB2 <gold>Reroll <white>\uD83C\uDFB2"));
             String base64 = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTFiZDljOGNmZjQ1ZThjZDdjNjdiMzBhNzc5YjQwNWNmOWMyYzRlY2U5ZDEzMTRmOTdmY2EwYjRmZmM4YzFjNSJ9fX0=";
 
             PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
