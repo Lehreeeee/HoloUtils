@@ -3,7 +3,6 @@ package me.lehreeeee.HoloUtils.utils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class MessageHelper {
@@ -15,7 +14,7 @@ public class MessageHelper {
     }
 
     public static Component process(String msg, boolean needsPrefix) {
-        msg = replaceLegacyColorCode(msg);
+        msg = "<!i>" + replaceLegacyColorCode(msg);
         return MiniMessage.miniMessage().deserialize(needsPrefix ? prefix + msg : msg);
     }
 

@@ -117,14 +117,13 @@ public class InventoryListener implements Listener {
             } else { // Else put back the pane
                 ItemStack glassPane = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
                 ItemMeta glassPaneMeta = glassPane.getItemMeta();
-                glassPaneMeta.displayName(MessageHelper.process("<!i><aqua>Put the item you wish to reroll here."));
+                glassPaneMeta.displayName(MessageHelper.process("<aqua>Put the item you wish to reroll here."));
                 glassPane.setItemMeta(glassPaneMeta);
 
                 clickedInv.setItem(11, glassPane);
 
                 updateDiceLore(clickedInv,RerollSlotAction.OUT);
             }
-
             return;
         }
 

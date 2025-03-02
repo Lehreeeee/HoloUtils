@@ -47,7 +47,7 @@ public class RerollGUI implements InventoryHolder {
         SkullMeta skullMeta = (SkullMeta) diceHead.getItemMeta();
 
         if(skullMeta != null){
-            skullMeta.displayName(MessageHelper.process("<!i><red>Reroll!"));
+            skullMeta.displayName(MessageHelper.process("<red>Reroll!"));
             String base64 = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTFiZDljOGNmZjQ1ZThjZDdjNjdiMzBhNzc5YjQwNWNmOWMyYzRlY2U5ZDEzMTRmOTdmY2EwYjRmZmM4YzFjNSJ9fX0=";
 
             PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
@@ -64,7 +64,7 @@ public class RerollGUI implements InventoryHolder {
         // Add glass pane to reroll slot
         ItemStack glassPane = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
         ItemMeta glassPaneMeta = glassPane.getItemMeta();
-        glassPaneMeta.displayName(MessageHelper.process("<!i><aqua>Put the item you wish to reroll here."));
+        glassPaneMeta.displayName(MessageHelper.process("<aqua>Put the item you wish to reroll here."));
 
         glassPane.setItemMeta(glassPaneMeta);
 

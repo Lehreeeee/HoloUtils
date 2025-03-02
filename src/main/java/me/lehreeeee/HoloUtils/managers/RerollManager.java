@@ -74,14 +74,14 @@ public class RerollManager {
 
     public List<Component> getDefaultDiceLore(){
         return List.of(
-                MessageHelper.process("<!i><aqua>Place an item to check"),
-                MessageHelper.process("<!i><aqua>reroll requirements.")
+                MessageHelper.process("<aqua>Place an item to check"),
+                MessageHelper.process("<aqua>reroll requirements.")
         );
     }
 
     public List<Component> getRequirementsLore(String entry){
         if(!rerollableItems.containsKey(entry)){
-            return List.of(MessageHelper.process("<!i><red>You cannot reroll any stat on this item."));
+            return List.of(MessageHelper.process("<red>You cannot reroll any stat on this item."));
         } else {
             List<RerollRequirement> requirementsList = rerollableItems.get(entry);
             List<Component> requirementsLore = new ArrayList<>();

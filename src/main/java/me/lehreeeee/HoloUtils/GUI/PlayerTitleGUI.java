@@ -25,7 +25,7 @@ public class PlayerTitleGUI {
         ItemStack fillGlassPane = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
         ItemMeta fillGlassPaneMeta = fillGlassPane.getItemMeta();
         if (fillGlassPaneMeta != null){
-            fillGlassPaneMeta.displayName(MessageHelper.process("<#FFA500><!i>I'm orange glass pane."));
+            fillGlassPaneMeta.displayName(MessageHelper.process("<#FFA500>I'm orange glass pane."));
             fillGlassPane.setItemMeta(fillGlassPaneMeta);
         }
 
@@ -33,7 +33,7 @@ public class PlayerTitleGUI {
         ItemStack removeButton = new ItemStack(Material.REDSTONE_BLOCK);
         ItemMeta updateButtonMeta = removeButton.getItemMeta();
         if (updateButtonMeta != null){
-            updateButtonMeta.displayName(MessageHelper.process("<red><b><!i>Remove player title"));
+            updateButtonMeta.displayName(MessageHelper.process("<red><b>Remove player title"));
             removeButton.setItemMeta(updateButtonMeta);
         }
 
@@ -79,7 +79,7 @@ public class PlayerTitleGUI {
 
         if(titleItemMeta != null){
             // Need add <!i> or its gonna be italic for some reason
-            titleItemMeta.displayName(MessageHelper.process("<!i>" + title));
+            titleItemMeta.displayName(MessageHelper.process(title));
 
             PersistentDataContainer titleItemPDC = titleItemMeta.getPersistentDataContainer();
             titleItemPDC.set(new NamespacedKey("holoutils","titlename"), PersistentDataType.STRING, titleName);
