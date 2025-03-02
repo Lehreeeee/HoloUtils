@@ -5,4 +5,4 @@
   Requirements:
     - mmoitems{type=MATERIAL;id=REROLL_STONE;amount=1}
     - money{amount=10}
-    - recurrency{name=XToken;amount=100}
+    - recurrency{currency=XToken;amount=100}

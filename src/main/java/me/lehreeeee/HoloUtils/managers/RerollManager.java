@@ -2,11 +2,14 @@ package me.lehreeeee.HoloUtils.managers;
 
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.reroll.RerollRequirement;
-import me.lehreeeee.HoloUtils.reroll.RerollRequirementType;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import net.kyori.adventure.text.Component;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +23,8 @@ public class RerollManager {
     private final Logger logger;
 
     private final Map<String, List<RerollRequirement>> rerollableItems = new HashMap<>();
+
+    private static Economy econ;
 
     private RerollManager(HoloUtils plugin){
         this.plugin = plugin;
@@ -36,6 +41,11 @@ public class RerollManager {
     public static void initialize(HoloUtils plugin) {
         if (instance == null) {
             instance = new RerollManager(plugin);
+
+            if (plugin.getServer().getPluginManager().getPlugin("Vault") != null){
+                RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
+                if (rsp != null) econ = rsp.getProvider();
+            }
         }
     }
 
@@ -58,7 +68,6 @@ public class RerollManager {
             List<String> reqList = itemSection.getStringList("Requirements");
 
             for (String req : reqList) {
-                logger.info("Requirement - " + req);
                 requirements.add(new RerollRequirement(req));
             }
 
@@ -67,7 +76,7 @@ public class RerollManager {
 
             logger.info("Loaded rerollable item entry: " + entry);
             for (RerollRequirement requirement : requirements) {
-                logger.info("  - Requirement: " + requirement);
+                logger.info("  " + requirement);
             }
         }
     }
@@ -79,25 +88,22 @@ public class RerollManager {
         );
     }
 
-    public List<Component> getRequirementsLore(String entry){
+    public List<Component> getRequirementsLore(String entry, Player player){
         if(!rerollableItems.containsKey(entry)){
             return List.of(MessageHelper.process("<red>You cannot reroll any stat on this item."));
         } else {
             List<RerollRequirement> requirementsList = rerollableItems.get(entry);
             List<Component> requirementsLore = new ArrayList<>();
 
-            for(RerollRequirement requirement : requirementsList){
-                RerollRequirementType requirementType = requirement.getRequirementType();
-
-                switch(requirementType){
-                    case MONEY -> requirementsLore.add(MessageHelper.process("<gold>Money"));
-                    case MMOITEMS -> requirementsLore.add(MessageHelper.process("<gold>MMOItems"));
-                    case RECURRENCY -> requirementsLore.add(MessageHelper.process("<gold>Recurrency"));
-                    case null -> requirementsLore.add(MessageHelper.process("<red>Unsupported requirement type, check again!"));
-                }
+            for(RerollRequirement requirement : requirementsList) {
+                requirementsLore.add(MessageHelper.process(requirement.getRequirementLore(player)));
             }
 
             return requirementsLore;
         }
+    }
+
+    public Economy getEcon(){
+        return econ;
     }
 }

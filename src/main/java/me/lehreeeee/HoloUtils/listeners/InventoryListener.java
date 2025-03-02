@@ -22,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -113,7 +114,7 @@ public class InventoryListener implements Listener {
                 clickedInv.setItem(11, cursorItem);
                 player.setItemOnCursor(null);
 
-                updateDiceLore(clickedInv,RerollSlotAction.IN);
+                updateDiceLore(clickedInv,RerollSlotAction.IN, player);
             } else { // Else put back the pane
                 ItemStack glassPane = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
                 ItemMeta glassPaneMeta = glassPane.getItemMeta();
@@ -122,7 +123,7 @@ public class InventoryListener implements Listener {
 
                 clickedInv.setItem(11, glassPane);
 
-                updateDiceLore(clickedInv,RerollSlotAction.OUT);
+                updateDiceLore(clickedInv,RerollSlotAction.OUT, null);
             }
             return;
         }
@@ -149,7 +150,7 @@ public class InventoryListener implements Listener {
         }
     }
 
-    private void updateDiceLore(Inventory rerollGUI, RerollSlotAction action){
+    private void updateDiceLore(Inventory rerollGUI, RerollSlotAction action, @Nullable Player player){
         ItemStack dice = rerollGUI.getItem(15);
 
         if (dice == null || !dice.hasItemMeta()) return;
@@ -163,7 +164,7 @@ public class InventoryListener implements Listener {
                 NBTItem nbtItem = NBTItem.get(item);
                 String entryName = nbtItem.getType() + ":" + nbtItem.getString("MMOITEMS_ITEM_ID");
 
-                itemMeta.lore(RerollManager.getInstance().getRequirementsLore(entryName));
+                itemMeta.lore(RerollManager.getInstance().getRequirementsLore(entryName, player));
             }
             case OUT -> {
                 itemMeta.lore(RerollManager.getInstance().getDefaultDiceLore());
