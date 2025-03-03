@@ -33,11 +33,16 @@ public class RerollManager {
 
     private final Map<String, List<RerollRequirement>> rerollableItems = new HashMap<>();
 
-    private static Economy econ;
+    private  Economy econ;
 
     private RerollManager(HoloUtils plugin){
         this.plugin = plugin;
         this.logger = plugin.getLogger();
+
+        if (plugin.getServer().getPluginManager().getPlugin("Vault") != null){
+            RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
+            if (rsp != null) this.econ = rsp.getProvider();
+        }
     }
 
     public static RerollManager getInstance() {
@@ -50,11 +55,6 @@ public class RerollManager {
     public static void initialize(HoloUtils plugin) {
         if (instance == null) {
             instance = new RerollManager(plugin);
-
-            if (plugin.getServer().getPluginManager().getPlugin("Vault") != null){
-                RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
-                if (rsp != null) econ = rsp.getProvider();
-            }
         }
     }
 
@@ -92,13 +92,13 @@ public class RerollManager {
 
     public ItemStack reroll(ItemStack itemStack, Player player){
         NBTItem nbtItem = NBTItem.get(itemStack);
-        String entry = "";
+        String itemKey = "";
 
         if(nbtItem.hasType()){
-            entry = nbtItem.getType() + ":" + nbtItem.getString("MMOITEMS_ITEM_ID");
+            itemKey = nbtItem.getType() + ":" + nbtItem.getString("MMOITEMS_ITEM_ID");
         }
 
-        if(!rerollableItems.containsKey(entry) || !RerollRequirementValidator.validateAllRequirements(rerollableItems.get(entry),player)) {
+        if(!rerollableItems.containsKey(itemKey) || !RerollRequirementValidator.validateAllRequirements(rerollableItems.get(itemKey),player)) {
             return null;
         }
 
@@ -126,10 +126,9 @@ public class RerollManager {
         if(!rerollableItems.containsKey(entry)){
             return List.of(MessageHelper.process("<red>You cannot reroll any stat on this item."));
         } else {
-            List<RerollRequirement> requirementsList = rerollableItems.get(entry);
             List<Component> requirementsLore = new ArrayList<>();
 
-            for(RerollRequirement requirement : requirementsList) {
+            for(RerollRequirement requirement : rerollableItems.get(entry)) {
                 requirementsLore.add(MessageHelper.process(RerollRequirementValidator.getValidatedLore(requirement,player)));
             }
 

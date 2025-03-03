@@ -20,7 +20,7 @@ public class RerollGUI implements InventoryHolder {
     private final Inventory inventory;
 
     public RerollGUI(){
-        this.inventory = Bukkit.createInventory(this, 27, MessageHelper.process("<gold>Reroll Inventory"));
+        this.inventory = Bukkit.createInventory(this, 27, MessageHelper.process("<gold>Reroll"));
     }
 
     @Override

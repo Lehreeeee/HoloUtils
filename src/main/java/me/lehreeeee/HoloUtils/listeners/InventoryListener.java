@@ -10,7 +10,6 @@ import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,17 +25,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 public class InventoryListener implements Listener {
-    private final HoloUtils plugin;
-    private final Logger logger;
     private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
     private final NamespacedKey titleNameNSK = new NamespacedKey("holoutils","titlename");
 
     public InventoryListener(HoloUtils plugin){
-        this.plugin = plugin;
-        this.logger = plugin.getLogger();
         Bukkit.getPluginManager().registerEvents(this,plugin);
     }
 
@@ -71,8 +65,7 @@ public class InventoryListener implements Listener {
         event.setCancelled(true);
 
         int clickedSlot = event.getRawSlot();
-        Entity player = event.getWhoClicked();
-        UUID uuid = player.getUniqueId();
+        UUID uuid = event.getWhoClicked().getUniqueId();
 
         // Remove all player tag
         if(clickedSlot == 49){
@@ -98,16 +91,14 @@ public class InventoryListener implements Listener {
 
         int clickedSlot = event.getRawSlot();
         Player player = (Player) event.getWhoClicked();
-        //UUID uuid = player.getUniqueId();
 
+        // Reroll slot
         if(clickedSlot == 11) {
             ItemStack cursorItem = player.getItemOnCursor();
             ItemStack existingItem = clickedInv.getItem(11);
 
             // If already has MMOItems in there, return item to their inventory
-            if(NBTItem.get(existingItem).hasType()){
-                returnItem(existingItem,player);
-            }
+            returnItem(existingItem,player);
 
             // If cursor has MMOItems, force move into slot
             if(NBTItem.get(cursorItem).hasType()) {
@@ -128,19 +119,23 @@ public class InventoryListener implements Listener {
             return;
         }
 
+        // Dice button slot
         if(clickedSlot == 15) {
             ItemStack updatedItem = RerollManager.getInstance().reroll(clickedInv.getItem(11), player);
 
             if(updatedItem != null) {
                 player.sendMessage(MessageHelper.process("<aqua>[<gold>Reroll<aqua>] <gold>Item stats have been rerolled! How did it turn out?",false));
                 clickedInv.setItem(11, updatedItem);
+
+                // Update requirements again
+                updateDiceLore(clickedInv,RerollSlotAction.IN, player);
             }
         }
     }
 
     private void returnItem(ItemStack item, Player player){
-        // Ignore if no item in reroll slot or its orange pane
-        if(item == null || item.getType() == Material.ORANGE_STAINED_GLASS_PANE) return;
+        // Ignore if it's not MMOItem
+        if(!NBTItem.get(item).hasType()) return;
 
         // Attempt to add into their inventory
         HashMap<Integer, ItemStack> extraItems = player.getInventory().addItem(item);
@@ -164,11 +159,10 @@ public class InventoryListener implements Listener {
 
         switch(action){
             case IN -> {
-                ItemStack item = rerollGUI.getItem(11);
-                NBTItem nbtItem = NBTItem.get(item);
-                String entryName = nbtItem.getType() + ":" + nbtItem.getString("MMOITEMS_ITEM_ID");
+                NBTItem nbtItem = NBTItem.get(rerollGUI.getItem(11));
+                String itemKey = nbtItem.getType() + ":" + nbtItem.getString("MMOITEMS_ITEM_ID");
 
-                itemMeta.lore(RerollManager.getInstance().getRequirementsLoreList(entryName, player));
+                itemMeta.lore(RerollManager.getInstance().getRequirementsLoreList(itemKey, player));
             }
             case OUT -> {
                 itemMeta.lore(RerollManager.getInstance().getDefaultDiceLore());

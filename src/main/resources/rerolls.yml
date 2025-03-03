@@ -1,8 +1,16 @@
-# Requires 1 reroll stone and 100 XToken to reroll AO Chan
+# Entry name doesn't matter (the "example")
+#"example":
+#  Type: TOME
+#  Id: AO_CHAN
+#  Requirements:
+#    - mmoitems{type=MATERIAL;id=DRAGON_SCALE;amount=100}
+#    - money{amount=100}
+#    - recurrency{currency=XToken;amount=100}
+
 "1":
   Type: TOME
   Id: AO_CHAN
   Requirements:
-    - mmoitems{type=MATERIAL;id=REROLL_STONE;amount=1}
-    - money{amount=10}
-    - recurrency{currency=XToken;amount=100}
+    - mmoitems{type=MATERIAL;id=DRAGON_SCALE;amount=100}
+    - money{amount=100}
+#    - recurrency{currency=XToken;amount=100}

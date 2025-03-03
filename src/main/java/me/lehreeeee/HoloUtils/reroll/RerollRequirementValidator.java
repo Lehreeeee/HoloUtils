@@ -5,8 +5,10 @@ import me.lehreeeee.HoloUtils.managers.RerollManager;
 import net.Indyuce.mmoitems.MMOItems;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,7 +38,7 @@ public class RerollRequirementValidator {
 
                 // Return the item display name as lore
                 req.setValid(true);
-                return "<!i>" + NBTItem.get(mmoItem).getString("MMOITEMS_NAME") + " <!i><!b><gold>x<green>" + parseIntegerSafe(parameters.get("amount"));
+                return NBTItem.get(mmoItem).getString("MMOITEMS_NAME") + " <!i><!b><gold>x<green>" + parseIntegerSafe(parameters.get("amount"));
             }
             case RECURRENCY -> {
                 if(!parameters.containsKey("amount") || !parameters.containsKey("currency"))
@@ -55,18 +57,16 @@ public class RerollRequirementValidator {
         // Invalid? Return the base requirement lore that should contain error message.  (Due to config error)
         if(!req.isValid()) return req.getRequirementLore();
 
-        RerollRequirementType requirementType = req.getRequirementType();
         boolean meetsRequirement;
 
-        switch (requirementType) {
-            case MONEY -> meetsRequirement = checkMoneyRequirement(req,player);
-            case MMOITEMS -> meetsRequirement = checkMMOItemsRequirement(req,player);
-            case RECURRENCY -> meetsRequirement = checkRecurrencyRequirement(req,player);
+        switch (req.getRequirementType()) {
+            case MONEY -> meetsRequirement = checkMoneyRequirement(req,player,false);
+            case MMOITEMS -> meetsRequirement = checkMMOItemsRequirement(req,player,false);
+            case RECURRENCY -> meetsRequirement = checkRecurrencyRequirement(req,player,false);
             case null -> {
                 return req.getRequirementLore();
             }
         }
-
         return toSymbol(meetsRequirement) + req.getRequirementLore();
     }
 
@@ -76,37 +76,67 @@ public class RerollRequirementValidator {
             if(!req.isValid()) return false;
 
             switch (req.getRequirementType()) {
-                case MONEY -> { if(!checkMoneyRequirement(req, player)) return false; }
-                case MMOITEMS -> { if(!checkMMOItemsRequirement(req, player)) return false; }
-                case RECURRENCY -> { if(!checkRecurrencyRequirement(req, player)) return false; }
+                case MONEY -> { if(!checkMoneyRequirement(req, player,true)) return false; }
+                case MMOITEMS -> { if(!checkMMOItemsRequirement(req, player,true)) return false; }
+                case RECURRENCY -> { if(!checkRecurrencyRequirement(req, player,true)) return false; }
                 case null, default -> { return false; }
             }
         }
         return true;
     }
 
-
-    private static boolean checkMoneyRequirement(RerollRequirement req, Player player) {
+    private static boolean checkMoneyRequirement(RerollRequirement req, Player player, boolean shouldConsume) {
         Economy econ = RerollManager.getInstance().getEcon();
-        return econ != null && econ.has(player, parseDoubleSafe(req.getParameters().get("amount")));
+        double amount = parseDoubleSafe(req.getParameters().get("amount"));
+
+        if(econ == null || !econ.has(player,amount)){
+            return false;
+        }
+
+        if(shouldConsume){
+            econ.withdrawPlayer(player,amount);
+        }
+        return true;
     }
 
-    private static boolean checkMMOItemsRequirement(RerollRequirement req, Player player) {
+    private static boolean checkMMOItemsRequirement(RerollRequirement req, Player player, boolean shouldConsume) {
         int totalAmount = 0;
+        Inventory playerInv = player.getInventory();
+        List<ItemStack> validItems = new ArrayList<>();
 
-        for (ItemStack item : player.getInventory().getContents()) {
+        for (ItemStack item : playerInv.getContents()) {
             if (item == null) continue;
 
             NBTItem nbtItem = NBTItem.get(item);
-            if (Objects.equals(nbtItem.getType(), req.getParameters().get("type"))
-                    && Objects.equals(nbtItem.getString("MMOITEMS_ITEM_ID"), req.getParameters().get("id"))) {
+            if (Objects.equals(nbtItem.getType(), req.getParameters().get("type")) && Objects.equals(nbtItem.getString("MMOITEMS_ITEM_ID"), req.getParameters().get("id"))) {
                 totalAmount += item.getAmount();
+                validItems.add(item);
             }
         }
-        return totalAmount >= parseIntegerSafe(req.getParameters().get("amount"));
+
+        int amount = parseIntegerSafe(req.getParameters().get("amount"));
+        // Not enough, return early
+        if(totalAmount < amount) return false;
+
+        if(shouldConsume){
+            for (ItemStack item : validItems) {
+                int stackSize = item.getAmount();
+
+                if (stackSize <= amount) {
+                    // Remove and deduct the amount
+                    playerInv.remove(item);
+                    amount -= stackSize;
+                } else {
+                    // Final stack, decrease the stack size and then exit
+                    item.setAmount(stackSize - amount);
+                    break;
+                }
+            }
+        }
+        return true;
     }
 
-    private static boolean checkRecurrencyRequirement(RerollRequirement req, Player player){
+    private static boolean checkRecurrencyRequirement(RerollRequirement req, Player player, boolean shouldConsume){
         boolean meetsRequirement = false;
 
 
