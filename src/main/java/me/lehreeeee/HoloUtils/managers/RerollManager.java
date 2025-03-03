@@ -65,8 +65,8 @@ public class RerollManager {
             ConfigurationSection itemSection = rerollConfig.getConfigurationSection(key);
             if(itemSection == null) continue;
 
-            String type = itemSection.getString("Type");
-            String id = itemSection.getString("Id");
+            String type = itemSection.getString("type");
+            String id = itemSection.getString("id");
 
             if(type == null || id == null) {
                 logger.warning("Invalid reroll entry at - " + key);
@@ -74,7 +74,7 @@ public class RerollManager {
             }
 
             List<RerollRequirement> requirements = new ArrayList<>();
-            List<String> reqList = itemSection.getStringList("Requirements");
+            List<String> reqList = itemSection.getStringList("requirements");
 
             for (String req : reqList) {
                 requirements.add(new RerollRequirement(req));

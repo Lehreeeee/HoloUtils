@@ -1,16 +1,16 @@
 # Entry name doesn't matter (the "example")
 #"example":
-#  Type: TOME
-#  Id: AO_CHAN
-#  Requirements:
+#  type: TOME
+#  id: AO_CHAN
+#  requirements:
 #    - mmoitems{type=MATERIAL;id=DRAGON_SCALE;amount=100}
 #    - money{amount=100}
 #    - recurrency{currency=XToken;amount=100}
 
 "1":
-  Type: TOME
-  Id: AO_CHAN
-  Requirements:
+  type: TOME
+  id: AO_CHAN
+  requirements:
     - mmoitems{type=MATERIAL;id=DRAGON_SCALE;amount=100}
     - money{amount=100}
 #    - recurrency{currency=XToken;amount=100}
