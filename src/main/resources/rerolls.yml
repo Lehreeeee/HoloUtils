@@ -1,26 +1,26 @@
 ## IMPORTANT ##
-# 1. Recurrency{} works, but in a janky way due to their API being unusable.
+# 1. recurrency{} works, but in a janky way due to their API being unusable.
 #    - It relies on the placeholder "%reconomy-mileage_balance_no_commas%" to check balance.
-#    - Then, it executes the console command: "/recurrency remove Lehreeeee 0.005 mileage" to deduct balance.
+#    - Then, it runs a console command: "/recurrency remove Lehreeeee 0.005 mileage" to deduct balance.
 #    - @Lehreeeee if their placeholders or commands changed, adjustments will be needed.
 #
-# 2. Entry names (e.g., "example") do not matter.
+# 2. Entry names (e.g., "WAH", "1") don't matter, just don't repeat.
 #
 # 3. More customization options will be added when im free.
 
 # Example Entry
-#"example":
+#"1":
 #  type: TOME
 #  id: AO_CHAN
 #  requirements:
 #    - mmoitems{type=MATERIAL;id=DRAGON_SCALE;amount=100}
 #    - money{amount=100}
-#    - recurrency{currency=XToken;amount=100}
+#    - recurrency{currency=XToken;amount=10}
 
-"1":
+"WAH":
   type: TOME
   id: AO_CHAN
   requirements:
-    - mmoitems{type=MATERIAL;id=DRAGON_SCALE;amount=100}
+    - mmoitems{type=MATERIAL;id=DRAGON_SCALE;amount=10}
     - money{amount=100}
-    - recurrency{currency=XToken;amount=100}
+    - recurrency{currency=mileage;amount=10}

@@ -90,6 +90,7 @@ public class RerollRequirementValidator {
         }
 
         // Now all requirements are met
+        RerollManager.getInstance().logReroll("[Reroll] All requirements are met, rerolling stats for player - " + player.getName());
         for (RerollRequirement req : requirements) {
             switch (req.getRequirementType()) {
                 case MONEY -> checkMoneyRequirement(req, player,true);
@@ -102,14 +103,15 @@ public class RerollRequirementValidator {
 
     private static boolean checkMoneyRequirement(RerollRequirement req, Player player, boolean shouldConsume) {
         Economy econ = RerollManager.getInstance().getEcon();
-        double amount = parseDoubleSafe(req.getParameters().get("amount"));
+        double reqAmount = parseDoubleSafe(req.getParameters().get("amount"));
 
-        if(econ == null || !econ.has(player,amount)){
+        if(econ == null || !econ.has(player,reqAmount)){
             return false;
         }
 
         if(shouldConsume){
-            econ.withdrawPlayer(player,amount);
+            econ.withdrawPlayer(player,reqAmount);
+            RerollManager.getInstance().logReroll(MessageFormat.format("[Reroll] Withdrew ${0} from {1}.",reqAmount,player.getName()));
         }
         return true;
     }
@@ -130,23 +132,31 @@ public class RerollRequirementValidator {
         }
 
         int reqAmount = parseIntegerSafe(req.getParameters().get("amount"));
+        int amountLeft = reqAmount;
         // Not enough, return early
-        if(totalAmount < reqAmount) return false;
+        if(totalAmount < amountLeft) return false;
 
         if(shouldConsume){
             for (ItemStack item : validItems) {
                 int stackSize = item.getAmount();
 
-                if (stackSize <= reqAmount) {
+                if (stackSize <= amountLeft) {
                     // Remove and deduct the amount
                     playerInv.remove(item);
-                    reqAmount -= stackSize;
+                    amountLeft -= stackSize;
                 } else {
                     // Final stack, decrease the stack size and then exit
-                    item.setAmount(stackSize - reqAmount);
+                    item.setAmount(stackSize - amountLeft);
                     break;
                 }
             }
+            RerollManager.getInstance().logReroll(
+                    MessageFormat.format("[Reroll] Took {0}:{1} x{2} from {3}",
+                            req.getParameters().get("type"),
+                            req.getParameters().get("id"),
+                            reqAmount,
+                            player.getName()
+                    ));
         }
         return true;
     }
@@ -162,6 +172,7 @@ public class RerollRequirementValidator {
         if(shouldConsume){
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                     MessageFormat.format("recurrency remove {0} {1} {2}",player.getName(),reqAmount,currencyName));
+            RerollManager.getInstance().logReroll(MessageFormat.format("[Reroll] Withdrew {0} {1} from {2}.",reqAmount,currencyName,player.getName()));
         }
         return true;
     }

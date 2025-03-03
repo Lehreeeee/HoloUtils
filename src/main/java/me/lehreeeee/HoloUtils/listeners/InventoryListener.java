@@ -133,7 +133,7 @@ public class InventoryListener implements Listener {
 
             if(updatedItem != null) {
                 player.playSound(getSound("block.amethyst_block.resonate"));
-                player.sendMessage(MessageHelper.process("<aqua>[<gold>Reroll<aqua>] <gold>Item stats have been rerolled! How did it turn out?",false));
+                player.sendMessage(MessageHelper.process("<aqua>[<gold>Reroll<aqua>] <gold>Item stats have been rerolled!",false));
                 clickedInv.setItem(11, updatedItem);
 
                 // Update requirements again

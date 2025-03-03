@@ -69,7 +69,7 @@ public class RerollManager {
             String id = itemSection.getString("id");
 
             if(type == null || id == null) {
-                logger.warning("Invalid reroll entry at - " + key);
+                logger.warning("Invalid reroll entry format at - " + key);
                 continue;
             }
 
@@ -80,7 +80,7 @@ public class RerollManager {
                 try{
                     requirements.add(new RerollRequirement(req));
                 } catch (IllegalArgumentException e){
-                    logger.severe(e.getMessage() + ", at key " + key);
+                    logger.severe(e.getMessage() + " at - " + key);
                 }
             }
 
@@ -131,6 +131,7 @@ public class RerollManager {
             return List.of(MessageHelper.process("<red>You cannot reroll any stat on this item."));
         } else {
             List<Component> requirementsLore = new ArrayList<>();
+            requirementsLore.add(MessageHelper.process("<aqua>Requirements:"));
 
             for(RerollRequirement requirement : rerollableItems.get(itemKey)) {
                 requirementsLore.add(MessageHelper.process(RerollRequirementValidator.getValidatedLore(requirement,player)));
@@ -146,5 +147,9 @@ public class RerollManager {
 
     public boolean isRerollable(String itemKey){
         return rerollableItems.containsKey(itemKey);
+    }
+
+    public void logReroll(String msg){
+        logger.info(msg);
     }
 }
