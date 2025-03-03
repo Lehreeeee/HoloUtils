@@ -33,7 +33,7 @@ public class RerollManager {
 
     private final Map<String, List<RerollRequirement>> rerollableItems = new HashMap<>();
 
-    private  Economy econ;
+    private Economy econ;
 
     private RerollManager(HoloUtils plugin){
         this.plugin = plugin;
@@ -77,7 +77,11 @@ public class RerollManager {
             List<String> reqList = itemSection.getStringList("requirements");
 
             for (String req : reqList) {
-                requirements.add(new RerollRequirement(req));
+                try{
+                    requirements.add(new RerollRequirement(req));
+                } catch (IllegalArgumentException e){
+                    logger.severe(e.getMessage() + ", at key " + key);
+                }
             }
 
             String entry = type + ":" + id;

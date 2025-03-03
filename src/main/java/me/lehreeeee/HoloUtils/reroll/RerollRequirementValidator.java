@@ -1,13 +1,16 @@
 package me.lehreeeee.HoloUtils.reroll;
 
 import io.lumine.mythic.lib.api.item.NBTItem;
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
 import net.Indyuce.mmoitems.MMOItems;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +48,7 @@ public class RerollRequirementValidator {
                     return "<red>Missing required parameters for " + requirementType + ", please report to developer!";
 
                 req.setValid(true);
-                return "<yellow>" + parameters.get("currency") + " <gold>x<green>" + parameters.get("amount");
+                return "<yellow>" + parameters.get("currency") + " <gold>x<green>" + parseDoubleSafe(parameters.get("amount"));
             }
             case null -> {
                 return "<red>Unsupported requirement type, please report to developer!";
@@ -71,15 +74,27 @@ public class RerollRequirementValidator {
     }
 
     public static boolean validateAllRequirements(List<RerollRequirement> requirements, Player player){
-        // Return immediately if any of them is invalid
+        // Exit immediately if any of them is invalid
         for(RerollRequirement req : requirements){
             if(!req.isValid()) return false;
 
+            boolean requirementMet = switch (req.getRequirementType()) {
+                case MONEY -> checkMoneyRequirement(req, player, false);
+                case MMOITEMS -> checkMMOItemsRequirement(req, player, false);
+                case RECURRENCY -> checkRecurrencyRequirement(req, player, false);
+                case null -> false;
+            };
+
+            // Exit if any of the requirement is not met
+            if(!requirementMet) return false;
+        }
+
+        // Now all requirements are met
+        for (RerollRequirement req : requirements) {
             switch (req.getRequirementType()) {
-                case MONEY -> { if(!checkMoneyRequirement(req, player,true)) return false; }
-                case MMOITEMS -> { if(!checkMMOItemsRequirement(req, player,true)) return false; }
-                case RECURRENCY -> { if(!checkRecurrencyRequirement(req, player,true)) return false; }
-                case null, default -> { return false; }
+                case MONEY -> checkMoneyRequirement(req, player,true);
+                case MMOITEMS -> checkMMOItemsRequirement(req, player,true);
+                case RECURRENCY -> checkRecurrencyRequirement(req, player,true);
             }
         }
         return true;
@@ -114,21 +129,21 @@ public class RerollRequirementValidator {
             }
         }
 
-        int amount = parseIntegerSafe(req.getParameters().get("amount"));
+        int reqAmount = parseIntegerSafe(req.getParameters().get("amount"));
         // Not enough, return early
-        if(totalAmount < amount) return false;
+        if(totalAmount < reqAmount) return false;
 
         if(shouldConsume){
             for (ItemStack item : validItems) {
                 int stackSize = item.getAmount();
 
-                if (stackSize <= amount) {
+                if (stackSize <= reqAmount) {
                     // Remove and deduct the amount
                     playerInv.remove(item);
-                    amount -= stackSize;
+                    reqAmount -= stackSize;
                 } else {
                     // Final stack, decrease the stack size and then exit
-                    item.setAmount(stackSize - amount);
+                    item.setAmount(stackSize - reqAmount);
                     break;
                 }
             }
@@ -137,15 +152,23 @@ public class RerollRequirementValidator {
     }
 
     private static boolean checkRecurrencyRequirement(RerollRequirement req, Player player, boolean shouldConsume){
-        boolean meetsRequirement = false;
+        String currencyName = req.getParameters().get("currency");
+        String placeholder = "%reconomy-" + currencyName + "_balance_no_commas%";
+        double balance = parseDoubleSafe(PlaceholderAPI.setPlaceholders(player,placeholder));
 
+        double reqAmount = parseDoubleSafe(req.getParameters().get("amount"));
+        if(balance < reqAmount) return false;
 
-        return meetsRequirement;
+        if(shouldConsume){
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                    MessageFormat.format("recurrency remove {0} {1} {2}",player.getName(),reqAmount,currencyName));
+        }
+        return true;
     }
 
     private static double parseDoubleSafe(String value) {
         try {
-            return Double.parseDouble(value);
+            return Math.max(0,Double.parseDouble(value));
         } catch (NumberFormatException | NullPointerException e) {
             return 0.0;
         }
@@ -153,7 +176,7 @@ public class RerollRequirementValidator {
 
     private static int parseIntegerSafe(String value) {
         try {
-            return Integer.parseInt(value);
+            return Math.max(0,Integer.parseInt(value));
         } catch (NumberFormatException | NullPointerException e) {
             return 0;
         }
