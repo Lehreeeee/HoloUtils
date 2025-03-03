@@ -62,12 +62,21 @@ public class RerollGUI implements InventoryHolder {
         inventory.setItem(15,diceHead);
 
         // Add glass pane to reroll slot
-        ItemStack glassPane = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
-        ItemMeta glassPaneMeta = glassPane.getItemMeta();
-        glassPaneMeta.displayName(MessageHelper.process("<aqua>Put the item you wish to reroll here."));
+        ItemStack rerollPane = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
+        ItemMeta rerollPaneMeta = rerollPane.getItemMeta();
+        rerollPaneMeta.displayName(MessageHelper.process("<aqua>Place the item you wish to reroll here."));
 
-        glassPane.setItemMeta(glassPaneMeta);
+        rerollPane.setItemMeta(rerollPaneMeta);
 
-        inventory.setItem(11,glassPane);
+        inventory.setItem(11,rerollPane);
+
+        // Add glass pane to template display slot
+        ItemStack templatePane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemMeta templatePaneMeta = templatePane.getItemMeta();
+        templatePaneMeta.displayName(MessageHelper.process("<aqua>Item template will be shown here."));
+
+        templatePane.setItemMeta(templatePaneMeta);
+
+        inventory.setItem(13,templatePane);
     }
 }

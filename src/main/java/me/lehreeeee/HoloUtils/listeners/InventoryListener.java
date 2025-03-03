@@ -7,6 +7,9 @@ import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import net.Indyuce.mmoitems.MMOItems;
+import net.Indyuce.mmoitems.api.crafting.ConfigMMOItem;
+import net.Indyuce.mmoitems.api.item.template.MMOItemTemplate;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -106,6 +109,7 @@ public class InventoryListener implements Listener {
                 player.setItemOnCursor(null);
 
                 updateDiceLore(clickedInv,RerollSlotAction.IN, player);
+                updateTemplateItem(clickedInv,RerollSlotAction.IN);
             } else { // Else put back the pane
                 ItemStack glassPane = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
                 ItemMeta glassPaneMeta = glassPane.getItemMeta();
@@ -115,6 +119,7 @@ public class InventoryListener implements Listener {
                 clickedInv.setItem(11, glassPane);
 
                 updateDiceLore(clickedInv,RerollSlotAction.OUT, null);
+                updateTemplateItem(clickedInv,RerollSlotAction.OUT);
             }
             return;
         }
@@ -170,5 +175,34 @@ public class InventoryListener implements Listener {
         }
 
         dice.setItemMeta(itemMeta);
+    }
+
+    private void updateTemplateItem(Inventory rerollGUI, RerollSlotAction action){
+        switch(action){
+            case IN -> {
+                NBTItem nbtItem = NBTItem.get(rerollGUI.getItem(11));
+                String itemKey = nbtItem.getType() + ":" + nbtItem.getString("MMOITEMS_ITEM_ID");
+
+                if(!RerollManager.getInstance().isRerollable(itemKey)) return;
+
+
+
+                MMOItemTemplate template = MMOItems.plugin.getTemplates().getTemplate(nbtItem);
+
+                if(template != null){
+                    Bukkit.getLogger().info("Template not null");
+                    rerollGUI.setItem(13,new ConfigMMOItem(template,1).getPreview());
+                }
+            }
+            case OUT -> {
+                ItemStack templatePane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+                ItemMeta templatePaneMeta = templatePane.getItemMeta();
+                templatePaneMeta.displayName(MessageHelper.process("<aqua>Item template will be shown here."));
+
+                templatePane.setItemMeta(templatePaneMeta);
+
+                rerollGUI.setItem(13,templatePane);
+            }
+        }
     }
 }

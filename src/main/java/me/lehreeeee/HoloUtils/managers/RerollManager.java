@@ -122,13 +122,13 @@ public class RerollManager {
         );
     }
 
-    public List<Component> getRequirementsLoreList(String entry, Player player){
-        if(!rerollableItems.containsKey(entry)){
+    public List<Component> getRequirementsLoreList(String itemKey, Player player){
+        if(!rerollableItems.containsKey(itemKey)){
             return List.of(MessageHelper.process("<red>You cannot reroll any stat on this item."));
         } else {
             List<Component> requirementsLore = new ArrayList<>();
 
-            for(RerollRequirement requirement : rerollableItems.get(entry)) {
+            for(RerollRequirement requirement : rerollableItems.get(itemKey)) {
                 requirementsLore.add(MessageHelper.process(RerollRequirementValidator.getValidatedLore(requirement,player)));
             }
 
@@ -138,5 +138,9 @@ public class RerollManager {
 
     public Economy getEcon(){
         return econ;
+    }
+
+    public boolean isRerollable(String itemKey){
+        return rerollableItems.containsKey(itemKey);
     }
 }
