@@ -10,6 +10,8 @@ import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.crafting.ConfigMMOItem;
 import net.Indyuce.mmoitems.api.item.template.MMOItemTemplate;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -110,6 +112,7 @@ public class InventoryListener implements Listener {
 
                 updateDiceLore(clickedInv,RerollSlotAction.IN, player);
                 updateTemplateItem(clickedInv,RerollSlotAction.IN);
+                player.playSound(getSound("block.amethyst_block.place"));
             } else { // Else put back the pane
                 ItemStack glassPane = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
                 ItemMeta glassPaneMeta = glassPane.getItemMeta();
@@ -129,11 +132,14 @@ public class InventoryListener implements Listener {
             ItemStack updatedItem = RerollManager.getInstance().reroll(clickedInv.getItem(11), player);
 
             if(updatedItem != null) {
+                player.playSound(getSound("block.amethyst_block.resonate"));
                 player.sendMessage(MessageHelper.process("<aqua>[<gold>Reroll<aqua>] <gold>Item stats have been rerolled! How did it turn out?",false));
                 clickedInv.setItem(11, updatedItem);
 
                 // Update requirements again
                 updateDiceLore(clickedInv,RerollSlotAction.IN, player);
+            } else {
+                player.playSound(getSound("entity.villager.no"));
             }
         }
     }
@@ -144,6 +150,7 @@ public class InventoryListener implements Listener {
 
         // Attempt to add into their inventory
         HashMap<Integer, ItemStack> extraItems = player.getInventory().addItem(item);
+        player.playSound(getSound("block.amethyst_block.place"));
 
         // Drop the item when inventory is full.
         if(!extraItems.isEmpty()){
@@ -185,12 +192,9 @@ public class InventoryListener implements Listener {
 
                 if(!RerollManager.getInstance().isRerollable(itemKey)) return;
 
-
-
                 MMOItemTemplate template = MMOItems.plugin.getTemplates().getTemplate(nbtItem);
 
                 if(template != null){
-                    Bukkit.getLogger().info("Template not null");
                     rerollGUI.setItem(13,new ConfigMMOItem(template,1).getPreview());
                 }
             }
@@ -204,5 +208,9 @@ public class InventoryListener implements Listener {
                 rerollGUI.setItem(13,templatePane);
             }
         }
+    }
+
+    private Sound getSound(String soundName) {
+        return Sound.sound(Key.key(soundName),Sound.Source.MASTER,1.0F,1.0F);
     }
 }
