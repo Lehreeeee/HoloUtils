@@ -1,5 +1,14 @@
 package me.lehreeeee.HoloUtils;
 
+import io.lumine.mythic.api.adapters.AbstractEntity;
+import io.lumine.mythic.api.skills.SkillMetadata;
+import io.lumine.mythic.bukkit.MythicBukkit;
+import io.lumine.mythic.core.skills.placeholders.Placeholder;
+import io.lumine.mythic.lib.MythicLib;
+import io.lumine.mythic.lib.UtilityMethods;
+import io.lumine.mythic.lib.damage.AttackMetadata;
+import io.lumine.mythic.lib.damage.DamageType;
+import io.lumine.mythic.lib.element.Element;
 import me.lehreeeee.HoloUtils.commands.*;
 import me.lehreeeee.HoloUtils.listeners.DisplayListener;
 import me.lehreeeee.HoloUtils.listeners.InventoryListener;
@@ -12,17 +21,18 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
 public final class HoloUtils extends JavaPlugin {
-
     private final Logger logger = getLogger();
     private PlayerProjectileListener playerProjectileListener;
     private boolean debug = false;
@@ -52,6 +62,8 @@ public final class HoloUtils extends JavaPlugin {
 
         // Welcome to my yt channel, please saracabribe
         RedisManager.getInstance().subscribe();
+
+        //registerMythicMobsPlaceholders();
 
         logger.info("Enabled HoloUtils...");
     }
@@ -125,6 +137,10 @@ public final class HoloUtils extends JavaPlugin {
         }.runTaskLater(this, 1L);
     }
 
+    public static HoloUtils getPlugin(){
+        return (HoloUtils) Bukkit.getPluginManager().getPlugin("HoloUtils");
+    }
+
     private void saveCustomConfig(){
         Set<String> customConfigs = Set.of(
                 "DisplayTag/PlayerTitles.yml",
@@ -148,13 +164,13 @@ public final class HoloUtils extends JavaPlugin {
         logger.info("Initializing StatusDisplayManager...");
         StatusDisplayManager.initialize(this);
         logger.info("Initializing RedisManager...");
-        RedisManager.initialize(logger);
+        RedisManager.initialize();
         logger.info("Initializing DevChatManager...");
-        DevChatManager.initialize(logger);
+        DevChatManager.initialize();
 
         if(MMOItemsAvailable){
             logger.info("Found MMOItems, initializing RerollManager");
-            RerollManager.initialize(this);
+            RerollManager.initialize();
         }
 
         // TODO: To be removed after 3 months
@@ -182,6 +198,51 @@ public final class HoloUtils extends JavaPlugin {
             logger.info("Loading claimaccessories commands...");
             getCommand("claimaccessories").setExecutor(new ClaimAccessoriesCommand(logger));
         }
+    }
+
+    private void registerMythicMobsPlaceholders(){
+        if(Bukkit.getPluginManager().getPlugin("MythicMobs") == null){
+            logger.info("MythicMobs not found, not registering custom placeholders.");
+            return;
+        }
+
+        MythicBukkit.inst().getPlaceholderManager().register("hu.mmodamage", Placeholder.meta((metadata, arg) -> {
+            if (!(metadata instanceof SkillMetadata))
+                throw new RuntimeException("Cannot use this placeholder outside of skill");
+
+            final SkillMetadata skillMeta = (SkillMetadata) metadata;
+            final Optional<AbstractEntity> damagedOpt = skillMeta.getEntityTargets().stream().findFirst();
+            //Validate.isTrue(damagedOpt.isPresent(), "Could not find target entity");
+            final Entity attacker = skillMeta.getCaster().getEntity().getBukkitEntity();
+            final Entity damaged = damagedOpt.get().getBukkitEntity();
+
+            logger.info("Attacker-Damaged " + attacker.getName() + damaged.getName());
+
+            logger.info("Going thru targets");
+            for(AbstractEntity entity : skillMeta.getEntityTargets()){
+                logger.info(entity.getBukkitEntity().getName());
+            }
+            logger.info("Trigger - " + skillMeta.getTrigger().getName());
+            logger.info("Caster - " + skillMeta.getCaster().getName());
+
+            final AttackMetadata attackMeta = MythicLib.plugin.getDamage().findAttack(new EntityDamageEvent(damaged, EntityDamageEvent.DamageCause.CUSTOM, 0));
+            //Validate.notNull(attackMeta, "Entity not being attacked");
+
+            if (arg != null && !arg.isEmpty()) {
+                for (Element element : Element.values()) {
+                    if(element.getName().equalsIgnoreCase(arg)) {
+                        logger.info("Found element - " + element.getName());
+                        logger.info("Damage - " + attackMeta.getDamage().getDamage(element));
+                        logger.info(attackMeta.getDamage().toString());
+                        return String.valueOf(attackMeta.getDamage().getDamage(element));
+                    }
+                }
+
+                final DamageType type = DamageType.valueOf(UtilityMethods.enumName(arg));
+                return String.valueOf(attackMeta.getDamage().getDamage(type));
+            }
+            return String.valueOf(attackMeta.getDamage().getDamage());
+        }));
     }
 
     public boolean shouldPrintDebug(){

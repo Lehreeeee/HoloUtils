@@ -6,7 +6,7 @@
 
     <groupId>me.lehreeeee</groupId>
     <artifactId>HoloUtils</artifactId>
-    <version>1.9.0</version>
+    <version>1.9.1</version>
     <packaging>jar</packaging>
 
     <name>HoloUtils</name>
@@ -19,6 +19,13 @@
     <build>
         <defaultGoal>clean package</defaultGoal>
         <plugins>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <outputDirectory>C:\Users\Lehreeeee\Desktop\Minecraft Server Development\Test-1.21.1\plugins</outputDirectory>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -126,6 +133,12 @@
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.lumine</groupId>
+            <artifactId>Mythic-Dist</artifactId>
+            <version>5.8.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

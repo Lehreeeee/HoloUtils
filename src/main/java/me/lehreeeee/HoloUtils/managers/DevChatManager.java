@@ -3,6 +3,7 @@ package me.lehreeeee.HoloUtils.managers;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import me.lehreeeee.HoloUtils.utils.LoggerUtil;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -13,20 +14,14 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 public class DevChatManager {
     private static DevChatManager instance;
-    private final Logger logger;
 
     private String devChatPrefix = "<aqua>[<red>Dev<aqua>]";
     private String devChatColor = "<aqua>";
 
     private final List<UUID> toggledOnDev = new ArrayList<>();
-
-    private DevChatManager(Logger logger){
-        this.logger = logger;
-    }
 
     public static DevChatManager getInstance(){
         if(instance == null){
@@ -35,9 +30,9 @@ public class DevChatManager {
         return instance;
     }
 
-    public static void initialize(Logger logger) {
+    public static void initialize(){
         if (instance == null) {
-            instance = new DevChatManager(logger);
+            instance = new DevChatManager();
         }
     }
 
@@ -46,7 +41,7 @@ public class DevChatManager {
         devChatColor = devChatConfig != null ? devChatConfig.getString("color", "<aqua>") : "<aqua>";
 
         if(devChatConfig == null){
-            logger.info("Dev chat config section not found, using default configs.");
+            LoggerUtil.info("Dev chat config section not found, using default configs.");
         }
     }
 
@@ -96,7 +91,7 @@ public class DevChatManager {
 
             // Check if the required fields exist in the JSON
             if (!json.has("messageSender") || !json.has("message")) {
-                logger.warning("Missing required fields in the JSON data.");
+                LoggerUtil.warning("Missing required fields in the JSON data.");
                 return;
             }
 
@@ -111,9 +106,9 @@ public class DevChatManager {
                 }
             }
 
-            logger.info(MessageHelper.getPlainText(MessageHelper.revert(finalMessage)));
+            LoggerUtil.info(MessageHelper.getPlainText(MessageHelper.revert(finalMessage)));
         } catch (JsonSyntaxException e){
-            logger.warning("Invalid JSON format received from devchat channel - " + data);
+            LoggerUtil.warning("Invalid JSON format received from devchat channel - " + data);
         }
     }
 }

@@ -1,7 +1,9 @@
 package me.lehreeeee.HoloUtils.managers;
 
 import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.utils.LoggerUtil;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -14,23 +16,22 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.util.io.BukkitObjectInputStream;
 
 import java.io.ByteArrayInputStream;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.logging.Logger;
-import com.zaxxer.hikari.HikariDataSource;
 
 public class MySQLManager {
     private static MySQLManager instance;
-    private final Logger logger;
     private final HoloUtils plugin;
     private HikariDataSource dataSource;
     private static final String EMPTY_INVENTORY = "rO0ABXcEAAAAAA==";
 
     private MySQLManager(HoloUtils plugin){
         this.plugin = plugin;
-        this.logger = plugin.getLogger();
     }
 
     public static MySQLManager getInstance(){
@@ -61,13 +62,13 @@ public class MySQLManager {
         config.setPoolName("HoloUtils-Connection-Pool");
 
         dataSource = new HikariDataSource(config);
-        logger.info("HikariCP connection pool opened.");
+        LoggerUtil.info("HikariCP connection pool opened.");
     }
 
     public void closeConnectionPool(){
         if(dataSource != null){
             dataSource.close();
-            logger.info("HikariCP connection pool closed.");
+            LoggerUtil.info("HikariCP connection pool closed.");
         }
     }
 
@@ -90,7 +91,7 @@ public class MySQLManager {
                     sendFeedbackMessage(Bukkit.getPlayer(UUID.fromString(uuid)),"<#FFA500>You have no unclaimed accessories.");
                 }
             } catch (SQLException e) {
-                logger.severe("Failed to query from MySQL server." + " Error: " + e.getMessage());
+                LoggerUtil.severe("Failed to query from MySQL server." + " Error: " + e.getMessage());
             }
         });
     }
@@ -138,13 +139,13 @@ public class MySQLManager {
 
             bukkitObjectInputStream.close();
         } catch (Exception e) {
-            logger.severe("Failed to decode/deserialize inventory." + " Error: " + e.getMessage());
+            LoggerUtil.severe("Failed to decode/deserialize inventory." + " Error: " + e.getMessage());
         }
     }
 
     private void updateEntryforClaimedPlayer(String uuid){
         try(Connection con = dataSource.getConnection()){
-            logger.info("User " + uuid + " claimed their accessories, updating entry.");
+            LoggerUtil.info("User " + uuid + " claimed their accessories, updating entry.");
 
             String sql = "UPDATE mmoinventory_inventories_rework SET inventory = ? WHERE uuid = ?";
             PreparedStatement stmt = con.prepareStatement(sql);
@@ -153,12 +154,12 @@ public class MySQLManager {
 
             stmt.executeUpdate();
         } catch (SQLException e){
-            logger.severe("Failed to update entry for claimed player." + " Error: " + e.getMessage());
+            LoggerUtil.severe("Failed to update entry for claimed player." + " Error: " + e.getMessage());
         }
     }
 
     private void sendFeedbackMessage(Player player, String msg){
-        logger.info(MessageHelper.getPlainText(msg));
+        LoggerUtil.info(MessageHelper.getPlainText(msg));
 
         if(player != null) player.sendMessage(MessageHelper.process(msg,true));
     }

@@ -1,6 +1,7 @@
 package me.lehreeeee.HoloUtils.managers;
 
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.utils.LoggerUtil;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,12 +19,10 @@ import org.joml.Vector3f;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 public class TitleDisplayManager {
     private static TitleDisplayManager instance;
     private final HoloUtils plugin;
-    private final Logger logger;
 
     private String GUIName = "<white>[<aqua>Title Display<white>]";
     private float titleHeight = 0.6F;
@@ -33,7 +32,6 @@ public class TitleDisplayManager {
 
     private TitleDisplayManager(HoloUtils plugin){
         this.plugin = plugin;
-        this.logger = plugin.getLogger();
     }
 
     public static TitleDisplayManager getInstance() {
@@ -83,12 +81,12 @@ public class TitleDisplayManager {
         Entity targetEntity = Bukkit.getEntity(uuid);
 
         if (targetEntity == null) {
-            logger.warning("Cant find the entity.");
+            LoggerUtil.warning("Cant find the entity.");
             return;
         }
 
         if(!(targetEntity instanceof Player)) {
-            logger.warning("You can't use title display on non-player. (Why tho?)");
+            LoggerUtil.warning("You can't use title display on non-player. (Why tho?)");
             return;
         }
 
@@ -122,13 +120,13 @@ public class TitleDisplayManager {
         }
 
         loadedPlayerTitles.remove(uuid);
-        debugLogger("Removed title for entity " + uuid);
+        LoggerUtil.debug("Removed title for entity " + uuid);
     }
 
     public void removeAllTitles(){
         if(loadedPlayerTitles.isEmpty()) return;
 
-        logger.info("Found " + loadedPlayerTitles.size() + " remaining player title display, removing them.");
+        LoggerUtil.info("Found " + loadedPlayerTitles.size() + " remaining player title display, removing them.");
         for(UUID uuid : loadedPlayerTitles.keySet()){
             TextDisplay display = loadedPlayerTitles.get(uuid);
             if(display != null){
@@ -137,7 +135,7 @@ public class TitleDisplayManager {
         }
 
         loadedPlayerTitles.clear();
-        debugLogger("Removed all loaded titles");
+        LoggerUtil.debug("Removed all loaded titles");
     }
 
     public void updateLocation(UUID uuid, Location location){
@@ -154,7 +152,7 @@ public class TitleDisplayManager {
                     // Teleport is needed after changing world too
                     title.teleport(location);
                     entity.addPassenger(title);
-                    debugLogger("Updated title location for entity " + uuid + " to " + title.getLocation());
+                    LoggerUtil.debug("Updated title location for entity " + uuid + " to " + title.getLocation());
                 }
             }.runTaskLater(plugin, 5L);
         }
@@ -179,9 +177,5 @@ public class TitleDisplayManager {
                     )
             );
         });
-    }
-
-    private void debugLogger(String debugMessage){
-        if(plugin.shouldPrintDebug()) logger.info(debugMessage);
     }
 }

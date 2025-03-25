@@ -1,9 +1,9 @@
 package me.lehreeeee.HoloUtils.managers;
 
 import io.lumine.mythic.lib.api.item.NBTItem;
-import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.reroll.RerollRequirement;
 import me.lehreeeee.HoloUtils.reroll.RerollRequirementValidator;
+import me.lehreeeee.HoloUtils.utils.LoggerUtil;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.util.MMOItemReforger;
@@ -24,22 +24,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class RerollManager {
     private static RerollManager instance;
-    private final HoloUtils plugin;
-    private final Logger logger;
 
     private final Map<String, List<RerollRequirement>> rerollableItems = new HashMap<>();
 
     private Economy econ;
 
-    private RerollManager(HoloUtils plugin){
-        this.plugin = plugin;
-        this.logger = plugin.getLogger();
-
-        if (plugin.getServer().getPluginManager().getPlugin("Vault") != null){
+    private RerollManager(){
+        if (Bukkit.getPluginManager().getPlugin("Vault") != null){
             RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
             if (rsp != null) this.econ = rsp.getProvider();
         }
@@ -52,9 +46,9 @@ public class RerollManager {
         return instance;
     }
 
-    public static void initialize(HoloUtils plugin) {
+    public static void initialize() {
         if (instance == null) {
-            instance = new RerollManager(plugin);
+            instance = new RerollManager();
         }
     }
 
@@ -69,7 +63,7 @@ public class RerollManager {
             String id = itemSection.getString("id");
 
             if(type == null || id == null) {
-                logger.warning("Invalid reroll entry format at - " + key);
+                LoggerUtil.warning("Invalid reroll entry format at - " + key);
                 continue;
             }
 
@@ -80,16 +74,16 @@ public class RerollManager {
                 try{
                     requirements.add(new RerollRequirement(req));
                 } catch (IllegalArgumentException e){
-                    logger.severe(e.getMessage() + " at - " + key);
+                    LoggerUtil.severe(e.getMessage() + " at - " + key);
                 }
             }
 
             String entry = type + ":" + id;
             rerollableItems.put(entry, requirements);
 
-            logger.info("Loaded rerollable item entry: " + entry);
+            LoggerUtil.info("Loaded rerollable item entry: " + entry);
             for (RerollRequirement requirement : requirements) {
-                logger.info("  " + requirement);
+                LoggerUtil.info("  " + requirement);
             }
         }
     }
@@ -147,9 +141,5 @@ public class RerollManager {
 
     public boolean isRerollable(String itemKey){
         return rerollableItems.containsKey(itemKey);
-    }
-
-    public void logReroll(String msg){
-        logger.info(msg);
     }
 }

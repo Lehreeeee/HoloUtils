@@ -3,6 +3,7 @@ package me.lehreeeee.HoloUtils.reroll;
 import io.lumine.mythic.lib.api.item.NBTItem;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
+import me.lehreeeee.HoloUtils.utils.LoggerUtil;
 import net.Indyuce.mmoitems.MMOItems;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -90,7 +91,7 @@ public class RerollRequirementValidator {
         }
 
         // Now all requirements are met
-        RerollManager.getInstance().logReroll("[Reroll] All requirements are met, rerolling stats for player - " + player.getName());
+        LoggerUtil.info("[Reroll] All requirements are met, rerolling stats for player - " + player.getName());
         for (RerollRequirement req : requirements) {
             switch (req.getRequirementType()) {
                 case MONEY -> checkMoneyRequirement(req, player,true);
@@ -111,7 +112,7 @@ public class RerollRequirementValidator {
 
         if(shouldConsume){
             econ.withdrawPlayer(player,reqAmount);
-            RerollManager.getInstance().logReroll(MessageFormat.format("[Reroll] Withdrew ${0} from {1}.",reqAmount,player.getName()));
+            LoggerUtil.info(MessageFormat.format("[Reroll] Withdrew ${0} from {1}.",reqAmount,player.getName()));
         }
         return true;
     }
@@ -150,7 +151,7 @@ public class RerollRequirementValidator {
                     break;
                 }
             }
-            RerollManager.getInstance().logReroll(
+            LoggerUtil.info(
                     MessageFormat.format("[Reroll] Took {0}:{1} x{2} from {3}",
                             req.getParameters().get("type"),
                             req.getParameters().get("id"),
@@ -172,7 +173,7 @@ public class RerollRequirementValidator {
         if(shouldConsume){
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                     MessageFormat.format("recurrency remove {0} {1} {2}",player.getName(),reqAmount,currencyName));
-            RerollManager.getInstance().logReroll(MessageFormat.format("[Reroll] Withdrew {0} {1} from {2}.",reqAmount,currencyName,player.getName()));
+            LoggerUtil.info(MessageFormat.format("[Reroll] Withdrew {0} {1} from {2}.",reqAmount,currencyName,player.getName()));
         }
         return true;
     }

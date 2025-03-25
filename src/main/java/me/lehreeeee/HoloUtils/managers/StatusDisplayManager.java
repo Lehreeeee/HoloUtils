@@ -1,10 +1,13 @@
 package me.lehreeeee.HoloUtils.managers;
 
-import com.ticxo.modelengine.api.ModelEngineAPI;
-import com.ticxo.modelengine.api.model.ActiveModel;
-import com.ticxo.modelengine.api.model.bone.manager.MountManager;
-import com.ticxo.modelengine.api.mount.controller.MountControllerTypes;
+//import com.ticxo.modelengine.api.ModelEngineAPI;
+//import com.ticxo.modelengine.api.model.ActiveModel;
+//import com.ticxo.modelengine.api.model.bone.manager.MountManager;
+//import com.ticxo.modelengine.api.mount.controller.MountControllerTypes;
+
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.hooks.ModelEngineHook;
+import me.lehreeeee.HoloUtils.utils.LoggerUtil;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,14 +23,11 @@ import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
-import java.text.MessageFormat;
 import java.util.*;
-import java.util.logging.Logger;
 
 public class StatusDisplayManager {
     private static StatusDisplayManager instance;
     private final HoloUtils plugin;
-    private final Logger logger;
 
     private float statusHeight = 0.6F;
     private final boolean modelEngineAvailable;
@@ -38,7 +38,6 @@ public class StatusDisplayManager {
 
     private StatusDisplayManager(HoloUtils plugin){
         this.plugin = plugin;
-        this.logger = plugin.getLogger();
         this.modelEngineAvailable = Bukkit.getPluginManager().getPlugin("ModelEngine") != null;
     }
 
@@ -75,12 +74,12 @@ public class StatusDisplayManager {
         Entity targetEntity = Bukkit.getEntity(uuid);
 
         if (targetEntity == null) {
-            logger.warning("Cant find the entity.");
+            LoggerUtil.warning("Cant find the entity.");
             return;
         }
 
         if(targetEntity instanceof Player) {
-            logger.warning("You can't use status display on player. (yet?)");
+            LoggerUtil.warning("You can't use status display on player. (yet?)");
             return;
         }
 
@@ -93,13 +92,13 @@ public class StatusDisplayManager {
 
         // Has existing status display? Append it if yes
         if(loadedStatusDisplay.containsKey(uuid)){
-            debugLogger("Found existing display, appending to it.");
+            LoggerUtil.debug("Found existing display, appending to it.");
             TextDisplay display = loadedStatusDisplay.get(uuid);
             String currentString = MessageHelper.revert(display.text());
 
             // If exists, remove first
             if(scheduledTasks.containsKey(uuid + ";" + status)) {
-                debugLogger("Found existing same status, removing before applying new one.");
+                LoggerUtil.debug("Found existing same status, removing before applying new one.");
 
                 // Cancel the scheduled task and remove from the list
                 scheduledTasks.get(uuid + ";" + status).cancel();
@@ -121,7 +120,7 @@ public class StatusDisplayManager {
 
             scheduledTasks.put(uuid + ";" + status, task);
         } else {
-            debugLogger("Can't find existing display, spawning new one.");
+            LoggerUtil.debug("Can't find existing display, spawning new one.");
 
             TextDisplay display = spawnDisplayEntity(targetEntity);
 
@@ -155,7 +154,7 @@ public class StatusDisplayManager {
                     // Teleport is needed after changing world too
                     display.teleport(location);
                     mountDisplay(entity,display);
-                    debugLogger("Updated title location for entity " + uuid + " to " + display.getLocation());
+                    LoggerUtil.debug("Updated title location for entity " + uuid + " to " + display.getLocation());
                 }
             }.runTaskLater(plugin, 5L);
         }
@@ -170,13 +169,13 @@ public class StatusDisplayManager {
         }
 
         loadedStatusDisplay.remove(uuid);
-        debugLogger("Removed status display for entity " + uuid);
+        LoggerUtil.debug("Removed status display for entity " + uuid);
     }
 
     public void removeAllStatusDisplay(){
         if(loadedStatusDisplay.isEmpty()) return;
 
-        logger.info("Found " + loadedStatusDisplay.size() + " remaining status effect display, removing them.");
+        LoggerUtil.info("Found " + loadedStatusDisplay.size() + " remaining status effect display, removing them.");
         for(UUID uuid : loadedStatusDisplay.keySet()){
             TextDisplay display = loadedStatusDisplay.get(uuid);
             if(display != null){
@@ -185,59 +184,33 @@ public class StatusDisplayManager {
         }
 
         loadedStatusDisplay.clear();
-        debugLogger("Removed all loaded status display");
+        LoggerUtil.debug("Removed all loaded status display");
     }
 
     private void mountDisplay(Entity targetEntity, TextDisplay display){
 
         // Use the basic mount if its not a modeled entity.
-        if (!modelEngineAvailable || !ModelEngineAPI.isModeledEntity(targetEntity.getUniqueId())) {
+        if (!modelEngineAvailable || !ModelEngineHook.isModeledEntity(targetEntity.getUniqueId())) {
             targetEntity.addPassenger(display);
             display.setVisibleByDefault(true);
             return;
         }
 
-        debugLogger("This entity is a Modeled Entity.");
-
-        // It may have multiple models applied to it. Get all and try to find anyone with statuseffect seat.
-        Collection<ActiveModel> activeModels = ModelEngineAPI.getModeledEntity(targetEntity).getModels().values();
-        debugLogger(MessageFormat.format("Found {0} active models for this entity.", activeModels.size()));
-
-        boolean foundSeat = false;
-        for(ActiveModel activeModel : activeModels){
-            MountManager mountManager = activeModel.getMountManager().orElse(null);
-            if (mountManager != null && mountManager.getSeats().containsKey("statuseffect")) {
-                // smh, the model become not rideable after a server restart. Guess i will just force set to true :)
-                mountManager.setCanRide(true);
-
-                debugLogger("Found statuseffect seat, mounting the display.");
-                mountManager.mountPassenger("statuseffect", display, MountControllerTypes.WALKING);
-                display.setVisibleByDefault(true);
-
-                // Exit after first statuseffect seat is found, it will be used to attach status display.
-                foundSeat = true;
-                break;
-            }
-        }
-
-        // statuseffect seat not found, sends a warning to tell dev to add it and do not show it (To avoid player confusion)
-        if(!foundSeat){
-            logger.warning("Unable to find a seat to mount status display for entity - " + targetEntity.getName()
-                    + ". Please follow the instructions in /HoloUtils/DisplayTag/StatusEffects.yml to fix this.");
-        }
+        LoggerUtil.debug("This entity is a Modeled Entity.");
+        ModelEngineHook.mountStatusDisplay(targetEntity,display);
     }
 
     private void removeStatus(UUID uuid, TextDisplay display, String status, boolean keepDisplay){
         if(display == null){
-            debugLogger("Display not found for " + uuid + ", skipping.");
+            LoggerUtil.debug("Display not found for " + uuid + ", skipping.");
             return;
         }
 
-        debugLogger("Removing status " + status + " for " + uuid);
+        LoggerUtil.debug("Removing status " + status + " for " + uuid);
         scheduledTasks.remove(uuid + ";" + status);
 
         String updatedString = getLatestStatusEffectString(uuid);
-        debugLogger("New String - " + updatedString);
+        LoggerUtil.debug("New String - " + updatedString);
 
         // If empty/it was the last status, remove it completely
         if(updatedString.isBlank() && !keepDisplay){
@@ -292,9 +265,5 @@ public class StatusDisplayManager {
                     )
             );
         });
-    }
-
-    private void debugLogger(String debugMessage){
-        if(plugin.shouldPrintDebug()) logger.info(debugMessage);
     }
 }
