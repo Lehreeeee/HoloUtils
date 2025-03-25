@@ -13,6 +13,7 @@ This plugin is primarily designed specifically for [**HoloCraft Minecraft Server
 - Mob status effect display, can be used to temporarily display status symbol on top of mob's head.
 - Allow player's arrow to go through other players in some worlds, useful for multiplayer boss fight.
 - Commands to get/set/remove data in item's PDC in main hand. (Supported datatypes: STRING, INTEGER, FLOAT, DOUBLE, LONG, BYTE)
+- MMOItem's random stats reroll (Supported reroll requirements: MMOItem, Vault Balance and Recurrency from RoyaleEconomy)
 
 ## Bug Fixes Implemented
 - Certain plugins in the server are causing mob to be alive and immortal even after death, this is fixed by force removing the immortal mob if they have >0 Health after death event is fired.
@@ -31,4 +32,6 @@ This plugin is primarily designed specifically for [**HoloCraft Minecraft Server
 
 ## Dependencies
 - **PlaceholderAPI** [Link here](https://www.spigotmc.org/resources/placeholderapi.6245/) (Soft Depend - Needed to use placeholders in player title display or mob status effect display)
+- **MMOItems** [Link here](https://www.spigotmc.org/resources/mmoitems.39267/) (Soft Depend - Needed to enable /reroll commands)
+- **ModelEngine4** [Link here](https://mythiccraft.io/index.php?resources/model-engine%E2%80%94ultimate-entity-model-manager-1-19-4-1-21-1.1213/)  (Soft Depend - Will try to put status display tag on specific bone if the mob has a model)
   
