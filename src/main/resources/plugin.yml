@@ -7,12 +7,12 @@ api-version: '1.21'
 # To steal their /a command :)
 loadbefore: [mcMMO]
 # Optional
-softdepend: [PlaceholderAPI, ModelEngine, MMOItems]
+softdepend: [PlaceholderAPI, ModelEngine, MMOItems, MythicMobs]
 
 commands:
   holoutils:
     description: Main command for HoloUtils
-    aliases: [hu, hutils]
+    aliases: [hu]
     permission: holoutils.admin
   devchat:
     description: Command for devchat
@@ -24,3 +24,5 @@ commands:
   reroll:
     description: Command for rerolling mmoitem's random stats
     permission: holoutils.reroll
+  eventrewards:
+    description: Command for claiming rewards obtained from events

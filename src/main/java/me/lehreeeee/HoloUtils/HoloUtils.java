@@ -63,9 +63,8 @@ public final class HoloUtils extends JavaPlugin {
         logger.info("Removing remaining status effect display...");
         StatusDisplayManager.getInstance().removeAllStatusDisplay();
 
-        if(enableClaimaccessoriesCommand){
-            MySQLManager.getInstance().closeConnectionPool();
-        }
+        logger.info("Closing MySQL ConnectionPool...");
+        MySQLManager.getInstance().closeConnectionPool();
 
         logger.info("Disabled HoloUtils...");
     }
@@ -79,9 +78,11 @@ public final class HoloUtils extends JavaPlugin {
         YamlConfiguration playerTitleConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/DisplayTag/PlayerTitles.yml"));
         YamlConfiguration elementalStatusConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/DisplayTag/StatusEffects.yml"));
         YamlConfiguration rerollConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/rerolls.yml"));
+        YamlConfiguration eventrewardsConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/event_rewards.yml"));
 
         TitleDisplayManager.getInstance().loadPlayerTitlesConfig(playerTitleConfig);
         StatusDisplayManager.getInstance().loadStatusEffectsConfig(elementalStatusConfig);
+        EventRewardsManager.getInstance().loadEventRewardsConfig(eventrewardsConfig);
         if(MMOItemsAvailable){
             RerollManager.getInstance().loadRerollConfig(rerollConfig);
         }
@@ -91,11 +92,10 @@ public final class HoloUtils extends JavaPlugin {
 
         DevChatManager.getInstance().loadDevChatConfig(config.getConfigurationSection("dev-chat"));
         RedisManager.getInstance().loadRedisConfig(config.getConfigurationSection("redis"));
+        MySQLManager.getInstance().loadMySQLConfig(config.getConfigurationSection("mysql"));
+
         // TODO: To be removed after 3 months
         this.enableClaimaccessoriesCommand = config.getBoolean("enable-claimaccessories-command",false);
-        if(enableClaimaccessoriesCommand){
-            MySQLManager.getInstance().loadMySQLConfig(config.getConfigurationSection("mysql"));
-        }
 
         playerProjectileListener.setDisabledWorlds(new HashSet<>(config.getStringList("arrow-shoots-thru-players-worlds")));
 
@@ -132,7 +132,8 @@ public final class HoloUtils extends JavaPlugin {
         Set<String> customConfigs = Set.of(
                 "DisplayTag/PlayerTitles.yml",
                 "DisplayTag/StatusEffects.yml",
-                "rerolls.yml"
+                "rerolls.yml",
+                "event_rewards.yml"
         );
 
         File dataFolder = this.getDataFolder();
@@ -154,17 +155,17 @@ public final class HoloUtils extends JavaPlugin {
         RedisManager.initialize();
         logger.info("Initializing DevChatManager...");
         DevChatManager.initialize();
+        logger.info("Initializing MySQLManager...");
+        MySQLManager.initialize(this);
+        logger.info("Initializing EventRewardsManager...");
+        EventRewardsManager.initialize();
 
         if(MMOItemsAvailable){
             logger.info("Found MMOItems, initializing RerollManager");
             RerollManager.initialize();
         }
 
-        // TODO: To be removed after 3 months
-        if(enableClaimaccessoriesCommand){
-            logger.info("Initializing MySQLManager...");
-            MySQLManager.initialize(this);
-        }
+
     }
 
     private void loadCommands(){
@@ -172,8 +173,11 @@ public final class HoloUtils extends JavaPlugin {
         getCommand("holoutils").setExecutor(new HoloUtilsCommand(this));
         getCommand("holoutils").setTabCompleter(new HoloUtilsCommandTabCompleter(this));
         logger.info("Loading adminchat commands...");
-        getCommand("devchat").setExecutor(new DevChatCommand(logger));
+        getCommand("devchat").setExecutor(new DevChatCommand());
         getCommand("devchat").setTabCompleter(new DevChatCommandTabCompleter());
+        logger.info("Loading eventrewards command...");
+        getCommand("eventrewards").setExecutor(new EventRewardsCommand());
+        getCommand("eventrewards").setTabCompleter(new EventRewardsCommandTabCompleter());
 
         if(MMOItemsAvailable){
             logger.info("Found MMOItems, loading reroll commands...");

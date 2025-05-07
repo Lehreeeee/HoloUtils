@@ -3,17 +3,16 @@ package me.lehreeeee.HoloUtils.commands;
 
 import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUI;
 import me.lehreeeee.HoloUtils.HoloUtils;
-import me.lehreeeee.HoloUtils.managers.MySQLManager;
 import me.lehreeeee.HoloUtils.managers.RedisManager;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import me.lehreeeee.HoloUtils.utils.ItemPDCEditor;
+import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import me.lehreeeee.HoloUtils.utils.MessageHelper;
 
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -145,25 +144,25 @@ public class HoloUtilsCommand implements CommandExecutor {
             }
 
             sender.sendMessage(MessageHelper.process("<#FFA500>Command Usage:",true));
-            sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils help <white>-<aqua> Show command usage.",false));
-            sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils reload <white>-<aqua> Take a guess.",false));
-            sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils playertitle <white>-<aqua> Open gui to select display tag, must have atleast 1 tag permission to use.",false));
-            sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils statuseffect [uuid] [effect] [ticks] <white>-<aqua> Apply status effect display on the mob.",false));
-            sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils pdc get [namespacedkey] <white>-<aqua> Get the value of the namespaced key in mainhand item's pdc.",false));
-            sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils pdc remove [namespacedkey] <white>-<aqua> Remove the data from mainhand item's pdc.",false));
-            sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils pdc set [namespace] [key] [datatype] [value] <white>-<aqua> Add data to mainhand item's pdc.",false));
-            sender.sendMessage(MessageHelper.process("<#FFA500>/HoloUtils testredis <white>-<aqua> For debug purpose, don't touch if you don't know what it does.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/holoutils help <white>-<aqua> Show command usage.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/holoutils reload <white>-<aqua> Take a guess.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/holoutils playertitle <white>-<aqua> Open gui to select display tag, must have atleast 1 tag permission to use.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/holoutils statuseffect [uuid] [effect] [ticks] <white>-<aqua> Apply status effect display on the mob.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/holoutils pdc get [namespacedkey] <white>-<aqua> Get the value of the namespaced key in mainhand item's pdc.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/holoutils pdc remove [namespacedkey] <white>-<aqua> Remove the data from mainhand item's pdc.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/holoutils pdc set [namespace] [key] [datatype] [value] <white>-<aqua> Add data to mainhand item's pdc.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/holoutils testredis <white>-<aqua> For debug purpose, don't touch if you don't know what it does.",false));
         }
         else{
             logger.info("Command Usage:");
-            logger.info("/HoloUtils help - Show command usage.");
-            logger.info("/HoloUtils reload - Take a guess.");
-            logger.info("/HoloUtils playertitle - Open gui to select display tag, must have atleast 1 tag permission to use.");
-            logger.info("/HoloUtils statuseffect [uuid] [effect] [ticks] - Apply status effect display on the mob.");
-            logger.info("/HoloUtils pdc get [namespacedkey] - Get the value of the namespaced key in mainhand item's pdc.");
-            logger.info("/HoloUtils pdc remove [namespacedkey] - Remove the data from mainhand item's pdc.");
-            logger.info("/HoloUtils pdc set [namespace] [key] [datatype] [value] - Add data to mainhand item's pdc.");
-            logger.info("/HoloUtils testredis - For debug purpose, don't touch if you don't know what it does.");
+            logger.info("/holoutils help - Show command usage.");
+            logger.info("/holoutils reload - Take a guess.");
+            logger.info("/holoutils playertitle - Open gui to select display tag, must have atleast 1 tag permission to use.");
+            logger.info("/holoutils statuseffect [uuid] [effect] [ticks] - Apply status effect display on the mob.");
+            logger.info("/holoutils pdc get [namespacedkey] - Get the value of the namespaced key in mainhand item's pdc.");
+            logger.info("/holoutils pdc remove [namespacedkey] - Remove the data from mainhand item's pdc.");
+            logger.info("/holoutils pdc set [namespace] [key] [datatype] [value] - Add data to mainhand item's pdc.");
+            logger.info("/holoutils testredis - For debug purpose, don't touch if you don't know what it does.");
         }
     }
 }

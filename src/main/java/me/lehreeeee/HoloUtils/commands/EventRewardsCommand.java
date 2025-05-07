@@ -1,0 +1,54 @@
+
+package me.lehreeeee.HoloUtils.commands;
+
+import me.lehreeeee.HoloUtils.GUI.EventRewardsGUI;
+import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
+import me.lehreeeee.HoloUtils.utils.LoggerUtil;
+import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+public class EventRewardsCommand implements CommandExecutor {
+
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){
+
+        if(args.length == 1 && args[0].equalsIgnoreCase("claim") && sender instanceof Player player){
+            sendFeedbackMessage(player,"Opening event rewards GUI.");
+            player.openInventory(new EventRewardsGUI().getEventRewardsInventory(String.valueOf(player.getUniqueId())));
+            return true;
+        }
+
+        if(args.length == 4){
+            EventRewardsManager.getInstance().giveRewards(args[1],args[2],args[3]);
+            return true;
+        }
+
+        sendCommandUsage(sender);
+        return true;
+    }
+
+    private void sendFeedbackMessage(CommandSender sender, String msg){
+        LoggerUtil.info(MessageHelper.getPlainText(msg));
+
+        if (sender instanceof Player) sender.sendMessage(MessageHelper.process(msg,true));
+    }
+
+    private void sendCommandUsage(CommandSender sender){
+        if (sender instanceof Player) {
+            sender.sendMessage(MessageHelper.process("<#FFA500>Command Usage:",true));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/eventrewards help <white>-<aqua> Show command usage.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/eventrewards claim <white>-<aqua> Open GUI to claim rewards.",false));
+            sender.sendMessage(MessageHelper.process("<#FFA500>/eventrewards give [player] [rewardId] [server] <white>-<aqua> Give rewards to player.",false));
+        }
+        else{
+            LoggerUtil.info("Command Usage:");
+            LoggerUtil.info("<#FFA500>/eventrewards help <white>-<aqua> Show command usage.");
+            LoggerUtil.info("<#FFA500>/eventrewards claim <white>-<aqua> Open GUI to claim rewards.");
+            LoggerUtil.info("<#FFA500>/eventrewards give [player] [rewardId] [server] <white>-<aqua> Give rewards to player.");
+        }
+    }
+}
+

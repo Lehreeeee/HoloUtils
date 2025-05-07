@@ -2,6 +2,7 @@
 package me.lehreeeee.HoloUtils.commands;
 
 import me.lehreeeee.HoloUtils.managers.DevChatManager;
+import me.lehreeeee.HoloUtils.utils.LoggerUtil;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,15 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.logging.Logger;
-
 public class DevChatCommand implements CommandExecutor {
-    private final Logger logger;
-
-
-    public DevChatCommand(Logger logger) {
-        this.logger = logger;
-    }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){
         if(!sender.hasPermission("holoutils.devchat")){
@@ -79,7 +72,7 @@ public class DevChatCommand implements CommandExecutor {
     }
 
     private void sendFeedbackMessage(CommandSender sender, String msg){
-        logger.info(MessageHelper.getPlainText(msg));
+        LoggerUtil.info(MessageHelper.getPlainText(msg));
 
         if (sender instanceof Player) sender.sendMessage(MessageHelper.process(msg,true));
     }
@@ -90,8 +83,8 @@ public class DevChatCommand implements CommandExecutor {
             sender.sendMessage(MessageHelper.process("<#FFA500>What u need help for, never use staffchat b4 is it :amewtf:",false));
         }
         else{
-            logger.info("Command Usage:");
-            logger.info("<#FFA500>What u need help for, never use staffchat b4 is it :amewtf:");
+            LoggerUtil.info("Command Usage:");
+            LoggerUtil.info("<#FFA500>What u need help for, never use staffchat b4 is it :amewtf:");
         }
     }
 }

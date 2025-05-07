@@ -1,0 +1,6 @@
+server_name: ""
+
+rewards:
+  test:
+    - "msg %player% rewards claimed"
+    - "msg %player% rewards claimed 2"

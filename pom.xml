@@ -6,7 +6,7 @@
 
     <groupId>me.lehreeeee</groupId>
     <artifactId>HoloUtils</artifactId>
-    <version>1.9.2</version>
+    <version>1.10.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>HoloUtils</name>

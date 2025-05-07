@@ -16,13 +16,8 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.util.io.BukkitObjectInputStream;
 
 import java.io.ByteArrayInputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.UUID;
+import java.sql.*;
+import java.util.*;
 
 public class MySQLManager {
     private static MySQLManager instance;
@@ -48,11 +43,25 @@ public class MySQLManager {
     }
 
     public void loadMySQLConfig(ConfigurationSection MySQLConfig) {
+        if(dataSource != null) return;
+        if(MySQLConfig == null) LoggerUtil.warning("Unable to find MySQl config section, will be using default values.");
+
         // Read from config.yml
-        String url = "jdbc:mysql://" + MySQLConfig.getString("host","localhost")
-                + ":" + MySQLConfig.getInt("port", 3306) + "/" + MySQLConfig.getString("database","") + "?useSSL=false&serverTimezone=UTC";
-        String user = MySQLConfig.getString("username","");
-        String password = MySQLConfig.getString("password","");
+        String host = MySQLConfig.getString("host", "localhost");
+        int port = MySQLConfig.getInt("port", 3306);
+        String database = MySQLConfig.getString("database", null);
+        String user = MySQLConfig.getString("username", null);
+        String password = MySQLConfig.getString("password", null);
+
+        if (user == null || password == null) {
+            throw new IllegalArgumentException("Database username and password must be provided.");
+        }
+
+        if (database == null || database.isEmpty()) {
+            throw new IllegalArgumentException("Database name is required.");
+        }
+
+        String url = "jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=false&serverTimezone=UTC";
 
         // Set hikari config
         HikariConfig config = new HikariConfig();
@@ -60,9 +69,14 @@ public class MySQLManager {
         config.setUsername(user);
         config.setPassword(password);
         config.setPoolName("HoloUtils-Connection-Pool");
+        config.setMaximumPoolSize(5);
+        config.setMinimumIdle(2);
+        config.setIdleTimeout(300000);
 
         dataSource = new HikariDataSource(config);
         LoggerUtil.info("HikariCP connection pool opened.");
+
+        checkTables();
     }
 
     public void closeConnectionPool(){
@@ -94,6 +108,74 @@ public class MySQLManager {
                 LoggerUtil.severe("Failed to query from MySQL server." + " Error: " + e.getMessage());
             }
         });
+    }
+
+    public void giveEventReward(String uuid, String rewardId, String server){
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try(Connection con = dataSource.getConnection()){
+                String sql = "INSERT INTO holoutils_event_rewards (uuid, rewardid, timegiven, timeclaimed, server_name) "
+                        + "VALUES (?, ?, NOW(), NULL, ?)";
+
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setString(1,uuid);
+                stmt.setString(2,rewardId);
+                stmt.setString(3,server);
+
+                LoggerUtil.debug("Inserted reward: " + stmt.executeUpdate());
+
+            } catch (SQLException e) {
+                LoggerUtil.severe("Failed to give event rewards." + " Error: " + e.getMessage());
+            }
+        });
+    }
+
+    public List<String> getEventRewards(String uuid, String server){
+        List<String> rewards = new ArrayList<>();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+           try(Connection con = dataSource.getConnection()) {
+               String sql = "SELECT rewardid, timegiven FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND timeclaimed IS NULL";
+               PreparedStatement stmt = con.prepareStatement(sql);
+               stmt.setString(1,uuid);
+               stmt.setString(2,server);
+
+               ResultSet result = stmt.executeQuery();
+
+               while(result.next()){
+                   rewards.add(result.getString("rewardid") + ";" +  result.getString("timegiven"));
+               }
+
+           } catch (SQLException e){
+               LoggerUtil.severe("Failed to get event rewards." + " Error: " + e.getMessage());
+           }
+        });
+        return rewards;
+    }
+
+    private void checkTables(){
+        try(Connection con = dataSource.getConnection()){
+            Statement stmt = con.createStatement();
+
+            // Create event table
+            String table = "holoutils_event_rewards";
+            String createTableQuery = "CREATE TABLE IF NOT EXISTS holoutils_event_rewards ("
+                    + "id INT AUTO_INCREMENT PRIMARY KEY, "
+                    + "uuid CHAR(36) NOT NULL, "
+                    + "rewardid VARCHAR(255) NOT NULL, "
+                    + "timegiven TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                    + "timeclaimed TIMESTAMP NULL, "
+                    + "server_name VARCHAR(255) NOT NULL"
+                    + ")";
+            String createIndexQuery = "CREATE INDEX IF NOT EXISTS idx_uuid_server_name ON holoutils_event_rewards(uuid, server_name)";
+
+            stmt.executeUpdate(createTableQuery);
+            stmt.executeUpdate(createIndexQuery);
+
+            LoggerUtil.info("Ensured table '" + table + "' exists.");
+
+        } catch (SQLException e) {
+            LoggerUtil.severe("Failed to check database and tables. Error: " + e.getMessage());
+            throw new RuntimeException("Database or table check failed.", e);
+        }
     }
 
     private void decodeInventory(String inventoryBase64, String uuid){
