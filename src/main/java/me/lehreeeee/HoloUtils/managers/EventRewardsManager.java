@@ -1,5 +1,6 @@
 package me.lehreeeee.HoloUtils.managers;
 
+import me.lehreeeee.HoloUtils.eventrewards.EventReward;
 import me.lehreeeee.HoloUtils.utils.LoggerUtil;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
@@ -13,7 +14,7 @@ import java.util.function.Consumer;
 
 public class EventRewardsManager {
     private static EventRewardsManager instance;
-    private final Map<String, List<String>> eventRewards = new HashMap<>();
+    private final Map<String,EventReward> eventRewards = new HashMap<>();
     private String serverName;
 
     public static EventRewardsManager getInstance(){
@@ -37,9 +38,14 @@ public class EventRewardsManager {
 
         ConfigurationSection rewards = EventRewardsConfig.getConfigurationSection("rewards");
 
-        for(String key : rewards.getKeys(false)){
-            LoggerUtil.debug("Found reward " + key + ", with rewards " + rewards.getStringList(key));
-            eventRewards.put(key,rewards.getStringList(key));
+        for(String rewardId : rewards.getKeys(false)){
+
+            EventReward reward = new EventReward(rewardId,
+                    rewards.getString(rewardId + ".display"),
+                    rewards.getString(rewardId + ".skull_texture"),
+                    rewards.getStringList(rewardId + ".commands"));
+            LoggerUtil.debug("Found reward " + reward);
+            eventRewards.put(reward.rewardId(),reward);
         }
     }
 
@@ -53,11 +59,11 @@ public class EventRewardsManager {
 
     public boolean claimRewards(Player player, String rewardId, String rowId){
         if(!eventRewards.containsKey(rewardId)){
-            player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] Reward is not set up correctly, please report to a developer.",false));
+            player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] This reward is not set up correctly, please report to a developer.",false));
             return false;
         }
 
-        List<String> commands = eventRewards.get(rewardId);
+        List<String> commands = eventRewards.get(rewardId).commands();
 
         for(String cmd : commands){
             Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),cmd.replace("%player%",player.getName()));
@@ -65,5 +71,23 @@ public class EventRewardsManager {
 
         MySQLManager.getInstance().claimEventRewards(rowId);
         return true;
+    }
+
+    public String getRewardDisplayName(String rewardId){
+        EventReward reward = eventRewards.get(rewardId);
+
+        if(reward != null && reward.displayName() != null)
+            return reward.displayName();
+        else
+            return "<gold>" + rewardId;
+    }
+
+    public String getRewardSkullTexture(String rewardId){
+        EventReward reward = eventRewards.get(rewardId);
+
+        if(reward != null && reward.skullTexture() != null)
+            return reward.skullTexture();
+        else
+            return "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzIyZDRiZTFhYmNmMzgzMmM5MTYxOTFkMjRmOTYwN2JmMTk0ZWZmOGRmYmYzYjk1MjBiZDk3MjQwZTdjOCJ9fX0=";
     }
 }

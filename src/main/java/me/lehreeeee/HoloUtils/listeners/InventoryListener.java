@@ -210,7 +210,7 @@ public class InventoryListener implements Listener {
             inventory.setItem(i, null);
         }
 
-        // Step 4: Refill the reward slots sequentially
+        // Put back the reward items sequentially
         int rewardSlot = start;
         for(ItemStack item : rewardItems){
             while(rewardSlot % 9 == 0 || rewardSlot % 9 == 8){

@@ -1,6 +1,18 @@
+# Put the same name you put in /eventrewards give
 server_name: ""
 
 rewards:
+#  example:
+#    # Optional, defaults to reward id (In this case, "example")
+#    display: "<green>Example Reward"
+#    # Optional, has built in default head.
+#    # You can get the value from https://minecraft-heads.com/, it should look like "eyJ0ZX......X0="
+#    skull_texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzIyZDRiZTFhYmNmMzgzMmM5MTYxOTFkMjRmOTYwN2JmMTk0ZWZmOGRmYmYzYjk1MjBiZDk3MjQwZTdjOCJ9fX0="
+#    commands:
+#      - "msg %player% rewards claimed"
+#      - "msg %player% rewards claimed 2"
   test:
-    - "msg %player% rewards claimed"
-    - "msg %player% rewards claimed 2"
+    display: "<red>Test Reward"
+    commands:
+      - "msg %player% rewards claimed"
+      - "msg %player% rewards claimed 2"

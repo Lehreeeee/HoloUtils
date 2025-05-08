@@ -41,7 +41,7 @@ public class EventRewardsGUI implements InventoryHolder {
         }
 
         // Claim all button
-        ItemStack claimAllButton = new ItemStack(Material.REDSTONE_BLOCK);
+        ItemStack claimAllButton = new ItemStack(Material.EMERALD_BLOCK);
         ItemMeta updateButtonMeta = claimAllButton.getItemMeta();
         if (updateButtonMeta != null){
             updateButtonMeta.displayName(MessageHelper.process("<green><b>Claim All"));
@@ -93,8 +93,8 @@ public class EventRewardsGUI implements InventoryHolder {
         SkullMeta skullMeta = (SkullMeta) rewardHead.getItemMeta();
 
         if(skullMeta != null){
-            skullMeta.displayName(MessageHelper.process("<gold>" + rewardId));
-            String base64 = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzIyZDRiZTFhYmNmMzgzMmM5MTYxOTFkMjRmOTYwN2JmMTk0ZWZmOGRmYmYzYjk1MjBiZDk3MjQwZTdjOCJ9fX0=";
+            skullMeta.displayName(MessageHelper.process(EventRewardsManager.getInstance().getRewardDisplayName(rewardId)));
+            String base64 = EventRewardsManager.getInstance().getRewardSkullTexture(rewardId);
 
             PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
             profile.getProperties().add((new ProfileProperty("textures", base64)));
