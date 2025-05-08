@@ -30,10 +30,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class InventoryListener implements Listener {
     private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
@@ -90,7 +87,10 @@ public class InventoryListener implements Listener {
         }
         // Choose tag
         else if (clickedSlot > 8 && clickedSlot < 45 && clickedSlot % 9 != 0 && clickedSlot % 9 != 8) {
-            ItemMeta clickedItemMeta = event.getCurrentItem().getItemMeta();
+            ItemStack item = event.getCurrentItem();
+            if(item == null || item.getType() == Material.AIR) return;
+
+            ItemMeta clickedItemMeta = item.getItemMeta();
             if(clickedItemMeta == null) return;
 
             PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
@@ -163,11 +163,32 @@ public class InventoryListener implements Listener {
 
         // Claim all button
         if(clickedSlot == 49){
+            for(int currentSlot = 10; currentSlot <= 43; currentSlot++) {
+                if(currentSlot % 9 == 0 || currentSlot % 9 == 8) continue;
+
+                ItemStack item = clickedInv.getItem(currentSlot);
+                if(item == null || item.getType().isAir()) continue;
+                ItemMeta clickedItemMeta = item.getItemMeta();
+                if(clickedItemMeta == null) continue;
+
+                PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
+                if(clickedItemPDC.has(rewardIdNSK)){
+                    String rewardId = clickedItemPDC.get(rewardIdNSK, PersistentDataType.STRING);
+                    String rowId = clickedItemPDC.get(rowIdNSK, PersistentDataType.STRING);
+
+                    if(EventRewardsManager.getInstance().claimRewards(player,rewardId,rowId)){
+                        clickedInv.setItem(currentSlot,null);
+                    }
+                }
+            }
+
             player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed all the rewards.",false));
         }
         // Claim specific reward
         else if (clickedSlot > 8 && clickedSlot < 45 && clickedSlot % 9 != 0 && clickedSlot % 9 != 8) {
-            ItemMeta clickedItemMeta = event.getCurrentItem().getItemMeta();
+            ItemStack item = event.getCurrentItem();
+            if(item == null || item.getType().isAir()) return;
+            ItemMeta clickedItemMeta = item.getItemMeta();
             if(clickedItemMeta == null) return;
 
             PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
