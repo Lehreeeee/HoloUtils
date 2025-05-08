@@ -1,6 +1,7 @@
 package me.lehreeeee.HoloUtils.listeners;
 
 import io.lumine.mythic.lib.api.item.NBTItem;
+import me.lehreeeee.HoloUtils.GUI.EventRewardsGUI;
 import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUIHolder;
 import me.lehreeeee.HoloUtils.GUI.RerollGUI;
 import me.lehreeeee.HoloUtils.HoloUtils;
@@ -34,6 +35,7 @@ import java.util.UUID;
 public class InventoryListener implements Listener {
     private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
     private final NamespacedKey titleNameNSK = new NamespacedKey("holoutils","titlename");
+    private final NamespacedKey rewardIdNSK = new NamespacedKey("holoutils","rewardid");
 
     public InventoryListener(HoloUtils plugin){
         Bukkit.getPluginManager().registerEvents(this,plugin);
@@ -54,6 +56,11 @@ public class InventoryListener implements Listener {
 
         if (invHolder instanceof RerollGUI) {
             handleRerollGUI(event, clickedInv);
+            return;
+        }
+
+        if (invHolder instanceof EventRewardsGUI) {
+            handleEventRewardsGUI(event, clickedInv);
         }
     }
 
@@ -140,6 +147,30 @@ public class InventoryListener implements Listener {
                 updateDiceLore(clickedInv,RerollSlotAction.IN, player);
             } else {
                 player.playSound(getSound("entity.villager.no"));
+            }
+        }
+    }
+
+    private void handleEventRewardsGUI(InventoryClickEvent event, Inventory clickedInv){
+        event.setCancelled(true);
+
+        int clickedSlot = event.getRawSlot();
+        Player player = (Player) event.getWhoClicked();
+
+        // Claim all button
+        if(clickedSlot == 49){
+            player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed all the rewards.",false));
+        }
+        // Claim specific reward
+        else if (clickedSlot > 8 && clickedSlot < 45 && clickedSlot % 9 != 0 && clickedSlot % 9 != 8) {
+            ItemMeta clickedItemMeta = event.getCurrentItem().getItemMeta();
+            if(clickedItemMeta == null) return;
+
+            PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
+            if(clickedItemPDC.has(rewardIdNSK)){
+                String titleName = clickedItemPDC.get(rewardIdNSK, PersistentDataType.STRING);
+
+                player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed the reward: " + titleName,false));
             }
         }
     }

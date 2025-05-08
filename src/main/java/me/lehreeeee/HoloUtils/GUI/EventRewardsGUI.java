@@ -6,11 +6,14 @@ import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -99,6 +102,9 @@ public class EventRewardsGUI implements InventoryHolder {
             skullMeta.lore(List.of(
                     MessageHelper.process("<blue>Time Received: <green>" + timeStamp + " GMT+8")
             ));
+
+            PersistentDataContainer skullPDC = skullMeta.getPersistentDataContainer();
+            skullPDC.set(new NamespacedKey("holoutils","rewardid"), PersistentDataType.STRING, rewardId);
 
             rewardHead.setItemMeta(skullMeta);
         }
