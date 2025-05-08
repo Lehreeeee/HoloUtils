@@ -37,7 +37,7 @@ public class EventRewardsGUI implements InventoryHolder {
             fillGlassPane.setItemMeta(fillGlassPaneMeta);
         }
 
-        // Remove tag button
+        // Claim all button
         ItemStack claimAllButton = new ItemStack(Material.REDSTONE_BLOCK);
         ItemMeta updateButtonMeta = claimAllButton.getItemMeta();
         if (updateButtonMeta != null){
@@ -52,23 +52,26 @@ public class EventRewardsGUI implements InventoryHolder {
             }
         }
 
-        List<String> availableRewards = EventRewardsManager.getInstance().getRewards(uuid);
-        int rewardSlot = 9;
+        // Set claim all button
+        inventory.setItem(49, claimAllButton);
 
-        for(int i = 0; i < availableRewards.size(); i++){
-            // Make sure only add into reward slot
-            while (isBorderSlot(rewardSlot)) {
-                rewardSlot++;
-            }
+        // Insert rewards after data returned via callback
+        EventRewardsManager.getInstance().getRewards(uuid, rewards -> {
+            int rewardSlot = 9;
+            for (String rewardDetails : rewards) {
+                // Make sure only add into reward slot
+                while (isBorderSlot(rewardSlot)) {
+                    rewardSlot++;
+                }
 
-            // TODO: Add more pages for more than 28 Rewards
-            if (rewardSlot < 44) {
-                // Populate the inventory with available titles
-                ItemStack rewardItem = createRewardItem(availableRewards.get(i));
-                inventory.setItem(rewardSlot, rewardItem);
-                rewardSlot++;
+                // TODO: Add more pages for more than 28 rewards
+                if (rewardSlot < 44) {
+                    ItemStack rewardItem = createRewardItem(rewardDetails);
+                    inventory.setItem(rewardSlot, rewardItem);
+                    rewardSlot++;
+                }
             }
-        }
+        });
 
         return inventory;
     }
@@ -94,7 +97,7 @@ public class EventRewardsGUI implements InventoryHolder {
             skullMeta.setPlayerProfile(profile);
 
             skullMeta.lore(List.of(
-                    MessageHelper.process("<blue>Time Received: <green>" + timeStamp)
+                    MessageHelper.process("<blue>Time Received: <green>" + timeStamp + " GMT+8")
             ));
 
             rewardHead.setItemMeta(skullMeta);

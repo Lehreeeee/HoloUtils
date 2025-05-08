@@ -5,6 +5,7 @@ import me.lehreeeee.HoloUtils.GUI.EventRewardsGUI;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.utils.LoggerUtil;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,7 +23,7 @@ public class EventRewardsCommand implements CommandExecutor {
         }
 
         if(args.length == 4){
-            EventRewardsManager.getInstance().giveRewards(args[1],args[2],args[3]);
+            EventRewardsManager.getInstance().giveRewards(String.valueOf(Bukkit.getPlayerUniqueId(args[1])),args[2],args[3]);
             return true;
         }
 

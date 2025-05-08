@@ -18,6 +18,7 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import java.io.ByteArrayInputStream;
 import java.sql.*;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class MySQLManager {
     private static MySQLManager instance;
@@ -121,7 +122,7 @@ public class MySQLManager {
                 stmt.setString(2,rewardId);
                 stmt.setString(3,server);
 
-                LoggerUtil.debug("Inserted reward: " + stmt.executeUpdate());
+                stmt.executeUpdate();
 
             } catch (SQLException e) {
                 LoggerUtil.severe("Failed to give event rewards." + " Error: " + e.getMessage());
@@ -129,10 +130,10 @@ public class MySQLManager {
         });
     }
 
-    public List<String> getEventRewards(String uuid, String server){
-        List<String> rewards = new ArrayList<>();
+    public void getEventRewards(String uuid, String server, Consumer<List<String>> callback){
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-           try(Connection con = dataSource.getConnection()) {
+            List<String> rewards = new ArrayList<>();
+            try(Connection con = dataSource.getConnection()) {
                String sql = "SELECT rewardid, timegiven FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND timeclaimed IS NULL";
                PreparedStatement stmt = con.prepareStatement(sql);
                stmt.setString(1,uuid);
@@ -144,11 +145,12 @@ public class MySQLManager {
                    rewards.add(result.getString("rewardid") + ";" +  result.getString("timegiven"));
                }
 
-           } catch (SQLException e){
+            } catch (SQLException e){
                LoggerUtil.severe("Failed to get event rewards." + " Error: " + e.getMessage());
-           }
+            }
+
+            Bukkit.getScheduler().runTask(plugin, () -> callback.accept(rewards));
         });
-        return rewards;
     }
 
     private void checkTables(){
@@ -165,10 +167,8 @@ public class MySQLManager {
                     + "timeclaimed TIMESTAMP NULL, "
                     + "server_name VARCHAR(255) NOT NULL"
                     + ")";
-            String createIndexQuery = "CREATE INDEX IF NOT EXISTS idx_uuid_server_name ON holoutils_event_rewards(uuid, server_name)";
 
             stmt.executeUpdate(createTableQuery);
-            stmt.executeUpdate(createIndexQuery);
 
             LoggerUtil.info("Ensured table '" + table + "' exists.");
 

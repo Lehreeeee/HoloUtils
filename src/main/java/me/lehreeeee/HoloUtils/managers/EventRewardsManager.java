@@ -6,6 +6,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class EventRewardsManager {
     private static EventRewardsManager instance;
@@ -43,7 +44,7 @@ public class EventRewardsManager {
         MySQLManager.getInstance().giveEventReward(uuid,rewardId,server);
     }
 
-    public List<String> getRewards(String uuid){
-        return MySQLManager.getInstance().getEventRewards(uuid,serverName);
+    public void getRewards(String uuid, Consumer<List<String>> callback){
+        MySQLManager.getInstance().getEventRewards(uuid, serverName, callback);
     }
 }
