@@ -4,7 +4,7 @@ import me.lehreeeee.HoloUtils.HoloUtils;
 
 import java.util.logging.Logger;
 
-public class LoggerUtil {
+public class LoggerUtils {
     private static final Logger logger = HoloUtils.getPlugin().getLogger();
 
     public static void info(String message) {

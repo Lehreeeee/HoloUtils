@@ -7,7 +7,7 @@ package me.lehreeeee.HoloUtils.managers;
 
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.hooks.ModelEngineHook;
-import me.lehreeeee.HoloUtils.utils.LoggerUtil;
+import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -74,12 +74,12 @@ public class StatusDisplayManager {
         Entity targetEntity = Bukkit.getEntity(uuid);
 
         if (targetEntity == null) {
-            LoggerUtil.warning("Cant find the entity.");
+            LoggerUtils.warning("Cant find the entity.");
             return;
         }
 
         if(targetEntity instanceof Player) {
-            LoggerUtil.warning("You can't use status display on player. (yet?)");
+            LoggerUtils.warning("You can't use status display on player. (yet?)");
             return;
         }
 
@@ -92,13 +92,13 @@ public class StatusDisplayManager {
 
         // Has existing status display? Append it if yes
         if(loadedStatusDisplay.containsKey(uuid)){
-            LoggerUtil.debug("Found existing display, appending to it.");
+            LoggerUtils.debug("Found existing display, appending to it.");
             TextDisplay display = loadedStatusDisplay.get(uuid);
             String currentString = MessageHelper.revert(display.text());
 
             // If exists, remove first
             if(scheduledTasks.containsKey(uuid + ";" + status)) {
-                LoggerUtil.debug("Found existing same status, removing before applying new one.");
+                LoggerUtils.debug("Found existing same status, removing before applying new one.");
 
                 // Cancel the scheduled task and remove from the list
                 scheduledTasks.get(uuid + ";" + status).cancel();
@@ -120,7 +120,7 @@ public class StatusDisplayManager {
 
             scheduledTasks.put(uuid + ";" + status, task);
         } else {
-            LoggerUtil.debug("Can't find existing display, spawning new one.");
+            LoggerUtils.debug("Can't find existing display, spawning new one.");
 
             TextDisplay display = spawnDisplayEntity(targetEntity);
 
@@ -154,7 +154,7 @@ public class StatusDisplayManager {
                     // Teleport is needed after changing world too
                     display.teleport(location);
                     mountDisplay(entity,display);
-                    LoggerUtil.debug("Updated title location for entity " + uuid + " to " + display.getLocation());
+                    LoggerUtils.debug("Updated title location for entity " + uuid + " to " + display.getLocation());
                 }
             }.runTaskLater(plugin, 5L);
         }
@@ -169,13 +169,13 @@ public class StatusDisplayManager {
         }
 
         loadedStatusDisplay.remove(uuid);
-        LoggerUtil.debug("Removed status display for entity " + uuid);
+        LoggerUtils.debug("Removed status display for entity " + uuid);
     }
 
     public void removeAllStatusDisplay(){
         if(loadedStatusDisplay.isEmpty()) return;
 
-        LoggerUtil.info("Found " + loadedStatusDisplay.size() + " remaining status effect display, removing them.");
+        LoggerUtils.info("Found " + loadedStatusDisplay.size() + " remaining status effect display, removing them.");
         for(UUID uuid : loadedStatusDisplay.keySet()){
             TextDisplay display = loadedStatusDisplay.get(uuid);
             if(display != null){
@@ -184,7 +184,7 @@ public class StatusDisplayManager {
         }
 
         loadedStatusDisplay.clear();
-        LoggerUtil.debug("Removed all loaded status display");
+        LoggerUtils.debug("Removed all loaded status display");
     }
 
     private void mountDisplay(Entity targetEntity, TextDisplay display){
@@ -196,21 +196,21 @@ public class StatusDisplayManager {
             return;
         }
 
-        LoggerUtil.debug("This entity is a Modeled Entity.");
+        LoggerUtils.debug("This entity is a Modeled Entity.");
         ModelEngineHook.mountStatusDisplay(targetEntity,display);
     }
 
     private void removeStatus(UUID uuid, TextDisplay display, String status, boolean keepDisplay){
         if(display == null){
-            LoggerUtil.debug("Display not found for " + uuid + ", skipping.");
+            LoggerUtils.debug("Display not found for " + uuid + ", skipping.");
             return;
         }
 
-        LoggerUtil.debug("Removing status " + status + " for " + uuid);
+        LoggerUtils.debug("Removing status " + status + " for " + uuid);
         scheduledTasks.remove(uuid + ";" + status);
 
         String updatedString = getLatestStatusEffectString(uuid);
-        LoggerUtil.debug("New String - " + updatedString);
+        LoggerUtils.debug("New String - " + updatedString);
 
         // If empty/it was the last status, remove it completely
         if(updatedString.isBlank() && !keepDisplay){

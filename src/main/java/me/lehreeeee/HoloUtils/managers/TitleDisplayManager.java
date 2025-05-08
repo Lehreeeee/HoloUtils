@@ -1,7 +1,7 @@
 package me.lehreeeee.HoloUtils.managers;
 
 import me.lehreeeee.HoloUtils.HoloUtils;
-import me.lehreeeee.HoloUtils.utils.LoggerUtil;
+import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -81,12 +81,12 @@ public class TitleDisplayManager {
         Entity targetEntity = Bukkit.getEntity(uuid);
 
         if (targetEntity == null) {
-            LoggerUtil.warning("Cant find the entity.");
+            LoggerUtils.warning("Cant find the entity.");
             return;
         }
 
         if(!(targetEntity instanceof Player)) {
-            LoggerUtil.warning("You can't use title display on non-player. (Why tho?)");
+            LoggerUtils.warning("You can't use title display on non-player. (Why tho?)");
             return;
         }
 
@@ -120,13 +120,13 @@ public class TitleDisplayManager {
         }
 
         loadedPlayerTitles.remove(uuid);
-        LoggerUtil.debug("Removed title for entity " + uuid);
+        LoggerUtils.debug("Removed title for entity " + uuid);
     }
 
     public void removeAllTitles(){
         if(loadedPlayerTitles.isEmpty()) return;
 
-        LoggerUtil.info("Found " + loadedPlayerTitles.size() + " remaining player title display, removing them.");
+        LoggerUtils.info("Found " + loadedPlayerTitles.size() + " remaining player title display, removing them.");
         for(UUID uuid : loadedPlayerTitles.keySet()){
             TextDisplay display = loadedPlayerTitles.get(uuid);
             if(display != null){
@@ -135,7 +135,7 @@ public class TitleDisplayManager {
         }
 
         loadedPlayerTitles.clear();
-        LoggerUtil.debug("Removed all loaded titles");
+        LoggerUtils.debug("Removed all loaded titles");
     }
 
     public void updateLocation(UUID uuid, Location location){
@@ -152,7 +152,7 @@ public class TitleDisplayManager {
                     // Teleport is needed after changing world too
                     title.teleport(location);
                     entity.addPassenger(title);
-                    LoggerUtil.debug("Updated title location for entity " + uuid + " to " + title.getLocation());
+                    LoggerUtils.debug("Updated title location for entity " + uuid + " to " + title.getLocation());
                 }
             }.runTaskLater(plugin, 5L);
         }

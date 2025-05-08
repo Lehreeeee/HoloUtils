@@ -3,7 +3,7 @@ package me.lehreeeee.HoloUtils.managers;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import me.lehreeeee.HoloUtils.utils.LoggerUtil;
+import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -41,7 +41,7 @@ public class DevChatManager {
         devChatColor = devChatConfig != null ? devChatConfig.getString("color", "<aqua>") : "<aqua>";
 
         if(devChatConfig == null){
-            LoggerUtil.info("Dev chat config section not found, using default configs.");
+            LoggerUtils.info("Dev chat config section not found, using default configs.");
         }
     }
 
@@ -91,7 +91,7 @@ public class DevChatManager {
 
             // Check if the required fields exist in the JSON
             if (!json.has("messageSender") || !json.has("message")) {
-                LoggerUtil.warning("Missing required fields in the JSON data.");
+                LoggerUtils.warning("Missing required fields in the JSON data.");
                 return;
             }
 
@@ -106,9 +106,9 @@ public class DevChatManager {
                 }
             }
 
-            LoggerUtil.info(MessageHelper.getPlainText(MessageHelper.revert(finalMessage)));
+            LoggerUtils.info(MessageHelper.getPlainText(MessageHelper.revert(finalMessage)));
         } catch (JsonSyntaxException e){
-            LoggerUtil.warning("Invalid JSON format received from devchat channel - " + data);
+            LoggerUtils.warning("Invalid JSON format received from devchat channel - " + data);
         }
     }
 }

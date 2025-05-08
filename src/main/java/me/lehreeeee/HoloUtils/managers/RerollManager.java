@@ -3,7 +3,7 @@ package me.lehreeeee.HoloUtils.managers;
 import io.lumine.mythic.lib.api.item.NBTItem;
 import me.lehreeeee.HoloUtils.reroll.RerollRequirement;
 import me.lehreeeee.HoloUtils.reroll.RerollRequirementValidator;
-import me.lehreeeee.HoloUtils.utils.LoggerUtil;
+import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.util.MMOItemReforger;
@@ -63,7 +63,7 @@ public class RerollManager {
             String id = itemSection.getString("id");
 
             if(type == null || id == null) {
-                LoggerUtil.warning("Invalid reroll entry format at - " + key);
+                LoggerUtils.warning("Invalid reroll entry format at - " + key);
                 continue;
             }
 
@@ -74,16 +74,16 @@ public class RerollManager {
                 try{
                     requirements.add(new RerollRequirement(req));
                 } catch (IllegalArgumentException e){
-                    LoggerUtil.severe(e.getMessage() + " at - " + key);
+                    LoggerUtils.severe(e.getMessage() + " at - " + key);
                 }
             }
 
             String entry = type + ":" + id;
             rerollableItems.put(entry, requirements);
 
-            LoggerUtil.info("Loaded rerollable item entry: " + entry);
+            LoggerUtils.info("Loaded rerollable item entry: " + entry);
             for (RerollRequirement requirement : requirements) {
-                LoggerUtil.info("  " + requirement);
+                LoggerUtils.info("  " + requirement);
             }
         }
     }

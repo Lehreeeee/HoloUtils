@@ -8,6 +8,7 @@ import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
+import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.crafting.ConfigMMOItem;
@@ -37,6 +38,7 @@ public class InventoryListener implements Listener {
     private final NamespacedKey titleNameNSK = new NamespacedKey("holoutils","titlename");
     private final NamespacedKey rewardIdNSK = new NamespacedKey("holoutils","rewardid");
     private final NamespacedKey rowIdNSK = new NamespacedKey("holoutils","rowid");
+    private final NamespacedKey pageNSK = new NamespacedKey("holoutils","page");
 
     public InventoryListener(HoloUtils plugin){
         Bukkit.getPluginManager().registerEvents(this,plugin);
@@ -182,8 +184,28 @@ public class InventoryListener implements Listener {
                 }
             }
 
-            refreshEventRewardsGUI(event.getClickedInventory(),clickedSlot);
             player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed all the rewards.",false));
+        }
+        // Previous Page
+        else if (clickedSlot == 48){
+            PersistentDataContainer claimAllButtonPDC = clickedInv.getItem(49).getItemMeta().getPersistentDataContainer();
+
+            if(claimAllButtonPDC.has(pageNSK)){
+                int newPage = claimAllButtonPDC.get(pageNSK, PersistentDataType.INTEGER) - 1;
+                LoggerUtils.debug("New page: " + newPage);
+                if(newPage < 1) return;
+                EventRewardsManager.getInstance().getRewards(player.getUniqueId().toString(), newPage, clickedInv);
+            }
+        }
+        // Next Page
+        else if (clickedSlot == 50){
+            PersistentDataContainer claimAllButtonPDC = clickedInv.getItem(49).getItemMeta().getPersistentDataContainer();
+
+            if(claimAllButtonPDC.has(pageNSK)){
+                int newPage = claimAllButtonPDC.get(pageNSK, PersistentDataType.INTEGER) + 1;
+                LoggerUtils.debug("New page: " + newPage);
+                EventRewardsManager.getInstance().getRewards(player.getUniqueId().toString(), newPage, clickedInv);
+            }
         }
         // Claim specific reward
         else if (clickedSlot > 8 && clickedSlot < 45 && clickedSlot % 9 != 0 && clickedSlot % 9 != 8) {
@@ -193,7 +215,7 @@ public class InventoryListener implements Listener {
             if(clickedItemMeta == null) return;
 
             PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
-            if(clickedItemPDC.has(rewardIdNSK)){
+            if(clickedItemPDC.has(rewardIdNSK) && clickedItemPDC.has(rowIdNSK)){
                 String rewardId = clickedItemPDC.get(rewardIdNSK, PersistentDataType.STRING);
                 String rowId = clickedItemPDC.get(rowIdNSK, PersistentDataType.STRING);
 

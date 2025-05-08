@@ -3,7 +3,7 @@ package me.lehreeeee.HoloUtils.commands;
 
 import me.lehreeeee.HoloUtils.GUI.EventRewardsGUI;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
-import me.lehreeeee.HoloUtils.utils.LoggerUtil;
+import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -32,7 +32,7 @@ public class EventRewardsCommand implements CommandExecutor {
     }
 
     private void sendFeedbackMessage(CommandSender sender, String msg){
-        LoggerUtil.info(MessageHelper.getPlainText(msg));
+        LoggerUtils.info(MessageHelper.getPlainText(msg));
 
         if (sender instanceof Player) sender.sendMessage(MessageHelper.process(msg,true));
     }
@@ -45,10 +45,10 @@ public class EventRewardsCommand implements CommandExecutor {
             sender.sendMessage(MessageHelper.process("<#FFA500>/eventrewards give [player] [rewardId] [server] <white>-<aqua> Give rewards to player.",false));
         }
         else{
-            LoggerUtil.info("Command Usage:");
-            LoggerUtil.info("<#FFA500>/eventrewards help <white>-<aqua> Show command usage.");
-            LoggerUtil.info("<#FFA500>/eventrewards claim <white>-<aqua> Open GUI to claim rewards.");
-            LoggerUtil.info("<#FFA500>/eventrewards give [player] [rewardId] [server] <white>-<aqua> Give rewards to player.");
+            LoggerUtils.info("Command Usage:");
+            LoggerUtils.info("<#FFA500>/eventrewards help <white>-<aqua> Show command usage.");
+            LoggerUtils.info("<#FFA500>/eventrewards claim <white>-<aqua> Open GUI to claim rewards.");
+            LoggerUtils.info("<#FFA500>/eventrewards give [player] [rewardId] [server] <white>-<aqua> Give rewards to player.");
         }
     }
 }

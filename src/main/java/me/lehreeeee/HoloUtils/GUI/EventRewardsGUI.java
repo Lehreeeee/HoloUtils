@@ -3,6 +3,7 @@ package me.lehreeeee.HoloUtils.GUI;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
+import me.lehreeeee.HoloUtils.utils.InventoryUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -16,7 +17,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.UUID;
 
 public class EventRewardsGUI implements InventoryHolder {
@@ -42,75 +42,53 @@ public class EventRewardsGUI implements InventoryHolder {
 
         // Claim all button
         ItemStack claimAllButton = new ItemStack(Material.EMERALD_BLOCK);
-        ItemMeta updateButtonMeta = claimAllButton.getItemMeta();
-        if (updateButtonMeta != null){
-            updateButtonMeta.displayName(MessageHelper.process("<green><b>Claim All"));
-            claimAllButton.setItemMeta(updateButtonMeta);
+        ItemMeta claimAllButtonMeta = claimAllButton.getItemMeta();
+        if (claimAllButtonMeta != null){
+            claimAllButtonMeta.displayName(MessageHelper.process("<green><b>Claim All"));
+
+            PersistentDataContainer updateButtonPDC = claimAllButtonMeta.getPersistentDataContainer();
+            updateButtonPDC.set(new NamespacedKey("holoutils","page"), PersistentDataType.INTEGER, 1);
+
+            claimAllButton.setItemMeta(claimAllButtonMeta);
         }
 
         // Fill border
         for (int i = 0; i < 54; i++) {
-            if (isBorderSlot(i)) {
+            if (InventoryUtils.isBorderSlot(i)) {
                 inventory.setItem(i, fillGlassPane);
             }
         }
 
-        // Set claim all button
+        // Set claim all button and arrows
         inventory.setItem(49, claimAllButton);
+        inventory.setItem(48, createArrowButton(true));
+        inventory.setItem(50, createArrowButton(false));
 
         // Insert rewards after data returned via callback
-        EventRewardsManager.getInstance().getRewards(uuid, rewards -> {
-            int rewardSlot = 10;
-            for (String rewardDetails : rewards) {
-                // Make sure only add into reward slot and stop
-                while (rewardSlot < 44 && isBorderSlot(rewardSlot)) {
-                    rewardSlot++;
-                }
-
-                // TODO: Add more pages for more than 28 rewards
-                if (rewardSlot >= 44) break;
-
-                ItemStack rewardItem = createRewardItem(rewardDetails);
-                inventory.setItem(rewardSlot, rewardItem);
-                rewardSlot++;
-            }
-        });
+        EventRewardsManager.getInstance().getRewards(uuid, 1, inventory);
 
         return inventory;
     }
 
-    private boolean isBorderSlot(int slot){
-        return slot <= 8 || slot >= 45 || slot % 9 == 0 || slot % 9 == 8;
-    }
+    private ItemStack createArrowButton(boolean isLeft){
+        ItemStack arrowButton = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta skullMeta = (SkullMeta) arrowButton.getItemMeta();
 
-    private ItemStack createRewardItem(String rewardDetails){
-        String[] details = rewardDetails.split(";");
-        String rewardId = details[0];
-        String timeStamp = details[1];
-        String rowId = details[2];
-
-        ItemStack rewardHead = new ItemStack(Material.PLAYER_HEAD);
-        SkullMeta skullMeta = (SkullMeta) rewardHead.getItemMeta();
+        String displayName = isLeft ? "<red>Previous Page" : "<red>Next Page";
+        String skullTexture = isLeft
+                ? "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzJmZjhhYWE0YjJlYzMwYmM1NTQxZDQxYzg3ODIxOTliYWEyNWFlNmQ4NTRjZGE2NTFmMTU5OWU2NTRjZmM3OSJ9fX0="
+                : "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWFiOTVhODc1MWFlYWEzYzY3MWE4ZTkwYjgzZGU3NmEwMjA0ZjFiZTY1NzUyYWMzMWJlMmY5OGZlYjY0YmY3ZiJ9fX0=";
 
         if(skullMeta != null){
-            skullMeta.displayName(MessageHelper.process(EventRewardsManager.getInstance().getRewardDisplayName(rewardId)));
-            String base64 = EventRewardsManager.getInstance().getRewardSkullTexture(rewardId);
+            skullMeta.displayName(MessageHelper.process(displayName));
 
             PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
-            profile.getProperties().add((new ProfileProperty("textures", base64)));
+            profile.getProperties().add((new ProfileProperty("textures", skullTexture)));
             skullMeta.setPlayerProfile(profile);
 
-            skullMeta.lore(List.of(
-                    MessageHelper.process("<blue>Time Received: <green>" + timeStamp + " GMT+8")
-            ));
-
-            PersistentDataContainer skullPDC = skullMeta.getPersistentDataContainer();
-            skullPDC.set(new NamespacedKey("holoutils","rewardid"), PersistentDataType.STRING, rewardId);
-            skullPDC.set(new NamespacedKey("holoutils","rowid"), PersistentDataType.STRING, rowId);
-
-            rewardHead.setItemMeta(skullMeta);
+            arrowButton.setItemMeta(skullMeta);
         }
 
-        return rewardHead;
+        return arrowButton;
     }
 }

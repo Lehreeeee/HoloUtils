@@ -1,6 +1,7 @@
 package me.lehreeeee.HoloUtils.GUI;
 
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
+import me.lehreeeee.HoloUtils.utils.InventoryUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -39,16 +40,16 @@ public class PlayerTitleGUI {
 
         // Fill border
         for (int i = 0; i < 54; i++) {
-            if (isBorderSlot(i)) {
+            if (InventoryUtils.isBorderSlot(i)) {
                 inv.setItem(i, fillGlassPane);
             }
         }
 
         Map<String,String> availableTags = titleDisplayManager.getAvailableTitles(player);
-        int titleSlot = 9;
+        int titleSlot = 10;
 
         for(String tagName : availableTags.keySet()){
-            while(isBorderSlot(titleSlot)){
+            while(titleSlot < 44 && InventoryUtils.isBorderSlot(titleSlot)){
                 titleSlot++;
             }
 
@@ -66,11 +67,6 @@ public class PlayerTitleGUI {
         inv.setItem(49, removeButton);
 
         return inv;
-    }
-
-    // Helper method to check if a slot is part of the border
-    private boolean isBorderSlot(int slot){
-        return slot <= 8 || slot >= 45 || slot % 9 == 0 || slot % 9 == 8;
     }
 
     private ItemStack createTitleItem(String titleName, String title){

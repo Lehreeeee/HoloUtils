@@ -1,6 +1,6 @@
 package me.lehreeeee.HoloUtils.managers;
 
-import me.lehreeeee.HoloUtils.utils.LoggerUtil;
+import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
@@ -32,20 +32,20 @@ public class RedisManager {
         redisPort = redisConfig != null ? redisConfig.getInt("port", 6379) : 6379;
 
         if(redisConfig == null){
-            LoggerUtil.info("Redis config section not found, using default - localhost:6379");
+            LoggerUtils.info("Redis config section not found, using default - localhost:6379");
             return;
         }
 
         redisUserName = redisConfig.getString("username", "");
         redisPassword = redisConfig.getString("password", "");
 
-        LoggerUtil.info(MessageFormat.format("Loaded Redis config, will be connecting to {0}:{1}",redisHost,redisPort.toString()));
+        LoggerUtils.info(MessageFormat.format("Loaded Redis config, will be connecting to {0}:{1}",redisHost,redisPort.toString()));
     }
 
     public void subscribe(){
         try(Jedis subscriber = new Jedis(redisHost, redisPort)){
             if(redisPassword != null && !redisPassword.isEmpty()){
-                LoggerUtil.info("Found redis password, performing authentication.");
+                LoggerUtils.info("Found redis password, performing authentication.");
                 subscriber.auth(redisUserName,redisPassword);
             }
 
@@ -57,8 +57,8 @@ public class RedisManager {
                 @Override
                 public void run(){
 
-                    LoggerUtil.info("Started subscriber thread - " + this.getName());
-                    LoggerUtil.info("Subscribing to channels " + Arrays.toString(channels));
+                    LoggerUtils.info("Started subscriber thread - " + this.getName());
+                    LoggerUtils.info("Subscribing to channels " + Arrays.toString(channels));
                     subscriber.subscribe(new JedisPubSub(){
                         @Override
                         public void onMessage(String channel, String data){
@@ -68,7 +68,7 @@ public class RedisManager {
                 }
             }.start();
         } catch (Exception e) {
-            LoggerUtil.severe("Failed to subscribe to channels" + ". Error: " + e.getMessage());
+            LoggerUtils.severe("Failed to subscribe to channels" + ". Error: " + e.getMessage());
         }
     }
 
@@ -77,13 +77,13 @@ public class RedisManager {
         try(Jedis publisher = new Jedis("localhost", 6379)){
             publisher.publish(channel, data);
         } catch (Exception e) {
-            LoggerUtil.severe("Failed to publish data to channel " + channel + ". Error: " + e.getMessage());
+            LoggerUtils.severe("Failed to publish data to channel " + channel + ". Error: " + e.getMessage());
         }
     }
 
     private void handleMessage(String channel, String data){
         if(channel.equals("holo-test")){
-            LoggerUtil.info("Received data from test channel " + channel + ". Data - " + data);
+            LoggerUtils.info("Received data from test channel " + channel + ". Data - " + data);
         }
         if(channel.equals("holo-devchat")){
             //logger.info("Received devchat data - " + data);

@@ -3,7 +3,7 @@ package me.lehreeeee.HoloUtils.managers;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import me.lehreeeee.HoloUtils.HoloUtils;
-import me.lehreeeee.HoloUtils.utils.LoggerUtil;
+import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -45,7 +45,7 @@ public class MySQLManager {
 
     public void loadMySQLConfig(ConfigurationSection MySQLConfig) {
         if(dataSource != null) return;
-        if(MySQLConfig == null) LoggerUtil.warning("Unable to find MySQl config section, will be using default values.");
+        if(MySQLConfig == null) LoggerUtils.warning("Unable to find MySQl config section, will be using default values.");
 
         // Read from config.yml
         String host = MySQLConfig.getString("host", "localhost");
@@ -75,7 +75,7 @@ public class MySQLManager {
         config.setIdleTimeout(300000);
 
         dataSource = new HikariDataSource(config);
-        LoggerUtil.info("HikariCP connection pool opened.");
+        LoggerUtils.info("HikariCP connection pool opened.");
 
         checkTables();
     }
@@ -83,7 +83,7 @@ public class MySQLManager {
     public void closeConnectionPool(){
         if(dataSource != null){
             dataSource.close();
-            LoggerUtil.info("HikariCP connection pool closed.");
+            LoggerUtils.info("HikariCP connection pool closed.");
         }
     }
 
@@ -106,7 +106,7 @@ public class MySQLManager {
                     sendFeedbackMessage(Bukkit.getPlayer(UUID.fromString(uuid)),"<#FFA500>You have no unclaimed accessories.");
                 }
             } catch (SQLException e) {
-                LoggerUtil.severe("Failed to query from MySQL server." + " Error: " + e.getMessage());
+                LoggerUtils.severe("Failed to query from MySQL server." + " Error: " + e.getMessage());
             }
         });
     }
@@ -125,19 +125,25 @@ public class MySQLManager {
                 stmt.executeUpdate();
 
             } catch (SQLException e) {
-                LoggerUtil.severe("Failed to give event rewards." + " Error: " + e.getMessage());
+                LoggerUtils.severe("Failed to give event rewards." + " Error: " + e.getMessage());
             }
         });
     }
 
-    public void getEventRewards(String uuid, String server, Consumer<List<String>> callback){
+    public void getEventRewards(String uuid, int page, String server, Consumer<List<String>> callback){
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             List<String> rewards = new ArrayList<>();
+            int limit = 28;
+            int offset = (page - 1) * 28;
+
             try(Connection con = dataSource.getConnection()) {
-                String sql = "SELECT id, rewardid, timegiven FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND timeclaimed IS NULL";
+                String sql = "SELECT id, rewardid, timegiven FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND timeclaimed IS NULL " +
+                        "LIMIT ? OFFSET ?";
                 PreparedStatement stmt = con.prepareStatement(sql);
                 stmt.setString(1,uuid);
                 stmt.setString(2,server);
+                stmt.setInt(3, limit);
+                stmt.setInt(4, offset);
 
                 ResultSet result = stmt.executeQuery();
 
@@ -146,7 +152,7 @@ public class MySQLManager {
                 }
 
             } catch (SQLException e){
-                LoggerUtil.severe("Failed to get event rewards." + " Error: " + e.getMessage());
+                LoggerUtils.severe("Failed to get event rewards." + " Error: " + e.getMessage());
             }
 
             Bukkit.getScheduler().runTask(plugin, () -> callback.accept(rewards));
@@ -162,7 +168,7 @@ public class MySQLManager {
 
                 stmt.executeUpdate();
             } catch (SQLException e){
-                LoggerUtil.severe("Failed to update entry for reward claiming for row: " + rowId + ". Error: " + e.getMessage());
+                LoggerUtils.severe("Failed to update entry for reward claiming for row: " + rowId + ". Error: " + e.getMessage());
             }
         });
     }
@@ -184,10 +190,10 @@ public class MySQLManager {
 
             stmt.executeUpdate(createTableQuery);
 
-            LoggerUtil.info("Ensured table '" + table + "' exists.");
+            LoggerUtils.info("Ensured table '" + table + "' exists.");
 
         } catch (SQLException e) {
-            LoggerUtil.severe("Failed to check database and tables. Error: " + e.getMessage());
+            LoggerUtils.severe("Failed to check database and tables. Error: " + e.getMessage());
             throw new RuntimeException("Database or table check failed.", e);
         }
     }
@@ -235,13 +241,13 @@ public class MySQLManager {
 
             bukkitObjectInputStream.close();
         } catch (Exception e) {
-            LoggerUtil.severe("Failed to decode/deserialize inventory." + " Error: " + e.getMessage());
+            LoggerUtils.severe("Failed to decode/deserialize inventory." + " Error: " + e.getMessage());
         }
     }
 
     private void updateEntryforClaimedPlayer(String uuid){
         try(Connection con = dataSource.getConnection()){
-            LoggerUtil.info("User " + uuid + " claimed their accessories, updating entry.");
+            LoggerUtils.info("User " + uuid + " claimed their accessories, updating entry.");
 
             String sql = "UPDATE mmoinventory_inventories_rework SET inventory = ? WHERE uuid = ?";
             PreparedStatement stmt = con.prepareStatement(sql);
@@ -250,12 +256,12 @@ public class MySQLManager {
 
             stmt.executeUpdate();
         } catch (SQLException e){
-            LoggerUtil.severe("Failed to update entry for claimed player." + " Error: " + e.getMessage());
+            LoggerUtils.severe("Failed to update entry for claimed player." + " Error: " + e.getMessage());
         }
     }
 
     private void sendFeedbackMessage(Player player, String msg){
-        LoggerUtil.info(MessageHelper.getPlainText(msg));
+        LoggerUtils.info(MessageHelper.getPlainText(msg));
 
         if(player != null) player.sendMessage(MessageHelper.process(msg,true));
     }

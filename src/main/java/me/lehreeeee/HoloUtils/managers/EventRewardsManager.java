@@ -1,16 +1,27 @@
 package me.lehreeeee.HoloUtils.managers;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import me.lehreeeee.HoloUtils.eventrewards.EventReward;
-import me.lehreeeee.HoloUtils.utils.LoggerUtil;
+import me.lehreeeee.HoloUtils.utils.InventoryUtils;
+import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.UUID;
 
 public class EventRewardsManager {
     private static EventRewardsManager instance;
@@ -34,7 +45,7 @@ public class EventRewardsManager {
         eventRewards.clear();
 
         serverName = EventRewardsConfig.getString("server_name",null);
-        if(serverName == null) LoggerUtil.severe("Server name not found, player will not be able to see any rewards.");
+        if(serverName == null) LoggerUtils.severe("Server name not found, player will not be able to see any rewards.");
 
         ConfigurationSection rewards = EventRewardsConfig.getConfigurationSection("rewards");
 
@@ -44,7 +55,7 @@ public class EventRewardsManager {
                     rewards.getString(rewardId + ".display"),
                     rewards.getString(rewardId + ".skull_texture"),
                     rewards.getStringList(rewardId + ".commands"));
-            LoggerUtil.debug("Found reward " + reward);
+            LoggerUtils.debug("Found reward " + reward);
             eventRewards.put(reward.rewardId(),reward);
         }
     }
@@ -53,8 +64,40 @@ public class EventRewardsManager {
         MySQLManager.getInstance().giveEventReward(uuid,rewardId,server);
     }
 
-    public void getRewards(String uuid, Consumer<List<String>> callback){
-        MySQLManager.getInstance().getEventRewards(uuid, serverName, callback);
+    public void getRewards(String uuid, int page, Inventory inv){
+        ItemMeta claimAllButtonMeta = inv.getItem(49).getItemMeta();
+
+        MySQLManager.getInstance().getEventRewards(uuid, page, serverName, rewards -> {
+
+            // Update page number if not empty, will be ignored if empty
+            if(!rewards.isEmpty()){
+                claimAllButtonMeta.getPersistentDataContainer()
+                        .set(new NamespacedKey("holoutils","page"), PersistentDataType.INTEGER, page);
+                inv.getItem(49).setItemMeta(claimAllButtonMeta);
+
+                // Clear all item
+                for(int i = 10; i <= 43; i++){
+                    if(i % 9 == 0 || i % 9 == 8) continue;
+
+                    inv.setItem(i, null);
+                }
+            }
+
+            int rewardSlot = 10;
+            for (String rewardDetails : rewards) {
+                // Make sure only add into reward slot and stop
+                while (rewardSlot < 44 && InventoryUtils.isBorderSlot(rewardSlot)) {
+                    rewardSlot++;
+                }
+
+                // TODO: Add more pages for more than 28 rewards
+                if (rewardSlot >= 44) break;
+
+                ItemStack rewardItem = createRewardItem(rewardDetails);
+                inv.setItem(rewardSlot, rewardItem);
+                rewardSlot++;
+            }
+        });
     }
 
     public boolean claimRewards(Player player, String rewardId, String rowId){
@@ -73,7 +116,38 @@ public class EventRewardsManager {
         return true;
     }
 
-    public String getRewardDisplayName(String rewardId){
+    private ItemStack createRewardItem(String rewardDetails){
+        String[] details = rewardDetails.split(";");
+        String rewardId = details[0];
+        String timeStamp = details[1];
+        String rowId = details[2];
+
+        ItemStack rewardHead = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta skullMeta = (SkullMeta) rewardHead.getItemMeta();
+
+        if(skullMeta != null){
+            skullMeta.displayName(MessageHelper.process(getRewardDisplayName(rewardId)));
+            String base64 = getRewardSkullTexture(rewardId);
+
+            PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
+            profile.getProperties().add((new ProfileProperty("textures", base64)));
+            skullMeta.setPlayerProfile(profile);
+
+            skullMeta.lore(List.of(
+                    MessageHelper.process("<blue>Time Received: <green>" + timeStamp + " GMT+8")
+            ));
+
+            PersistentDataContainer skullPDC = skullMeta.getPersistentDataContainer();
+            skullPDC.set(new NamespacedKey("holoutils","rewardid"), PersistentDataType.STRING, rewardId);
+            skullPDC.set(new NamespacedKey("holoutils","rowid"), PersistentDataType.STRING, rowId);
+
+            rewardHead.setItemMeta(skullMeta);
+        }
+
+        return rewardHead;
+    }
+
+    private String getRewardDisplayName(String rewardId){
         EventReward reward = eventRewards.get(rewardId);
 
         if(reward != null && reward.displayName() != null)
@@ -82,7 +156,7 @@ public class EventRewardsManager {
             return "<gold>" + rewardId;
     }
 
-    public String getRewardSkullTexture(String rewardId){
+    private String getRewardSkullTexture(String rewardId){
         EventReward reward = eventRewards.get(rewardId);
 
         if(reward != null && reward.skullTexture() != null)
