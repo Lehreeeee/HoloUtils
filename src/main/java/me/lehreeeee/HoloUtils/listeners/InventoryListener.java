@@ -5,6 +5,7 @@ import me.lehreeeee.HoloUtils.GUI.EventRewardsGUI;
 import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUIHolder;
 import me.lehreeeee.HoloUtils.GUI.RerollGUI;
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
@@ -168,9 +169,8 @@ public class InventoryListener implements Listener {
 
             PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
             if(clickedItemPDC.has(rewardIdNSK)){
-                String titleName = clickedItemPDC.get(rewardIdNSK, PersistentDataType.STRING);
-
-                player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed the reward: " + titleName,false));
+                String rewardId = clickedItemPDC.get(rewardIdNSK, PersistentDataType.STRING);
+                EventRewardsManager.getInstance().claimRewards(player,rewardId);
             }
         }
     }
