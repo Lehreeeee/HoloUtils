@@ -134,22 +134,36 @@ public class MySQLManager {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             List<String> rewards = new ArrayList<>();
             try(Connection con = dataSource.getConnection()) {
-               String sql = "SELECT rewardid, timegiven FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND timeclaimed IS NULL";
-               PreparedStatement stmt = con.prepareStatement(sql);
-               stmt.setString(1,uuid);
-               stmt.setString(2,server);
+                String sql = "SELECT id, rewardid, timegiven FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND timeclaimed IS NULL";
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setString(1,uuid);
+                stmt.setString(2,server);
 
-               ResultSet result = stmt.executeQuery();
+                ResultSet result = stmt.executeQuery();
 
-               while(result.next()){
-                   rewards.add(result.getString("rewardid") + ";" +  result.getString("timegiven"));
-               }
+                while(result.next()){
+                    rewards.add(result.getString("rewardid") + ";" +  result.getString("timegiven") + ";" + result.getString("id"));
+                }
 
             } catch (SQLException e){
-               LoggerUtil.severe("Failed to get event rewards." + " Error: " + e.getMessage());
+                LoggerUtil.severe("Failed to get event rewards." + " Error: " + e.getMessage());
             }
 
             Bukkit.getScheduler().runTask(plugin, () -> callback.accept(rewards));
+        });
+    }
+
+    public void claimEventRewards(String rowId){
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try(Connection con = dataSource.getConnection()){
+                String sql = "UPDATE holoutils_event_rewards SET timeclaimed = NOW() WHERE id = ?";
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setString(1,rowId);
+
+                stmt.executeUpdate();
+            } catch (SQLException e){
+                LoggerUtil.severe("Failed to update entry for reward claiming for row: " + rowId + ". Error: " + e.getMessage());
+            }
         });
     }
 

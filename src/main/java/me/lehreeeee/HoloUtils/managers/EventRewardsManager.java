@@ -51,10 +51,10 @@ public class EventRewardsManager {
         MySQLManager.getInstance().getEventRewards(uuid, serverName, callback);
     }
 
-    public void claimRewards(Player player, String rewardId){
+    public boolean claimRewards(Player player, String rewardId, String rowId){
         if(!eventRewards.containsKey(rewardId)){
             player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] Reward is not set up correctly, please report to a developer.",false));
-            return;
+            return false;
         }
 
         List<String> commands = eventRewards.get(rewardId);
@@ -62,5 +62,8 @@ public class EventRewardsManager {
         for(String cmd : commands){
             Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),cmd.replace("%player%",player.getName()));
         }
+
+        MySQLManager.getInstance().claimEventRewards(rowId);
+        return true;
     }
 }

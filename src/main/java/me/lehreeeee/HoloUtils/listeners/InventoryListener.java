@@ -30,13 +30,16 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class InventoryListener implements Listener {
     private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
     private final NamespacedKey titleNameNSK = new NamespacedKey("holoutils","titlename");
     private final NamespacedKey rewardIdNSK = new NamespacedKey("holoutils","rewardid");
+    private final NamespacedKey rowIdNSK = new NamespacedKey("holoutils","rowid");
 
     public InventoryListener(HoloUtils plugin){
         Bukkit.getPluginManager().registerEvents(this,plugin);
@@ -170,8 +173,54 @@ public class InventoryListener implements Listener {
             PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
             if(clickedItemPDC.has(rewardIdNSK)){
                 String rewardId = clickedItemPDC.get(rewardIdNSK, PersistentDataType.STRING);
-                EventRewardsManager.getInstance().claimRewards(player,rewardId);
+                String rowId = clickedItemPDC.get(rowIdNSK, PersistentDataType.STRING);
+
+                if(EventRewardsManager.getInstance().claimRewards(player,rewardId,rowId)){
+                    refreshEventRewardsGUI(event.getClickedInventory(),clickedSlot);
+                    player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed the reward: " + rewardId + ".",false));
+                }
             }
+        }
+    }
+
+    private void refreshEventRewardsGUI(Inventory inventory, int clickedSlot) {
+        if(inventory == null) return;
+
+        int start = 10;
+        int end = 43;
+
+        // Remove the clicked reward
+        inventory.setItem(clickedSlot, null);
+
+        // Get all reward item
+        List<ItemStack> rewardItems = new ArrayList<>();
+        for(int i = start; i <= end; i++){
+            if(i % 9 == 0 || i % 9 == 8) continue; // side border
+
+            ItemStack item = inventory.getItem(i);
+            if(item != null && item.getType() != Material.AIR){
+                rewardItems.add(item);
+            }
+        }
+
+        // Clear all item
+        for(int i = start; i <= end; i++){
+            if(i % 9 == 0 || i % 9 == 8) continue;
+
+            inventory.setItem(i, null);
+        }
+
+        // Step 4: Refill the reward slots sequentially
+        int rewardSlot = start;
+        for(ItemStack item : rewardItems){
+            while(rewardSlot % 9 == 0 || rewardSlot % 9 == 8){
+                rewardSlot++;
+            }
+
+            if (rewardSlot > end) break;
+
+            inventory.setItem(rewardSlot, item);
+            rewardSlot++;
         }
     }
 

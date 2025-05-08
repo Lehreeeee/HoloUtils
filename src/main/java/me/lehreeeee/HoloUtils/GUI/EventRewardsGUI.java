@@ -62,17 +62,17 @@ public class EventRewardsGUI implements InventoryHolder {
         EventRewardsManager.getInstance().getRewards(uuid, rewards -> {
             int rewardSlot = 9;
             for (String rewardDetails : rewards) {
-                // Make sure only add into reward slot
+                // Make sure only add into reward slot and stop
                 while (isBorderSlot(rewardSlot)) {
                     rewardSlot++;
                 }
 
                 // TODO: Add more pages for more than 28 rewards
-                if (rewardSlot < 44) {
-                    ItemStack rewardItem = createRewardItem(rewardDetails);
-                    inventory.setItem(rewardSlot, rewardItem);
-                    rewardSlot++;
-                }
+                if (rewardSlot >= 44) break;
+
+                ItemStack rewardItem = createRewardItem(rewardDetails);
+                inventory.setItem(rewardSlot, rewardItem);
+                rewardSlot++;
             }
         });
 
@@ -87,6 +87,7 @@ public class EventRewardsGUI implements InventoryHolder {
         String[] details = rewardDetails.split(";");
         String rewardId = details[0];
         String timeStamp = details[1];
+        String rowId = details[2];
 
         ItemStack rewardHead = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) rewardHead.getItemMeta();
@@ -105,6 +106,7 @@ public class EventRewardsGUI implements InventoryHolder {
 
             PersistentDataContainer skullPDC = skullMeta.getPersistentDataContainer();
             skullPDC.set(new NamespacedKey("holoutils","rewardid"), PersistentDataType.STRING, rewardId);
+            skullPDC.set(new NamespacedKey("holoutils","rowid"), PersistentDataType.STRING, rowId);
 
             rewardHead.setItemMeta(skullMeta);
         }
