@@ -60,10 +60,10 @@ public class EventRewardsGUI implements InventoryHolder {
 
         // Insert rewards after data returned via callback
         EventRewardsManager.getInstance().getRewards(uuid, rewards -> {
-            int rewardSlot = 9;
+            int rewardSlot = 10;
             for (String rewardDetails : rewards) {
                 // Make sure only add into reward slot and stop
-                while (isBorderSlot(rewardSlot)) {
+                while (rewardSlot < 44 && isBorderSlot(rewardSlot)) {
                     rewardSlot++;
                 }
 

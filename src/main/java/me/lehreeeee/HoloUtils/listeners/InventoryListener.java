@@ -182,6 +182,7 @@ public class InventoryListener implements Listener {
                 }
             }
 
+            refreshEventRewardsGUI(event.getClickedInventory(),clickedSlot);
             player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed all the rewards.",false));
         }
         // Claim specific reward
