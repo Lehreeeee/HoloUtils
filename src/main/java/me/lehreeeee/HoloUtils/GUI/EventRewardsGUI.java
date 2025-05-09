@@ -65,7 +65,7 @@ public class EventRewardsGUI implements InventoryHolder {
         inventory.setItem(50, createArrowButton(false));
 
         // Insert rewards after data returned via callback
-        EventRewardsManager.getInstance().getRewards(uuid, 1, inventory);
+        EventRewardsManager.getInstance().getAllRewards(uuid, inventory);
 
         return inventory;
     }

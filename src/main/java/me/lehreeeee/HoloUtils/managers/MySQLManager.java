@@ -131,20 +131,35 @@ public class MySQLManager {
         });
     }
 
-    public void getEventRewards(String uuid, int page, String server, Consumer<List<String>> callback){
+    public void getEventReward(String rowId, Consumer<String> callback){
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try(Connection con = dataSource.getConnection()) {
+                String sql = "SELECT id, rewardid, timegiven FROM holoutils_event_rewards WHERE id = ? AND timeclaimed IS NULL";
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setString(1,rowId);
+
+                ResultSet result = stmt.executeQuery();
+
+                if(result.next()){
+                    String reward = result.getString("rewardid") + ";" +  result.getString("timegiven") + ";" + result.getString("id");
+                    Bukkit.getScheduler().runTask(plugin, () -> callback.accept(reward));
+                }
+
+            } catch (SQLException e){
+                LoggerUtils.severe("Failed to get event rewards." + " Error: " + e.getMessage());
+            }
+        });
+    }
+
+    public void getAllEventRewards(String uuid, String server, Consumer<List<String>> callback){
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             List<String> rewards = new ArrayList<>();
-            int limit = 28;
-            int offset = (page - 1) * 28;
 
             try(Connection con = dataSource.getConnection()) {
-                String sql = "SELECT id, rewardid, timegiven FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND timeclaimed IS NULL " +
-                        "LIMIT ? OFFSET ?";
+                String sql = "SELECT id, rewardid, timegiven FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND timeclaimed IS NULL";
                 PreparedStatement stmt = con.prepareStatement(sql);
                 stmt.setString(1,uuid);
                 stmt.setString(2,server);
-                stmt.setInt(3, limit);
-                stmt.setInt(4, offset);
 
                 ResultSet result = stmt.executeQuery();
 
@@ -160,45 +175,9 @@ public class MySQLManager {
         });
     }
 
-    public void getAllEventRewards(String uuid, String server, Consumer<List<String>> callback){
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            List<String> rewards = new ArrayList<>();
+    public void updateAllClaimedEventRewards(Set<String> rowIds){
+        if (rowIds.isEmpty()) return;
 
-            try(Connection con = dataSource.getConnection()) {
-                String sql = "SELECT id, rewardid FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND timeclaimed IS NULL";
-                PreparedStatement stmt = con.prepareStatement(sql);
-                stmt.setString(1,uuid);
-                stmt.setString(2,server);
-
-                ResultSet result = stmt.executeQuery();
-
-                while(result.next()){
-                    rewards.add(result.getString("rewardid") + ";" + result.getString("id"));
-                }
-
-            } catch (SQLException e){
-                LoggerUtils.severe("Failed to get event rewards." + " Error: " + e.getMessage());
-            }
-
-            Bukkit.getScheduler().runTask(plugin, () -> callback.accept(rewards));
-        });
-    }
-
-    public void claimEventRewards(String rowId){
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try(Connection con = dataSource.getConnection()){
-                String sql = "UPDATE holoutils_event_rewards SET timeclaimed = NOW() WHERE id = ?";
-                PreparedStatement stmt = con.prepareStatement(sql);
-                stmt.setString(1,rowId);
-
-                stmt.executeUpdate();
-            } catch (SQLException e){
-                LoggerUtils.severe("Failed to update entry for reward claiming for row: " + rowId + ". Error: " + e.getMessage());
-            }
-        });
-    }
-
-    public void claimAllEventRewards(Set<String> rowIds){
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try(Connection con = dataSource.getConnection()){
                 String placeholders = rowIds.stream()

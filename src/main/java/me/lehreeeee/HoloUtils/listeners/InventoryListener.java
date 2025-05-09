@@ -8,6 +8,7 @@ import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
+import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import me.lehreeeee.HoloUtils.utils.SoundUtils;
 import net.Indyuce.mmoitems.MMOItems;
@@ -29,9 +30,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public class InventoryListener implements Listener {
@@ -166,24 +165,6 @@ public class InventoryListener implements Listener {
 
         // Claim all button
         if(clickedSlot == 49){
-//            for(int currentSlot = 10; currentSlot <= 43; currentSlot++) {
-//                if(currentSlot % 9 == 0 || currentSlot % 9 == 8) continue;
-//
-//                ItemStack item = clickedInv.getItem(currentSlot);
-//                if(item == null || item.getType().isAir()) continue;
-//                ItemMeta clickedItemMeta = item.getItemMeta();
-//                if(clickedItemMeta == null) continue;
-//
-//                PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
-//                if(clickedItemPDC.has(rewardIdNSK)){
-//                    String rewardId = clickedItemPDC.get(rewardIdNSK, PersistentDataType.STRING);
-//                    String rowId = clickedItemPDC.get(rowIdNSK, PersistentDataType.STRING);
-//
-//                    if(EventRewardsManager.getInstance().claimRewards(player,rewardId,rowId)){
-//                        clickedInv.setItem(currentSlot,null);
-//                    }
-//                }
-//            }
             clickedInv.close();
             EventRewardsManager.getInstance().claimAllRewards(player);
         }
@@ -194,7 +175,7 @@ public class InventoryListener implements Listener {
             if(claimAllButtonPDC.has(pageNSK)){
                 int newPage = claimAllButtonPDC.get(pageNSK, PersistentDataType.INTEGER) - 1;
                 if(newPage < 1) return;
-                EventRewardsManager.getInstance().getRewards(player.getUniqueId().toString(), newPage, clickedInv);
+                EventRewardsManager.getInstance().updateInventory(String.valueOf(player.getUniqueId()),newPage,clickedInv);
                 SoundUtils.playSound(player,"item.book.page_turn");
             }
         }
@@ -204,9 +185,16 @@ public class InventoryListener implements Listener {
 
             if(claimAllButtonPDC.has(pageNSK)){
                 int newPage = claimAllButtonPDC.get(pageNSK, PersistentDataType.INTEGER) + 1;
-                EventRewardsManager.getInstance().getRewards(player.getUniqueId().toString(), newPage, clickedInv);
+                EventRewardsManager.getInstance().updateInventory(String.valueOf(player.getUniqueId()),newPage,clickedInv);
                 SoundUtils.playSound(player,"item.book.page_turn");
             }
+        }
+        // Debug
+        else if (clickedSlot == 53){
+            LoggerUtils.debug("Current Page: " + clickedInv.getItem(49)
+                    .getItemMeta()
+                    .getPersistentDataContainer()
+                    .get(pageNSK, PersistentDataType.INTEGER));
         }
         // Claim specific reward
         else if (clickedSlot > 8 && clickedSlot < 45 && clickedSlot % 9 != 0 && clickedSlot % 9 != 8) {
@@ -216,57 +204,21 @@ public class InventoryListener implements Listener {
             if(clickedItemMeta == null) return;
 
             PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
-            if(clickedItemPDC.has(rewardIdNSK) && clickedItemPDC.has(rowIdNSK)){
-                String rewardId = clickedItemPDC.get(rewardIdNSK, PersistentDataType.STRING);
+            if(clickedItemPDC.has(rewardIdNSK) && clickedItemPDC.has(rowIdNSK)) {
                 String rowId = clickedItemPDC.get(rowIdNSK, PersistentDataType.STRING);
+                String rewardId = clickedItemPDC.get(rewardIdNSK, PersistentDataType.STRING);
 
-                if(EventRewardsManager.getInstance().claimRewards(player,rewardId,rowId)){
-                    refreshEventRewardsGUI(event.getClickedInventory(),clickedSlot);
-                    SoundUtils.playSound(player,"block.chest.open");
-                    player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed the reward: " + rewardId + ".",false));
+                // Ignore invalid reward
+                if(!EventRewardsManager.getInstance().isRewardIdValid(rewardId)) {
+                    SoundUtils.playSound(player,"block.chest.locked");
+                    player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] This reward is not set up correctly, please report to a developer.",false));
+                    return;
                 }
+
+                // Remove before giving rewards to prevent double claiming
+                clickedInv.setItem(clickedSlot,null);
+                EventRewardsManager.getInstance().claimRewards(player, clickedInv, rowId);
             }
-        }
-    }
-
-    private void refreshEventRewardsGUI(Inventory inventory, int clickedSlot) {
-        if(inventory == null) return;
-
-        int start = 10;
-        int end = 43;
-
-        // Remove the clicked reward
-        inventory.setItem(clickedSlot, null);
-
-        // Get all reward item
-        List<ItemStack> rewardItems = new ArrayList<>();
-        for(int i = start; i <= end; i++){
-            if(i % 9 == 0 || i % 9 == 8) continue; // side border
-
-            ItemStack item = inventory.getItem(i);
-            if(item != null && item.getType() != Material.AIR){
-                rewardItems.add(item);
-            }
-        }
-
-        // Clear all item
-        for(int i = start; i <= end; i++){
-            if(i % 9 == 0 || i % 9 == 8) continue;
-
-            inventory.setItem(i, null);
-        }
-
-        // Put back the reward items sequentially
-        int rewardSlot = start;
-        for(ItemStack item : rewardItems){
-            while(rewardSlot % 9 == 0 || rewardSlot % 9 == 8){
-                rewardSlot++;
-            }
-
-            if (rewardSlot > end) break;
-
-            inventory.setItem(rewardSlot, item);
-            rewardSlot++;
         }
     }
 
