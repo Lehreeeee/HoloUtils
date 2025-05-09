@@ -8,13 +8,11 @@ import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
-import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import me.lehreeeee.HoloUtils.utils.SoundUtils;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.crafting.ConfigMMOItem;
 import net.Indyuce.mmoitems.api.item.template.MMOItemTemplate;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -31,7 +29,10 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 public class InventoryListener implements Listener {
     private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
@@ -125,7 +126,7 @@ public class InventoryListener implements Listener {
 
                 updateDiceLore(clickedInv,RerollSlotAction.IN, player);
                 updateTemplateItem(clickedInv,RerollSlotAction.IN);
-                player.playSound(getSound("block.amethyst_block.place"));
+                SoundUtils.playSound(player,"block.amethyst_block.place");
             } else { // Else put back the pane
                 ItemStack glassPane = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
                 ItemMeta glassPaneMeta = glassPane.getItemMeta();
@@ -145,14 +146,14 @@ public class InventoryListener implements Listener {
             ItemStack updatedItem = RerollManager.getInstance().reroll(clickedInv.getItem(11), player);
 
             if(updatedItem != null) {
-                player.playSound(getSound("block.amethyst_block.resonate"));
+                SoundUtils.playSound(player,"block.amethyst_block.resonate");
                 player.sendMessage(MessageHelper.process("<aqua>[<gold>Reroll<aqua>] <gold>Item stats have been rerolled!",false));
                 clickedInv.setItem(11, updatedItem);
 
                 // Update requirements again
                 updateDiceLore(clickedInv,RerollSlotAction.IN, player);
             } else {
-                player.playSound(getSound("entity.villager.no"));
+                SoundUtils.playSound(player,"entity.villager.no");
             }
         }
     }
@@ -165,26 +166,26 @@ public class InventoryListener implements Listener {
 
         // Claim all button
         if(clickedSlot == 49){
-            for(int currentSlot = 10; currentSlot <= 43; currentSlot++) {
-                if(currentSlot % 9 == 0 || currentSlot % 9 == 8) continue;
-
-                ItemStack item = clickedInv.getItem(currentSlot);
-                if(item == null || item.getType().isAir()) continue;
-                ItemMeta clickedItemMeta = item.getItemMeta();
-                if(clickedItemMeta == null) continue;
-
-                PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
-                if(clickedItemPDC.has(rewardIdNSK)){
-                    String rewardId = clickedItemPDC.get(rewardIdNSK, PersistentDataType.STRING);
-                    String rowId = clickedItemPDC.get(rowIdNSK, PersistentDataType.STRING);
-
-                    if(EventRewardsManager.getInstance().claimRewards(player,rewardId,rowId)){
-                        clickedInv.setItem(currentSlot,null);
-                    }
-                }
-            }
-
-            player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed all the rewards.",false));
+//            for(int currentSlot = 10; currentSlot <= 43; currentSlot++) {
+//                if(currentSlot % 9 == 0 || currentSlot % 9 == 8) continue;
+//
+//                ItemStack item = clickedInv.getItem(currentSlot);
+//                if(item == null || item.getType().isAir()) continue;
+//                ItemMeta clickedItemMeta = item.getItemMeta();
+//                if(clickedItemMeta == null) continue;
+//
+//                PersistentDataContainer clickedItemPDC = clickedItemMeta.getPersistentDataContainer();
+//                if(clickedItemPDC.has(rewardIdNSK)){
+//                    String rewardId = clickedItemPDC.get(rewardIdNSK, PersistentDataType.STRING);
+//                    String rowId = clickedItemPDC.get(rowIdNSK, PersistentDataType.STRING);
+//
+//                    if(EventRewardsManager.getInstance().claimRewards(player,rewardId,rowId)){
+//                        clickedInv.setItem(currentSlot,null);
+//                    }
+//                }
+//            }
+            clickedInv.close();
+            EventRewardsManager.getInstance().claimAllRewards(player);
         }
         // Previous Page
         else if (clickedSlot == 48){
@@ -192,9 +193,9 @@ public class InventoryListener implements Listener {
 
             if(claimAllButtonPDC.has(pageNSK)){
                 int newPage = claimAllButtonPDC.get(pageNSK, PersistentDataType.INTEGER) - 1;
-                LoggerUtils.debug("New page: " + newPage);
                 if(newPage < 1) return;
                 EventRewardsManager.getInstance().getRewards(player.getUniqueId().toString(), newPage, clickedInv);
+                SoundUtils.playSound(player,"item.book.page_turn");
             }
         }
         // Next Page
@@ -203,8 +204,8 @@ public class InventoryListener implements Listener {
 
             if(claimAllButtonPDC.has(pageNSK)){
                 int newPage = claimAllButtonPDC.get(pageNSK, PersistentDataType.INTEGER) + 1;
-                LoggerUtils.debug("New page: " + newPage);
                 EventRewardsManager.getInstance().getRewards(player.getUniqueId().toString(), newPage, clickedInv);
+                SoundUtils.playSound(player,"item.book.page_turn");
             }
         }
         // Claim specific reward
@@ -221,6 +222,7 @@ public class InventoryListener implements Listener {
 
                 if(EventRewardsManager.getInstance().claimRewards(player,rewardId,rowId)){
                     refreshEventRewardsGUI(event.getClickedInventory(),clickedSlot);
+                    SoundUtils.playSound(player,"block.chest.open");
                     player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed the reward: " + rewardId + ".",false));
                 }
             }
@@ -274,7 +276,7 @@ public class InventoryListener implements Listener {
 
         // Attempt to add into their inventory
         HashMap<Integer, ItemStack> extraItems = player.getInventory().addItem(item);
-        player.playSound(getSound("block.amethyst_block.place"));
+        SoundUtils.playSound(player,"block.amethyst_block.place");
 
         // Drop the item when inventory is full.
         if(!extraItems.isEmpty()){
@@ -332,9 +334,5 @@ public class InventoryListener implements Listener {
                 rerollGUI.setItem(13,templatePane);
             }
         }
-    }
-
-    private Sound getSound(String soundName) {
-        return Sound.sound(Key.key(soundName),Sound.Source.MASTER,1.0F,1.0F);
     }
 }

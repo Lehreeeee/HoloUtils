@@ -6,6 +6,7 @@ import me.lehreeeee.HoloUtils.eventrewards.EventReward;
 import me.lehreeeee.HoloUtils.utils.InventoryUtils;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import me.lehreeeee.HoloUtils.utils.SoundUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -18,10 +19,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class EventRewardsManager {
     private static EventRewardsManager instance;
@@ -102,6 +100,7 @@ public class EventRewardsManager {
 
     public boolean claimRewards(Player player, String rewardId, String rowId){
         if(!eventRewards.containsKey(rewardId)){
+            SoundUtils.playSound(player,"block.chest.locked");
             player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] This reward is not set up correctly, please report to a developer.",false));
             return false;
         }
@@ -114,6 +113,44 @@ public class EventRewardsManager {
 
         MySQLManager.getInstance().claimEventRewards(rowId);
         return true;
+    }
+
+    public void claimAllRewards(Player player){
+        MySQLManager.getInstance().getAllEventRewards(player.getUniqueId().toString(), serverName, rewards -> {
+            if(rewards.isEmpty()) return;
+
+            boolean hasUnclaimable = false;
+
+            Set<String> claimedRowId = new HashSet<>();
+
+            for (String rewardDetails : rewards) {
+                String[] details = rewardDetails.split(";");
+                String rewardId = details[0];
+
+                if(!eventRewards.containsKey(rewardId)) {
+                    hasUnclaimable = true;
+                    continue;
+                }
+
+                List<String> commands = eventRewards.get(rewardId).commands();
+
+                for(String cmd : commands){
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),cmd.replace("%player%",player.getName()));
+                }
+
+                claimedRowId.add(details[1]);
+            }
+
+            if(hasUnclaimable){
+                SoundUtils.playSound(player,"block.chest.locked");
+                player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] 1 or more rewards are not set up correctly, please report to a developer.",false));
+            } else {
+                SoundUtils.playSound(player,"block.chest.open");
+                player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed all the rewards.",false));
+            }
+
+            MySQLManager.getInstance().claimAllEventRewards(claimedRowId);
+        });
     }
 
     private ItemStack createRewardItem(String rewardDetails){

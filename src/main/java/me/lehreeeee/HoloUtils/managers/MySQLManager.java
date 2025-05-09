@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.sql.*;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class MySQLManager {
     private static MySQLManager instance;
@@ -159,6 +160,30 @@ public class MySQLManager {
         });
     }
 
+    public void getAllEventRewards(String uuid, String server, Consumer<List<String>> callback){
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            List<String> rewards = new ArrayList<>();
+
+            try(Connection con = dataSource.getConnection()) {
+                String sql = "SELECT id, rewardid FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND timeclaimed IS NULL";
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setString(1,uuid);
+                stmt.setString(2,server);
+
+                ResultSet result = stmt.executeQuery();
+
+                while(result.next()){
+                    rewards.add(result.getString("rewardid") + ";" + result.getString("id"));
+                }
+
+            } catch (SQLException e){
+                LoggerUtils.severe("Failed to get event rewards." + " Error: " + e.getMessage());
+            }
+
+            Bukkit.getScheduler().runTask(plugin, () -> callback.accept(rewards));
+        });
+    }
+
     public void claimEventRewards(String rowId){
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try(Connection con = dataSource.getConnection()){
@@ -169,6 +194,28 @@ public class MySQLManager {
                 stmt.executeUpdate();
             } catch (SQLException e){
                 LoggerUtils.severe("Failed to update entry for reward claiming for row: " + rowId + ". Error: " + e.getMessage());
+            }
+        });
+    }
+
+    public void claimAllEventRewards(Set<String> rowIds){
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try(Connection con = dataSource.getConnection()){
+                String placeholders = rowIds.stream()
+                        .map(id -> "?")
+                        .collect(Collectors.joining(","));
+
+                String sql = "UPDATE holoutils_event_rewards SET timeclaimed = NOW() WHERE id in (" + placeholders + ")";
+                PreparedStatement stmt = con.prepareStatement(sql);
+
+                int index = 1;
+                for(String id : rowIds){
+                    stmt.setInt(index++, Integer.parseInt(id));
+                }
+
+                stmt.executeUpdate();
+            } catch (SQLException e){
+                LoggerUtils.severe("Failed to update entry for reward claiming for rows: " + String.join(",", rowIds) + ". Error: " + e.getMessage());
             }
         });
     }
