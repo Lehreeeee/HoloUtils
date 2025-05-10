@@ -47,13 +47,13 @@ public class DevChatCommand implements CommandExecutor {
             if(sender instanceof Player player){
                 DevChatManager devChatManager = DevChatManager.getInstance();
                 // Toggle on if not already toggled on
-                if(args[0].equalsIgnoreCase("on") && !devChatManager.hasDevChatOn(player.getUniqueId())){
+                if(args[0].equalsIgnoreCase("on")){
                     devChatManager.toggleDevChat(player.getUniqueId(),true);
                     sendFeedbackMessage(sender,"<#FFA500>Toggled <green>on <#FFA500>dev chat.");
                     return true;
                 }
                 // Toggle off if already toggled on
-                if(args[0].equalsIgnoreCase("off") && devChatManager.hasDevChatOn(player.getUniqueId())){
+                if(args[0].equalsIgnoreCase("off")){
                     devChatManager.toggleDevChat(player.getUniqueId(),false);
                     sendFeedbackMessage(sender,"<#FFA500>Toggled <red>off <#FFA500>dev chat.");
                     return true;
