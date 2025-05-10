@@ -32,7 +32,8 @@ public class LoggerUtils {
     }
 
     public static void file(String folderName, String message) {
-        File folder = new File(HoloUtils.getPlugin().getDataFolder() , "logs/" + folderName);
+        folderName = folderName + "/logs";
+        File folder = new File(HoloUtils.getPlugin().getDataFolder() , folderName);
 
         // Ensure the folder exists
         if(folder.mkdirs()){

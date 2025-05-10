@@ -60,15 +60,15 @@ public class EventRewardsManager {
 
     public void giveRewards(String uuid, String rewardId, String server){
         MySQLManager.getInstance().giveEventReward(uuid,rewardId,server);
-        LoggerUtils.file("EventRewards", "Gave reward " + rewardId + " to player "
-                + Bukkit.getPlayer(UUID.fromString(uuid)) + " for server " + server);
+        LoggerUtils.file("EventRewards", "Gave reward " + rewardId + " to "
+                + Bukkit.getPlayer(UUID.fromString(uuid)).getName() + " for server " + server + ".");
     }
 
     // Query all rewards and populate the inventory when first open /eventrewards claim
     public void getAllRewards(String uuid, Inventory inv){
         MySQLManager.getInstance().getAllEventRewards(uuid, serverName, rewards -> {
             if(!rewards.isEmpty()){
-                LoggerUtils.file("EventRewards","Player " + Bukkit.getPlayer(UUID.fromString(uuid))
+                LoggerUtils.file("EventRewards","Player " + Bukkit.getPlayer(UUID.fromString(uuid)).getName()
                         + " opened claim GUI with " + rewards.size() + " rewards." );
 
                 // Cache the rewards once done
