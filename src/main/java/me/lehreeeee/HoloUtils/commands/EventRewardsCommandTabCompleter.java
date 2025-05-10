@@ -13,16 +13,20 @@ public class EventRewardsCommandTabCompleter implements TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if(args.length == 1){
+            if (!sender.hasPermission("holoutils.eventrewards.admin")){
+                return List.of("claim");
+            }
+
             return commands;
         }
 
-        if(args[0].equalsIgnoreCase("give")){
+        if(args[0].equalsIgnoreCase("give") && sender.hasPermission("holoutils.eventrewards.admin")){
             return switch(args.length){
                 case 3 -> List.of("[reward]");
                 case 4 -> List.of("[server1,server2]");
-                default -> null;
+                default -> List.of();
             };
         }
-        return null;
+        return List.of();
     }
 }
