@@ -34,7 +34,7 @@ public class EventRewardsCommand implements CommandExecutor {
 
         if(args.length == 4 && args[0].equalsIgnoreCase("give")){
             EventRewardsManager.getInstance().giveRewards(String.valueOf(Bukkit.getPlayerUniqueId(args[1])),args[2],args[3]);
-            sendFeedbackMessage(sender,"Gave event reward '" + args[2]+ "' to " + args[1] + " for server " + args[3] + ".");
+            sendFeedbackMessage(sender,"Gave event reward '" + args[2]+ "' to " + args[1] + " for server(s) " + args[3] + ".");
             return true;
         }
 

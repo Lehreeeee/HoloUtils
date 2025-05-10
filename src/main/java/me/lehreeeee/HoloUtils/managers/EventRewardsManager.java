@@ -58,10 +58,13 @@ public class EventRewardsManager {
         }
     }
 
-    public void giveRewards(String uuid, String rewardId, String server){
-        MySQLManager.getInstance().giveEventReward(uuid,rewardId,server);
+    public void giveRewards(String uuid, String rewardId, String servers){
+        Arrays.stream(servers.split(",")).toList().forEach((server) -> {
+            MySQLManager.getInstance().giveEventReward(uuid,rewardId,server);
+        });
+
         LoggerUtils.file("EventRewards", "Gave reward " + rewardId + " to "
-                + Bukkit.getPlayer(UUID.fromString(uuid)).getName() + " for server " + server + ".");
+                + Bukkit.getPlayer(UUID.fromString(uuid)).getName() + " for server(s) " + servers + ".");
     }
 
     // Query all rewards and populate the inventory when first open /eventrewards claim
