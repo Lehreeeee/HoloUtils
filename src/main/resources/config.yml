@@ -26,6 +26,10 @@ mysql:
   username: ''
   password: ''
   database: database_name
+  hikari-cp:
+    MaximumPoolSize: 5
+    MinimumIdle: 2
+    IdleTimeout: 300000
 
 # To fix immortal mobs by checking if mob's health is still > 0 after death, force remove it if true.
 # Limitation of this option is that cancelevent ~onDeath in MythicMobs will not be usable anymore.

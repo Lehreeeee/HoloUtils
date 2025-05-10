@@ -78,7 +78,7 @@ public final class HoloUtils extends JavaPlugin {
         YamlConfiguration playerTitleConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/DisplayTag/PlayerTitles.yml"));
         YamlConfiguration elementalStatusConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/DisplayTag/StatusEffects.yml"));
         YamlConfiguration rerollConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/rerolls.yml"));
-        YamlConfiguration eventrewardsConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/event_rewards.yml"));
+        YamlConfiguration eventrewardsConfig = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "/EventRewards/rewards.yml"));
 
         TitleDisplayManager.getInstance().loadPlayerTitlesConfig(playerTitleConfig);
         StatusDisplayManager.getInstance().loadStatusEffectsConfig(elementalStatusConfig);
@@ -133,7 +133,7 @@ public final class HoloUtils extends JavaPlugin {
                 "DisplayTag/PlayerTitles.yml",
                 "DisplayTag/StatusEffects.yml",
                 "rerolls.yml",
-                "event_rewards.yml"
+                "EventRewards/rewards.yml"
         );
 
         File dataFolder = this.getDataFolder();

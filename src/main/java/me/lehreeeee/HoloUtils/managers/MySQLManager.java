@@ -71,9 +71,9 @@ public class MySQLManager {
         config.setUsername(user);
         config.setPassword(password);
         config.setPoolName("HoloUtils-Connection-Pool");
-        config.setMaximumPoolSize(5);
-        config.setMinimumIdle(2);
-        config.setIdleTimeout(300000);
+        config.setMaximumPoolSize(MySQLConfig.getInt("hikari-cp.MaximumPoolSize",5));
+        config.setMinimumIdle(MySQLConfig.getInt("hikari-cp.MinimumIdle",2));
+        config.setIdleTimeout(MySQLConfig.getLong("hikari-cp.IdleTimeout",300000));
 
         dataSource = new HikariDataSource(config);
         LoggerUtils.info("HikariCP connection pool opened.");
@@ -115,7 +115,7 @@ public class MySQLManager {
     public void giveEventReward(String uuid, String rewardId, String server){
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try(Connection con = dataSource.getConnection()){
-                String sql = "INSERT INTO holoutils_event_rewards (uuid, rewardid, timegiven, timeclaimed, server_name) "
+                String sql = "INSERT INTO holoutils_event_rewards (uuid, reward_id, time_given, time_claimed, server_name) "
                         + "VALUES (?, ?, NOW(), NULL, ?)";
 
                 PreparedStatement stmt = con.prepareStatement(sql);
@@ -134,14 +134,14 @@ public class MySQLManager {
     public void getEventReward(String rowId, Consumer<String> callback){
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try(Connection con = dataSource.getConnection()) {
-                String sql = "SELECT id, rewardid, timegiven FROM holoutils_event_rewards WHERE id = ? AND timeclaimed IS NULL";
+                String sql = "SELECT id, reward_id, time_given FROM holoutils_event_rewards WHERE id = ? AND time_claimed IS NULL";
                 PreparedStatement stmt = con.prepareStatement(sql);
                 stmt.setString(1,rowId);
 
                 ResultSet result = stmt.executeQuery();
 
                 if(result.next()){
-                    String reward = result.getString("rewardid") + ";" +  result.getString("timegiven") + ";" + result.getString("id");
+                    String reward = result.getString("id") + ";" +  result.getString("reward_id") + ";" + result.getString("time_given");
                     Bukkit.getScheduler().runTask(plugin, () -> callback.accept(reward));
                 }
 
@@ -156,7 +156,7 @@ public class MySQLManager {
             List<String> rewards = new ArrayList<>();
 
             try(Connection con = dataSource.getConnection()) {
-                String sql = "SELECT id, rewardid, timegiven FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND timeclaimed IS NULL";
+                String sql = "SELECT id, reward_id, time_given FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND time_claimed IS NULL";
                 PreparedStatement stmt = con.prepareStatement(sql);
                 stmt.setString(1,uuid);
                 stmt.setString(2,server);
@@ -164,7 +164,7 @@ public class MySQLManager {
                 ResultSet result = stmt.executeQuery();
 
                 while(result.next()){
-                    rewards.add(result.getString("rewardid") + ";" +  result.getString("timegiven") + ";" + result.getString("id"));
+                    rewards.add(result.getString("id") + ";" +  result.getString("reward_id") + ";" + result.getString("time_given"));
                 }
 
             } catch (SQLException e){
@@ -184,7 +184,7 @@ public class MySQLManager {
                         .map(id -> "?")
                         .collect(Collectors.joining(","));
 
-                String sql = "UPDATE holoutils_event_rewards SET timeclaimed = NOW() WHERE id in (" + placeholders + ")";
+                String sql = "UPDATE holoutils_event_rewards SET time_claimed = NOW() WHERE id in (" + placeholders + ")";
                 PreparedStatement stmt = con.prepareStatement(sql);
 
                 int index = 1;
@@ -208,11 +208,13 @@ public class MySQLManager {
             String createTableQuery = "CREATE TABLE IF NOT EXISTS holoutils_event_rewards ("
                     + "id INT AUTO_INCREMENT PRIMARY KEY, "
                     + "uuid CHAR(36) NOT NULL, "
-                    + "rewardid VARCHAR(255) NOT NULL, "
-                    + "timegiven TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-                    + "timeclaimed TIMESTAMP NULL, "
-                    + "server_name VARCHAR(255) NOT NULL"
+                    + "reward_id VARCHAR(255) NOT NULL, "
+                    + "time_given TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                    + "time_claimed TIMESTAMP NULL, "
+                    + "server_name VARCHAR(255) NOT NULL, "
+                    + "INDEX idx_rewards_lookup (uuid, server_name, time_claimed)"
                     + ")";
+
 
             stmt.executeUpdate(createTableQuery);
 

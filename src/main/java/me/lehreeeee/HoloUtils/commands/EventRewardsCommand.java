@@ -17,11 +17,22 @@ public class EventRewardsCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){
 
         if(args.length == 1 && args[0].equalsIgnoreCase("claim") && sender instanceof Player player){
+            if (!player.hasPermission("holoutils.eventrewards.claim")) {
+                sendFeedbackMessage(sender,"You don't have permission to use this command.");
+                return true;
+            }
+
             player.openInventory(new EventRewardsGUI().getEventRewardsInventory(String.valueOf(player.getUniqueId())));
             return true;
         }
 
-        if(args.length == 4){
+        // Only admin can continue after this point
+        if (!sender.hasPermission("holoutils.eventrewards.admin")) {
+            sendFeedbackMessage(sender,"You don't have permission to use this command.");
+            return true;
+        }
+
+        if(args.length == 4 && args[0].equalsIgnoreCase("give")){
             EventRewardsManager.getInstance().giveRewards(String.valueOf(Bukkit.getPlayerUniqueId(args[1])),args[2],args[3]);
             sendFeedbackMessage(sender,"Gave event reward '" + args[2]+ "' to " + args[1] + " for server " + args[3] + ".");
             return true;

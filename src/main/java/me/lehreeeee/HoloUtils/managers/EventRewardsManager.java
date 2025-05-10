@@ -26,7 +26,6 @@ public class EventRewardsManager {
     private final Map<String,EventReward> eventRewards = new HashMap<>();
     private final Map<String,List<String>> cachedPlayerRewards = new HashMap<>();
     private String serverName;
-    private final int PAGE_SIZE = 28;
     private final NamespacedKey pageNSK = new NamespacedKey("holoutils","page");
 
     public static EventRewardsManager getInstance(){
@@ -46,28 +45,32 @@ public class EventRewardsManager {
         eventRewards.clear();
 
         serverName = EventRewardsConfig.getString("server_name",null);
-        if(serverName == null) LoggerUtils.severe("Server name not found, player will not be able to see any rewards.");
+        if(serverName == null) LoggerUtils.warning("Server name not found, player will not be able to see any rewards.");
 
         ConfigurationSection rewards = EventRewardsConfig.getConfigurationSection("rewards");
 
         for(String rewardId : rewards.getKeys(false)){
-
             EventReward reward = new EventReward(rewardId,
                     rewards.getString(rewardId + ".display"),
                     rewards.getString(rewardId + ".skull_texture"),
                     rewards.getStringList(rewardId + ".commands"));
-            LoggerUtils.debug("Found reward " + reward);
             eventRewards.put(reward.rewardId(),reward);
         }
     }
 
     public void giveRewards(String uuid, String rewardId, String server){
         MySQLManager.getInstance().giveEventReward(uuid,rewardId,server);
+        LoggerUtils.file("EventRewards", "Gave reward " + rewardId + " to player "
+                + Bukkit.getPlayer(UUID.fromString(uuid)) + " for server " + server);
     }
 
+    // Query all rewards and populate the inventory when first open /eventrewards claim
     public void getAllRewards(String uuid, Inventory inv){
         MySQLManager.getInstance().getAllEventRewards(uuid, serverName, rewards -> {
             if(!rewards.isEmpty()){
+                LoggerUtils.file("EventRewards","Player " + Bukkit.getPlayer(UUID.fromString(uuid))
+                        + " opened claim GUI with " + rewards.size() + " rewards." );
+
                 // Cache the rewards once done
                 cachedPlayerRewards.put(uuid,rewards);
 
@@ -77,13 +80,13 @@ public class EventRewardsManager {
         });
     }
 
-    public void claimRewards(Player player, Inventory inv, String rowId){
+    public void claimReward(Player player, Inventory inv, String rowId){
+        String uuid = player.getUniqueId().toString();
         MySQLManager.getInstance().getEventReward(rowId, rewardData -> {
             if(rewardData.isEmpty()) return;
 
             String[] details = rewardData.split(";");
-            String rewardId = details[0];
-            String timeGiven = details[1];
+            String rewardId = details[1];
 
             EventReward reward = eventRewards.get(rewardId);
             List<String> commands = reward.commands();
@@ -92,32 +95,36 @@ public class EventRewardsManager {
                 Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),cmd.replace("%player%",player.getName()));
             }
 
+            // Update database and cache
             MySQLManager.getInstance().updateAllClaimedEventRewards(Set.of(rowId));
+            cachedPlayerRewards.get(uuid).remove(rewardData);
+            LoggerUtils.debug("Deleted " + uuid + "'s cachedReward: " + reward);
 
-            deleteCachedPlayerRewards(String.valueOf(player.getUniqueId()),rewardId,timeGiven,rowId);
-
-            EventRewardsManager.getInstance().updateInventory(String.valueOf(player.getUniqueId()),
+            // Refresh Inventory
+            EventRewardsManager.getInstance().updateInventory(uuid,
                     inv.getItem(49).getItemMeta().getPersistentDataContainer().get(pageNSK, PersistentDataType.INTEGER),
                     inv);
+
             player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed the reward: "
                     + reward.displayName()
                     + ".",false));
+
+            LoggerUtils.file("EventRewards",player.getName() + " claimed rewards: " + rewardData);
         });
     }
 
     public void claimAllRewards(Player player){
-        MySQLManager.getInstance().getAllEventRewards(player.getUniqueId().toString(), serverName, rewards -> {
+        String uuid = player.getUniqueId().toString();
+        MySQLManager.getInstance().getAllEventRewards(uuid, serverName, rewards -> {
             if(rewards.isEmpty()) return;
 
             boolean hasUnclaimable = false;
 
             Set<String> claimedRowId = new HashSet<>();
 
-            for (String rewardDetails : rewards) {
-                String[] details = rewardDetails.split(";");
-                String rewardId = details[0];
-                String timeGiven = details[1];
-                String rowId = details[2];
+            for (String rewardData : rewards) {
+                String[] details = rewardData.split(";");
+                String rewardId = details[1];
 
                 if(!eventRewards.containsKey(rewardId)) {
                     hasUnclaimable = true;
@@ -130,9 +137,8 @@ public class EventRewardsManager {
                     Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),cmd.replace("%player%",player.getName()));
                 }
 
-                claimedRowId.add(details[2]);
-
-                deleteCachedPlayerRewards(String.valueOf(player.getUniqueId()),rewardId,timeGiven,rowId);
+                claimedRowId.add(details[0]);
+                LoggerUtils.file("EventRewards",player.getName() + " claimed rewards: " + rewardData);
             }
 
             if(hasUnclaimable){
@@ -152,27 +158,24 @@ public class EventRewardsManager {
 
         List<String> allRewards = cachedPlayerRewards.get(uuid);
 
-        // Update page number?
+        // Dont do anything if empty
+        if(allRewards == null) return;
+
         int totalPages = (int) Math.ceil((double) allRewards.size() / 28);
-        LoggerUtils.debug("Taotal Page: " + totalPages);
-
-        // Not last page, update page number
-        if(newPage > totalPages){
-            LoggerUtils.debug("Last page reached.");
+        // Skip if last or first page
+        if(newPage > totalPages || newPage < 1){
             return;
-        } else if(newPage < 1) {
-            LoggerUtils.debug("First page reached.");
-            return;
-        } else {
-            ItemMeta claimAllButtonMeta = inv.getItem(49).getItemMeta();
-            claimAllButtonMeta.getPersistentDataContainer()
-                    .set(new NamespacedKey("holoutils","page"), PersistentDataType.INTEGER, newPage);
-            inv.getItem(49).setItemMeta(claimAllButtonMeta);
-            LoggerUtils.debug("Page Number: " + newPage);
         }
+        // Update Page Number
+        ItemStack claimAllButton = inv.getItem(49);
+        ItemMeta claimAllButtonMeta = claimAllButton.getItemMeta();
+        claimAllButtonMeta.getPersistentDataContainer().set(pageNSK, PersistentDataType.INTEGER, newPage);
+        claimAllButton.setItemMeta(claimAllButtonMeta);
 
-        int start = (newPage - 1) * PAGE_SIZE;
-        int end = Math.min(start + PAGE_SIZE, allRewards.size());
+        // Prepare new page
+        int pageSize = 28;
+        int start = (newPage - 1) * pageSize;
+        int end = Math.min(start + pageSize, allRewards.size());
 
         List<String> pageRewards = allRewards.subList(start, end);
 
@@ -186,11 +189,12 @@ public class EventRewardsManager {
         // Repopulate the page
         int rewardSlot = 10;
         for (String rewardDetails : pageRewards) {
-            // Make sure only add into reward slot and stop
+            // Make sure only add into reward slot
             while (rewardSlot < 44 && InventoryUtils.isBorderSlot(rewardSlot)) {
                 rewardSlot++;
             }
 
+            // Stop adding extra reward
             if (rewardSlot >= 44) break;
 
             ItemStack rewardItem = createRewardItem(rewardDetails);
@@ -203,19 +207,15 @@ public class EventRewardsManager {
         return eventRewards.containsKey(rewardId);
     }
 
-    private void deleteCachedPlayerRewards(String uuid, String rewardId, String timeGiven, String rowId){
-        String reward = String.join(";",rewardId,timeGiven,rowId);
-
-        cachedPlayerRewards.get(uuid).remove(reward);
-
-        LoggerUtils.debug("Deleted " + uuid + "'s cachedReward: " + reward);
+    public void clearPlayerRewardsCache(String uuid){
+        cachedPlayerRewards.remove(uuid);
     }
 
     private ItemStack createRewardItem(String rewardDetails){
         String[] details = rewardDetails.split(";");
-        String rewardId = details[0];
-        String timeStamp = details[1];
-        String rowId = details[2];
+        String rowId = details[0];
+        String rewardId = details[1];
+        String timeStamp = details[2];
 
         ItemStack rewardHead = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) rewardHead.getItemMeta();
@@ -233,8 +233,8 @@ public class EventRewardsManager {
             ));
 
             PersistentDataContainer skullPDC = skullMeta.getPersistentDataContainer();
-            skullPDC.set(new NamespacedKey("holoutils","rewardid"), PersistentDataType.STRING, rewardId);
-            skullPDC.set(new NamespacedKey("holoutils","rowid"), PersistentDataType.STRING, rowId);
+            skullPDC.set(new NamespacedKey("holoutils","reward_id"), PersistentDataType.STRING, rewardId);
+            skullPDC.set(new NamespacedKey("holoutils","row_id"), PersistentDataType.STRING, rowId);
 
             rewardHead.setItemMeta(skullMeta);
         }

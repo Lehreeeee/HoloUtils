@@ -8,7 +8,6 @@ import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
-import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import me.lehreeeee.HoloUtils.utils.SoundUtils;
 import net.Indyuce.mmoitems.MMOItems;
@@ -36,8 +35,8 @@ import java.util.UUID;
 public class InventoryListener implements Listener {
     private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
     private final NamespacedKey titleNameNSK = new NamespacedKey("holoutils","titlename");
-    private final NamespacedKey rewardIdNSK = new NamespacedKey("holoutils","rewardid");
-    private final NamespacedKey rowIdNSK = new NamespacedKey("holoutils","rowid");
+    private final NamespacedKey rewardIdNSK = new NamespacedKey("holoutils","reward_id");
+    private final NamespacedKey rowIdNSK = new NamespacedKey("holoutils","row_id");
     private final NamespacedKey pageNSK = new NamespacedKey("holoutils","page");
 
     public InventoryListener(HoloUtils plugin){
@@ -70,10 +69,16 @@ public class InventoryListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onInventoryClose(InventoryCloseEvent event){
         Inventory closedInv = event.getInventory();
+        InventoryHolder invHolder = closedInv.getHolder(false);
 
-        if(!(closedInv.getHolder() instanceof RerollGUI)) return;
+        if(invHolder instanceof RerollGUI){
+            returnItem(closedInv.getItem(11), (Player) event.getPlayer());
+            return;
+        }
 
-        returnItem(closedInv.getItem(11), (Player) event.getPlayer());
+        if (invHolder instanceof EventRewardsGUI) {
+            EventRewardsManager.getInstance().clearPlayerRewardsCache(String.valueOf(event.getPlayer().getUniqueId()));
+        }
     }
 
     private void handlePlayerTitleGUI(InventoryClickEvent event, Inventory clickedInv){;
@@ -189,13 +194,6 @@ public class InventoryListener implements Listener {
                 SoundUtils.playSound(player,"item.book.page_turn");
             }
         }
-        // Debug
-        else if (clickedSlot == 53){
-            LoggerUtils.debug("Current Page: " + clickedInv.getItem(49)
-                    .getItemMeta()
-                    .getPersistentDataContainer()
-                    .get(pageNSK, PersistentDataType.INTEGER));
-        }
         // Claim specific reward
         else if (clickedSlot > 8 && clickedSlot < 45 && clickedSlot % 9 != 0 && clickedSlot % 9 != 8) {
             ItemStack item = event.getCurrentItem();
@@ -217,7 +215,7 @@ public class InventoryListener implements Listener {
 
                 // Remove before giving rewards to prevent double claiming
                 clickedInv.setItem(clickedSlot,null);
-                EventRewardsManager.getInstance().claimRewards(player, clickedInv, rowId);
+                EventRewardsManager.getInstance().claimReward(player, clickedInv, rowId);
             }
         }
     }
