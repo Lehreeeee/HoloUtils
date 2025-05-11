@@ -67,6 +67,38 @@ public class InventoryListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
+    public void onInventoryShiftClick(InventoryClickEvent event){
+
+        // Ignore non shift click
+        if(!event.getClick().isShiftClick()) return;
+
+        // Ignore non reroll gui
+        Inventory topInv = event.getWhoClicked().getOpenInventory().getTopInventory();
+        if(!(topInv.getHolder() instanceof RerollGUI)) return;
+
+        // Let other listener handle if clicked inv is reroll gui
+        Inventory clickedInv = event.getClickedInventory();
+        if(clickedInv == null || clickedInv.getHolder() instanceof RerollGUI) return;
+
+        ItemStack clickedItem = event.getCurrentItem();
+
+        // If clicked item is MMOItems, cancel event and force move into slot
+        if(NBTItem.get(clickedItem).hasType()) {
+            event.setCancelled(true);
+            // If already has MMOItems in there, return item to their inventory
+            Player player = (Player) event.getWhoClicked();
+            returnItem(topInv.getItem(11),player);
+
+            topInv.setItem(11, clickedItem);
+            event.setCurrentItem(null);
+
+            updateDiceLore(topInv,RerollSlotAction.IN, player);
+            updateTemplateItem(topInv,RerollSlotAction.IN);
+            SoundUtils.playSound(player,"block.amethyst_block.place");
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
     public void onInventoryClose(InventoryCloseEvent event){
         Inventory closedInv = event.getInventory();
         InventoryHolder invHolder = closedInv.getHolder(false);
@@ -266,7 +298,10 @@ public class InventoryListener implements Listener {
                 NBTItem nbtItem = NBTItem.get(rerollGUI.getItem(11));
                 String itemKey = nbtItem.getType() + ":" + nbtItem.getString("MMOITEMS_ITEM_ID");
 
-                if(!RerollManager.getInstance().isRerollable(itemKey)) return;
+                if(!RerollManager.getInstance().isRerollable(itemKey)) {
+                    updateTemplateItem(rerollGUI,RerollSlotAction.OUT);
+                    return;
+                }
 
                 MMOItemTemplate template = MMOItems.plugin.getTemplates().getTemplate(nbtItem);
 
