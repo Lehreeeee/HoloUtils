@@ -2,6 +2,7 @@ package me.lehreeeee.HoloUtils.managers;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool;
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
@@ -75,9 +76,13 @@ public class MySQLManager {
         config.setMinimumIdle(MySQLConfig.getInt("hikari-cp.MinimumIdle",2));
         config.setIdleTimeout(MySQLConfig.getLong("hikari-cp.IdleTimeout",300000));
 
-        dataSource = new HikariDataSource(config);
-        LoggerUtils.info("HikariCP connection pool opened.");
+        try{
+            dataSource = new HikariDataSource(config);
+        } catch (HikariPool.PoolInitializationException e){
+            LoggerUtils.warning("Failed to initialize HikariCP, features that require MySQL will not properly.");
+        }
 
+        LoggerUtils.info("HikariCP connection pool opened.");
         checkTables();
     }
 
