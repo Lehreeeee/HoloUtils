@@ -332,9 +332,7 @@ public class MySQLManager {
                 }
 
                 // Done giving items to player, update entry from table to prevent 2nd claim
-                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    updateEntryforClaimedPlayer(uuid);
-                });
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> updateEntryforClaimedPlayer(uuid));
             }
 
             bukkitObjectInputStream.close();
