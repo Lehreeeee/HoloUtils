@@ -11,8 +11,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class DevChatManager {
@@ -21,7 +21,7 @@ public class DevChatManager {
     private String devChatPrefix = "<aqua>[<red>Dev<aqua>]";
     private String devChatColor = "<aqua>";
 
-    private final List<UUID> toggledOnDev = new ArrayList<>();
+    private final Set<UUID> toggledOnDev = new HashSet<>();
 
     public static DevChatManager getInstance(){
         if(instance == null){
