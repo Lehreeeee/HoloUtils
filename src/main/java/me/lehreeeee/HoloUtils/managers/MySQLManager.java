@@ -120,11 +120,19 @@ public class MySQLManager {
     public void giveEventReward(String uuid, String rewardId, String server){
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try(Connection con = dataSource.getConnection()){
-                String sql = "INSERT INTO holoutils_event_rewards (uuid, reward_id, time_given, time_claimed, server_name) "
+
+                int userId = getUserId(con,uuid);
+
+                if(userId < 0){
+                    LoggerUtils.severe("User not found for UUID: " + uuid);
+                    return;
+                }
+
+                String sql = "INSERT INTO holoutils_event_rewards (user_id, reward_id, time_given, time_claimed, server_name) "
                         + "VALUES (?, ?, NOW(), NULL, ?)";
 
                 PreparedStatement stmt = con.prepareStatement(sql);
-                stmt.setString(1,uuid);
+                stmt.setInt(1,userId);
                 stmt.setString(2,rewardId);
                 stmt.setString(3,server);
 
@@ -161,9 +169,17 @@ public class MySQLManager {
             List<String> rewards = new ArrayList<>();
 
             try(Connection con = dataSource.getConnection()) {
-                String sql = "SELECT id, reward_id, time_given FROM holoutils_event_rewards WHERE uuid = ? AND server_name = ? AND time_claimed IS NULL";
+
+                int userId = getUserId(con,uuid);
+
+                if(userId < 0){
+                    LoggerUtils.severe("User not found for UUID: " + uuid);
+                    return;
+                }
+
+                String sql = "SELECT id, reward_id, time_given FROM holoutils_event_rewards WHERE user_id = ? AND server_name = ? AND time_claimed IS NULL";
                 PreparedStatement stmt = con.prepareStatement(sql);
-                stmt.setString(1,uuid);
+                stmt.setInt(1,userId);
                 stmt.setString(2,server);
 
                 ResultSet result = stmt.executeQuery();
@@ -204,26 +220,75 @@ public class MySQLManager {
         });
     }
 
+    public int createUserId(String uuid) {
+        String sql = "INSERT INTO holoutils_users (uuid) VALUES (?)";
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, uuid);
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                LoggerUtils.severe("Creating user failed, no rows affected.");
+                return -1;
+            }
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    LoggerUtils.debug("Created new user: " + uuid);
+                    return generatedKeys.getInt(1);
+                } else {
+                    LoggerUtils.severe("Creating user failed, no ID obtained.");
+                    return -1;
+                }
+            }
+        } catch (SQLException e) {
+            LoggerUtils.severe("Failed to create user. Error: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    private int getUserId(Connection con, String uuid) {
+        String getUserIdSql = "SELECT user_id FROM holoutils_users WHERE uuid = ?";
+        try (PreparedStatement stmt = con.prepareStatement(getUserIdSql)) {
+            stmt.setString(1, uuid);
+            try (ResultSet result = stmt.executeQuery()) {
+                if (result.next()) {
+                    return result.getInt("user_id");
+                }
+            }
+        } catch (SQLException e) {
+            LoggerUtils.severe("Failed to get user id. Error: " + e.getMessage());
+        }
+        return createUserId(uuid);
+    }
+
     private void checkTables(){
         try(Connection con = dataSource.getConnection()){
             Statement stmt = con.createStatement();
 
+            // Create user table
+            String usersTable = "holoutils_players";
+            String createUsersTableQuery = "CREATE TABLE IF NOT EXISTS holoutils_users ("
+                    + "user_id INT AUTO_INCREMENT PRIMARY KEY, "
+                    + "uuid CHAR(36) NOT NULL UNIQUE"
+                    + ")";
+
             // Create event table
-            String table = "holoutils_event_rewards";
-            String createTableQuery = "CREATE TABLE IF NOT EXISTS holoutils_event_rewards ("
+            String eventRewardsTable = "holoutils_event_rewards";
+            String createEventRewardsTableQuery = "CREATE TABLE IF NOT EXISTS holoutils_event_rewards ("
                     + "id INT AUTO_INCREMENT PRIMARY KEY, "
-                    + "uuid CHAR(36) NOT NULL, "
+                    + "user_id INT NOT NULL, "
                     + "reward_id VARCHAR(255) NOT NULL, "
                     + "time_given TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
                     + "time_claimed TIMESTAMP NULL, "
                     + "server_name VARCHAR(255) NOT NULL, "
-                    + "INDEX idx_rewards_lookup (uuid, server_name, time_claimed)"
+                    + "INDEX idx_rewards_lookup (user_id, server_name, time_claimed), "
+                    + "FOREIGN KEY (user_id) REFERENCES holoutils_users(user_id)"
                     + ")";
 
 
-            stmt.executeUpdate(createTableQuery);
+            stmt.executeUpdate(createUsersTableQuery);
+            stmt.executeUpdate(createEventRewardsTableQuery);
 
-            LoggerUtils.info("Ensured table '" + table + "' exists.");
+            LoggerUtils.debug("Ensured tables " + String.join(",",usersTable,eventRewardsTable) + " exist.");
 
         } catch (SQLException e) {
             LoggerUtils.severe("Failed to check database and tables. Error: " + e.getMessage());
