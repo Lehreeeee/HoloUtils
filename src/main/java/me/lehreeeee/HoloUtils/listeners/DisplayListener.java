@@ -5,12 +5,14 @@ import me.lehreeeee.HoloUtils.managers.DevChatManager;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -53,7 +55,8 @@ public class DisplayListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerRespawn(PlayerRespawnEvent event){
-        titleDisplayManager.toggleTitle(event.getPlayer().getUniqueId(),true);
+        Player player = event.getPlayer();
+        titleDisplayManager.toggleTitle(player.getUniqueId(),player.getGameMode() != GameMode.SPECTATOR);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -64,4 +67,12 @@ public class DisplayListener implements Listener {
         // Hehe, idw make another event listener :)
         DevChatManager.getInstance().toggleDevChat(uuid,false);
     }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerChangeGameMode(PlayerGameModeChangeEvent event){
+        GameMode gameMode = event.getNewGameMode();
+
+        titleDisplayManager.toggleTitle(event.getPlayer().getUniqueId(), gameMode != GameMode.SPECTATOR);
+    }
+
 }
