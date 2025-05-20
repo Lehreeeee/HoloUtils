@@ -3,6 +3,7 @@ package me.lehreeeee.HoloUtils.managers;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import me.lehreeeee.HoloUtils.utils.ItemUtils;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import net.kyori.adventure.text.Component;
@@ -10,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -62,25 +64,25 @@ public class DevChatManager {
     public void publishMessage(CommandSender sender, String message){
         // Default sender is yagoo, most likely console sender
         String messageSender = "<gold>Yagoo";
+        String encodedItem = "";
 
         // Update sender if its player
         if(sender instanceof Player player){
             messageSender = MessageHelper.revert(player.displayName());
 
             // TODO: Maybe add [item] for showing item in chat when hovered
-            //if(message.contains("[item]")){
-            //    ItemStack itemHeld = player.getInventory().getItemInMainHand();
-            //    Component itemHover = Component.text("[item]").hoverEvent(itemHeld);
-            //    logger.info(itemHover.toString());
-//
-            //    String serializedComponent = GsonComponentSerializer.gson().serialize(itemHover);
-            //    message = message.replace("[item]", serializedComponent);
-            //}
+            if(message.contains("[item]")){
+                ItemStack itemHeld = player.getInventory().getItemInMainHand();
+
+                if(!itemHeld.getType().isAir())
+                    encodedItem = ItemUtils.encodeItem(itemHeld);
+            }
         }
 
         JsonObject json = new JsonObject();
         json.addProperty("messageSender", messageSender);
         json.addProperty("message", message);
+        json.addProperty("encodedItem", encodedItem);
 
         RedisManager.getInstance().publish("holo-devchat", json.toString());
     }
@@ -95,10 +97,21 @@ public class DevChatManager {
                 return;
             }
 
-            // Process final message to be sent to admin
+            String message = json.get("message").getAsString();
+            if(message.contains("[item]") && json.has("encodedItem")){
+                String encoded = json.get("encodedItem").getAsString();
+
+                if(!encoded.isEmpty()) {
+                    ItemStack item = ItemUtils.decodeItem(encoded);
+                    message =  message.replace("[item]", MessageHelper.revert(item.displayName()));
+                }
+            }
+
+            // Process final message to be sent to developers
             Component finalMessage = MessageHelper.process(devChatPrefix + "<aqua>["
                     + json.get("messageSender").getAsString() + "<reset><aqua>] " + devChatColor
-                    + json.get("message").getAsString().replace("\\<", "<"));
+                    + message.replace("\\<", "<"));
+
 
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.hasPermission("holoutils.devchat")) {

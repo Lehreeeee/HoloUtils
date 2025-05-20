@@ -27,6 +27,8 @@ public class MessageHelper {
     }
 
     private static String replaceLegacyColorCode(String input) {
+        input = input.replace("§", "&");
+
         String[][] colorMap = {
                 {"&0", "<black>"}, {"&1", "<dark_blue>"}, {"&2", "<dark_green>"}, {"&3", "<dark_aqua>"},
                 {"&4", "<dark_red>"}, {"&5", "<dark_purple>"}, {"&6", "<gold>"}, {"&7", "<gray>"},

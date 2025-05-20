@@ -8,7 +8,7 @@ Custom bug fixes for other will also be implemented in this plugin.
 This plugin is primarily designed specifically for [**HoloCraft Minecraft Server**](https://wiki.holocraft.xyz/). Most features are developed to suit the specific needs of our server, and functionality may not be universally applicable to other environments. While some features may be useful outside of HoloCraft, this plugin is not intended for general-purpose use.
 
 ## Features
-- Network Developer Chat using Redis Server, allowing developer from any server in the network to communicate with each other.
+- Network Developer Chat using Redis Server, allowing developer from any server in the network to communicate with each other. (Writing [item] in message can show item in mainhand)
 - Player title display, can be used to display title on top of player's head. (Mainly used for title achieved by completing some challages or participating in some events)
 - Mob status effect display, can be used to temporarily display status symbol on top of mob's head.
 - Allow player's arrow to go through other players in some worlds, useful for multiplayer boss fight.
@@ -35,3 +35,7 @@ This plugin is primarily designed specifically for [**HoloCraft Minecraft Server
 - **MMOItems** [Link here](https://www.spigotmc.org/resources/mmoitems.39267/) (Soft Depend - Needed to enable /reroll commands)
 - **ModelEngine4** [Link here](https://mythiccraft.io/index.php?resources/model-engine%E2%80%94ultimate-entity-model-manager-1-19-4-1-21-1.1213/)  (Soft Depend - Will try to put status display tag on specific bone if the mob has a model)
 - **MythicMobs** [Link here](https://mythiccraft.io/index.php?resources/mythicmobs.1/) (Soft Depend)
+
+## Other tools
+- **MySQL** (Required for network rewards)
+- **Redis** (Required for network developer chat)
