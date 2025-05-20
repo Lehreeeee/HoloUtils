@@ -121,7 +121,7 @@ public class InventoryListener implements Listener {
 
         // Remove all player tag
         if(clickedSlot == 49){
-            titleDisplayManager.removeTitle(uuid);
+            titleDisplayManager.removeTitle(uuid,false);
             clickedInv.close();
         }
         // Choose tag

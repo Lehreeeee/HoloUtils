@@ -1,5 +1,8 @@
 package me.lehreeeee.HoloUtils.managers;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
@@ -93,23 +96,114 @@ public class MySQLManager {
         }
     }
 
+    public void getUserData(String uuid, Consumer<JsonObject> callback){
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try(Connection con = dataSource.getConnection()){
+                String sql = "SELECT data FROM holoutils_users WHERE uuid = ?";
+                try(PreparedStatement stmt = con.prepareStatement(sql)){
+                    stmt.setString(1,uuid);
+
+                    ResultSet rs = stmt.executeQuery();
+                    if (rs.next()) {
+                        String json = rs.getString("data");
+                        JsonObject result = (json != null)
+                                ? JsonParser.parseString(json).getAsJsonObject()
+                                : new JsonObject();
+                        callback.accept(result);
+                    }
+                }
+            } catch (SQLException e) {
+                LoggerUtils.severe("Failed to get user data from MySQL server." + " Error: " + e.getMessage());
+            }
+        });
+    }
+
+    public void setEquipedTitle(String uuid, String title){
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try (Connection con = dataSource.getConnection()) {
+                String selectSql = "SELECT data FROM holoutils_users WHERE uuid = ?";
+                JsonObject data = new JsonObject();
+
+                try(PreparedStatement selectStmt = con.prepareStatement(selectSql)){
+                    selectStmt.setString(1, uuid);
+                    ResultSet rs = selectStmt.executeQuery();
+
+                    if (rs.next()) {
+                        String json = rs.getString("data");
+                        if (json != null && !json.isEmpty()) {
+                            data = JsonParser.parseString(json).getAsJsonObject();
+                        }
+                    }
+
+                    data.addProperty("title", title);
+
+                    String updateSql = "UPDATE holoutils_users SET data = ? WHERE uuid = ?";
+                    try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+                        updateStmt.setString(1, data.toString());
+                        updateStmt.setString(2, uuid);
+                        updateStmt.executeUpdate();
+                    }
+                }
+            } catch (SQLException e) {
+                LoggerUtils.severe("Failed to update JSON title: " + e.getMessage());
+            } catch (JsonParseException e){
+                LoggerUtils.severe("Invalid JSON for player: " + uuid + e.getMessage());
+            }
+        });
+    }
+
+    public void unsetEquipedTitle(String uuid){
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try (Connection con = dataSource.getConnection()) {
+                String selectSql = "SELECT data FROM holoutils_users WHERE uuid = ?";
+                JsonObject data = new JsonObject();
+
+                try(PreparedStatement selectStmt = con.prepareStatement(selectSql)){
+                    selectStmt.setString(1, uuid);
+                    ResultSet rs = selectStmt.executeQuery();
+
+                    if (rs.next()) {
+                        String json = rs.getString("data");
+                        if (json != null && !json.isEmpty()) {
+                            data = JsonParser.parseString(json).getAsJsonObject();
+                        }
+                    }
+
+                    data.remove("title");
+
+                    String updateSql = "UPDATE holoutils_users SET data = ? WHERE uuid = ?";
+                    try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+                        updateStmt.setString(1, data.toString());
+                        updateStmt.setString(2, uuid);
+                        updateStmt.executeUpdate();
+                    }
+                }
+            } catch (SQLException e) {
+                LoggerUtils.severe("Failed to remove JSON title: " + e.getMessage());
+            } catch (JsonParseException e){
+                LoggerUtils.severe("Invalid JSON for player: " + uuid + e.getMessage());
+            }
+        });
+    }
+
     public void claimOldAccessories(String uuid){
         // Query in async
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try(Connection con = dataSource.getConnection()){
                 String sql = "SELECT * FROM mmoinventory_inventories_rework WHERE uuid = ? AND inventory <> ?";
-                PreparedStatement stmt = con.prepareStatement(sql);
-                stmt.setString(1,uuid);
-                stmt.setString(2,EMPTY_INVENTORY);
+                try(PreparedStatement stmt = con.prepareStatement(sql)){
+                    stmt.setString(1,uuid);
+                    stmt.setString(2,EMPTY_INVENTORY);
 
-                ResultSet result = stmt.executeQuery();
+                    ResultSet result = stmt.executeQuery();
 
-                if(result.next()){
-                    String inventoryBase64 = result.getString("inventory");
-                    // Back to server main thread
-                    Bukkit.getScheduler().runTask(plugin, () -> decodeInventory(inventoryBase64, uuid));
-                } else {
-                    sendFeedbackMessage(Bukkit.getPlayer(UUID.fromString(uuid)),"<#FFA500>You have no unclaimed accessories.");
+                    if(result.next()){
+                        String inventoryBase64 = result.getString("inventory");
+                        // Back to server main thread
+                        Bukkit.getScheduler().runTask(plugin, () -> decodeInventory(inventoryBase64, uuid));
+                    } else {
+                        sendFeedbackMessage(Bukkit.getPlayer(UUID.fromString(uuid)),"<#FFA500>You have no unclaimed accessories.");
+                    }
                 }
             } catch (SQLException e) {
                 LoggerUtils.severe("Failed to query from MySQL server." + " Error: " + e.getMessage());
@@ -131,13 +225,13 @@ public class MySQLManager {
                 String sql = "INSERT INTO holoutils_event_rewards (user_id, reward_id, time_given, time_claimed, server_name) "
                         + "VALUES (?, ?, NOW(), NULL, ?)";
 
-                PreparedStatement stmt = con.prepareStatement(sql);
-                stmt.setInt(1,userId);
-                stmt.setString(2,rewardId);
-                stmt.setString(3,server);
+                try(PreparedStatement stmt = con.prepareStatement(sql)){
+                    stmt.setInt(1,userId);
+                    stmt.setString(2,rewardId);
+                    stmt.setString(3,server);
 
-                stmt.executeUpdate();
-
+                    stmt.executeUpdate();
+                }
             } catch (SQLException e) {
                 LoggerUtils.severe("Failed to give event rewards." + " Error: " + e.getMessage());
             }
@@ -148,14 +242,15 @@ public class MySQLManager {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try(Connection con = dataSource.getConnection()) {
                 String sql = "SELECT id, reward_id, time_given FROM holoutils_event_rewards WHERE id = ? AND time_claimed IS NULL";
-                PreparedStatement stmt = con.prepareStatement(sql);
-                stmt.setString(1,rowId);
+                try(PreparedStatement stmt = con.prepareStatement(sql)){
+                    stmt.setString(1,rowId);
 
-                ResultSet result = stmt.executeQuery();
+                    ResultSet result = stmt.executeQuery();
 
-                if(result.next()){
-                    String reward = result.getString("id") + ";" +  result.getString("reward_id") + ";" + result.getString("time_given");
-                    Bukkit.getScheduler().runTask(plugin, () -> callback.accept(reward));
+                    if(result.next()){
+                        String reward = result.getString("id") + ";" +  result.getString("reward_id") + ";" + result.getString("time_given");
+                        Bukkit.getScheduler().runTask(plugin, () -> callback.accept(reward));
+                    }
                 }
 
             } catch (SQLException e){
@@ -178,14 +273,15 @@ public class MySQLManager {
                 }
 
                 String sql = "SELECT id, reward_id, time_given FROM holoutils_event_rewards WHERE user_id = ? AND server_name = ? AND time_claimed IS NULL";
-                PreparedStatement stmt = con.prepareStatement(sql);
-                stmt.setInt(1,userId);
-                stmt.setString(2,server);
+                try(PreparedStatement stmt = con.prepareStatement(sql)){
+                    stmt.setInt(1,userId);
+                    stmt.setString(2,server);
 
-                ResultSet result = stmt.executeQuery();
+                    ResultSet result = stmt.executeQuery();
 
-                while(result.next()){
-                    rewards.add(result.getString("id") + ";" +  result.getString("reward_id") + ";" + result.getString("time_given"));
+                    while(result.next()){
+                        rewards.add(result.getString("id") + ";" +  result.getString("reward_id") + ";" + result.getString("time_given"));
+                    }
                 }
 
             } catch (SQLException e){
@@ -206,14 +302,13 @@ public class MySQLManager {
                         .collect(Collectors.joining(","));
 
                 String sql = "UPDATE holoutils_event_rewards SET time_claimed = NOW() WHERE id in (" + placeholders + ")";
-                PreparedStatement stmt = con.prepareStatement(sql);
-
-                int index = 1;
-                for(String id : rowIds){
-                    stmt.setInt(index++, Integer.parseInt(id));
+                try(PreparedStatement stmt = con.prepareStatement(sql)){
+                    int index = 1;
+                    for(String id : rowIds){
+                        stmt.setInt(index++, Integer.parseInt(id));
+                    }
+                    stmt.executeUpdate();
                 }
-
-                stmt.executeUpdate();
             } catch (SQLException e){
                 LoggerUtils.severe("Failed to update entry for reward claiming for rows: " + String.join(",", rowIds) + ". Error: " + e.getMessage());
             }
@@ -221,17 +316,19 @@ public class MySQLManager {
     }
 
     public int createUserId(String uuid) {
-        String sql = "INSERT INTO holoutils_users (uuid) VALUES (?)";
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, uuid);
-            int affectedRows = stmt.executeUpdate();
-            if (affectedRows == 0) {
-                LoggerUtils.severe("Creating user failed, no rows affected.");
-                return -1;
-            }
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
+        String sql = "INSERT INTO holoutils_users (uuid,data) VALUES (?,?)";
+        try (Connection con = dataSource.getConnection()){
+            try(PreparedStatement stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
+                stmt.setString(1, uuid);
+                stmt.setString(2, "{}");
+                int affectedRows = stmt.executeUpdate();
+                if(affectedRows == 0) {
+                    LoggerUtils.severe("Creating user failed, no rows affected.");
+                    return -1;
+                }
+
+                ResultSet generatedKeys = stmt.getGeneratedKeys();
+                if(generatedKeys.next()) {
                     LoggerUtils.debug("Created new user: " + uuid);
                     return generatedKeys.getInt(1);
                 } else {
@@ -249,10 +346,9 @@ public class MySQLManager {
         String getUserIdSql = "SELECT user_id FROM holoutils_users WHERE uuid = ?";
         try (PreparedStatement stmt = con.prepareStatement(getUserIdSql)) {
             stmt.setString(1, uuid);
-            try (ResultSet result = stmt.executeQuery()) {
-                if (result.next()) {
-                    return result.getInt("user_id");
-                }
+            ResultSet result = stmt.executeQuery();
+            if (result.next()) {
+                return result.getInt("user_id");
             }
         } catch (SQLException e) {
             LoggerUtils.severe("Failed to get user id. Error: " + e.getMessage());
@@ -262,34 +358,34 @@ public class MySQLManager {
 
     private void checkTables(){
         try(Connection con = dataSource.getConnection()){
-            Statement stmt = con.createStatement();
+            try(Statement stmt = con.createStatement()){
+                // Create user table
+                String usersTable = "holoutils_players";
+                String createUsersTableQuery = "CREATE TABLE IF NOT EXISTS holoutils_users ("
+                        + "user_id INT AUTO_INCREMENT PRIMARY KEY, "
+                        + "uuid CHAR(36) NOT NULL UNIQUE, "
+                        + "data JSON"
+                        + ")";
 
-            // Create user table
-            String usersTable = "holoutils_players";
-            String createUsersTableQuery = "CREATE TABLE IF NOT EXISTS holoutils_users ("
-                    + "user_id INT AUTO_INCREMENT PRIMARY KEY, "
-                    + "uuid CHAR(36) NOT NULL UNIQUE"
-                    + ")";
-
-            // Create event table
-            String eventRewardsTable = "holoutils_event_rewards";
-            String createEventRewardsTableQuery = "CREATE TABLE IF NOT EXISTS holoutils_event_rewards ("
-                    + "id INT AUTO_INCREMENT PRIMARY KEY, "
-                    + "user_id INT NOT NULL, "
-                    + "reward_id VARCHAR(255) NOT NULL, "
-                    + "time_given TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-                    + "time_claimed TIMESTAMP NULL, "
-                    + "server_name VARCHAR(255) NOT NULL, "
-                    + "INDEX idx_rewards_lookup (user_id, server_name, time_claimed), "
-                    + "FOREIGN KEY (user_id) REFERENCES holoutils_users(user_id)"
-                    + ")";
+                // Create event table
+                String eventRewardsTable = "holoutils_event_rewards";
+                String createEventRewardsTableQuery = "CREATE TABLE IF NOT EXISTS holoutils_event_rewards ("
+                        + "id INT AUTO_INCREMENT PRIMARY KEY, "
+                        + "user_id INT NOT NULL, "
+                        + "reward_id VARCHAR(255) NOT NULL, "
+                        + "time_given TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                        + "time_claimed TIMESTAMP NULL, "
+                        + "server_name VARCHAR(255) NOT NULL, "
+                        + "INDEX idx_rewards_lookup (user_id, server_name, time_claimed), "
+                        + "FOREIGN KEY (user_id) REFERENCES holoutils_users(user_id)"
+                        + ")";
 
 
-            stmt.executeUpdate(createUsersTableQuery);
-            stmt.executeUpdate(createEventRewardsTableQuery);
+                stmt.executeUpdate(createUsersTableQuery);
+                stmt.executeUpdate(createEventRewardsTableQuery);
 
-            LoggerUtils.debug("Ensured tables " + String.join(",",usersTable,eventRewardsTable) + " exist.");
-
+                LoggerUtils.debug("Ensured tables " + String.join(",",usersTable,eventRewardsTable) + " exist.");
+            }
         } catch (SQLException e) {
             LoggerUtils.severe("Failed to check database and tables. Error: " + e.getMessage());
             throw new RuntimeException("Database or table check failed.", e);
@@ -346,11 +442,13 @@ public class MySQLManager {
             LoggerUtils.info("User " + uuid + " claimed their accessories, updating entry.");
 
             String sql = "UPDATE mmoinventory_inventories_rework SET inventory = ? WHERE uuid = ?";
-            PreparedStatement stmt = con.prepareStatement(sql);
-            stmt.setString(1,EMPTY_INVENTORY);
-            stmt.setString(2,uuid);
 
-            stmt.executeUpdate();
+            try(PreparedStatement stmt = con.prepareStatement(sql)){
+                stmt.setString(1,EMPTY_INVENTORY);
+                stmt.setString(2,uuid);
+
+                stmt.executeUpdate();
+            }
         } catch (SQLException e){
             LoggerUtils.severe("Failed to update entry for claimed player." + " Error: " + e.getMessage());
         }

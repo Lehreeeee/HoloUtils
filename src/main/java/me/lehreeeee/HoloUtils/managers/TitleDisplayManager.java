@@ -95,7 +95,8 @@ public class TitleDisplayManager {
 
         // Does the entity have an existing title already? Remove it first if so
         if(loadedPlayerTitles.containsKey(uuid)){
-            removeTitle(uuid);
+            // Will be overwritten later
+            removeTitle(uuid,true);
         }
 
         TextDisplay display = spawnDisplayEntity(targetEntity);
@@ -104,23 +105,34 @@ public class TitleDisplayManager {
         display.text(MessageHelper.process(title));
 
         // Add on top of the entity and make it visible
-        targetEntity.addPassenger(display);
+        //targetEntity.addPassenger(display);
+
+        Bukkit.getScheduler().runTaskTimer(plugin, task -> {
+            if(display.isValid()) {
+                display.teleport(targetEntity.getLocation().add(0, ((Player) targetEntity).getEyeHeight() + titleHeight,0));
+                return;
+            }
+            task.cancel();
+        },1L,1L);
+
         display.setVisibleByDefault(true);
 
         // Tracks the loaded titles
         loadedPlayerTitles.put(uuid,display);
+
+        MySQLManager.getInstance().setEquipedTitle(uuid.toString(),titleName);
     }
 
-    public void removeTitle(UUID uuid){
-        if(!loadedPlayerTitles.containsKey(uuid)) return;
-
-        TextDisplay display = loadedPlayerTitles.get(uuid);
-        if(display != null){
+    public void removeTitle(UUID uuid, boolean skipUnset) {
+        TextDisplay display = loadedPlayerTitles.remove(uuid);
+        if (display != null) {
             display.remove();
+            LoggerUtils.debug("Removed title for entity " + uuid);
         }
 
-        loadedPlayerTitles.remove(uuid);
-        LoggerUtils.debug("Removed title for entity " + uuid);
+        if(skipUnset) return;
+
+        MySQLManager.getInstance().unsetEquipedTitle(uuid.toString());
     }
 
     public void removeAllTitles(){
@@ -138,6 +150,7 @@ public class TitleDisplayManager {
         LoggerUtils.debug("Removed all loaded titles");
     }
 
+    //TODO: Remove this
     public void updateLocation(UUID uuid, Location location){
         if(!loadedPlayerTitles.containsKey(uuid)) return;
 
@@ -158,6 +171,30 @@ public class TitleDisplayManager {
         }
     }
 
+    public void hideTitle(UUID uuid){
+        TextDisplay display = loadedPlayerTitles.get(uuid);
+        if(display != null) {
+            display.setVisibleByDefault(false);
+        }
+    }
+
+    public void showTitle(UUID uuid){
+        TextDisplay display = loadedPlayerTitles.get(uuid);
+        if(display != null) {
+            display.setVisibleByDefault(true);
+        }
+    }
+
+    public void handlePlayerJoin(UUID uuid){
+        MySQLManager.getInstance().getUserData(String.valueOf(uuid), data -> {
+            if(!data.has("title")) return;
+
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                setTitleDisplay(uuid, data.get("title").getAsString());
+            });
+        });
+    }
+
     private TextDisplay spawnDisplayEntity(Entity targetEntity){
         // Spawn the display entity
         World world = targetEntity.getWorld();
@@ -170,12 +207,13 @@ public class TitleDisplayManager {
             entity.setVisibleByDefault(false);
             entity.setTransformation(
                     new Transformation(
-                            new Vector3f(0, titleHeight, 0),
+                            new Vector3f(0, 0, 0),
                             new AxisAngle4f(), // no left rotation
                             new Vector3f(1,1,1), // Must have scale or else it wont show
                             new AxisAngle4f() // no right rotation
                     )
             );
+            entity.setTeleportDuration(3);
         });
     }
 }

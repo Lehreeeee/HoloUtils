@@ -11,8 +11,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.UUID;
 
@@ -32,18 +33,13 @@ public class DisplayListener implements Listener {
         statusDisplayManager.updateLocation(event.getEntity().getUniqueId(),event.getTo());
     }
 
-    // For player only
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerTeleport(PlayerTeleportEvent event){
-        titleDisplayManager.updateLocation(event.getPlayer().getUniqueId(),event.getTo());
-    }
-
     // This is for both LOL
     @EventHandler(ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event){
         Entity entity = event.getEntity();
-        if(entity instanceof Player)
-            titleDisplayManager.removeTitle(entity.getUniqueId());
+        if(entity instanceof Player){
+            titleDisplayManager.hideTitle(entity.getUniqueId());
+        }
         else{
             statusDisplayManager.removeStatusDisplay(entity.getUniqueId());
             plugin.checkImmortal(entity);
@@ -51,9 +47,19 @@ public class DisplayListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
+    public void onPlayerJoin(PlayerJoinEvent event){
+        titleDisplayManager.handlePlayerJoin(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerRespawn(PlayerRespawnEvent event){
+        titleDisplayManager.showTitle(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerQuit(PlayerQuitEvent event){
         UUID uuid = event.getPlayer().getUniqueId();
-        titleDisplayManager.removeTitle(uuid);
+        titleDisplayManager.removeTitle(uuid,true);
 
         // Hehe, idw make another event listener :)
         DevChatManager.getInstance().toggleDevChat(uuid,false);
