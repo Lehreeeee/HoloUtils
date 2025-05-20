@@ -30,7 +30,7 @@ public class MySQLManager {
     private final HoloUtils plugin;
     private HikariDataSource dataSource;
     private static final String EMPTY_INVENTORY = "rO0ABXcEAAAAAA==";
-    private static boolean MySqlAvailable = false;
+    private static boolean MySqlAvailable = true;
 
     private MySQLManager(HoloUtils plugin){
         this.plugin = plugin;
@@ -91,7 +91,7 @@ public class MySQLManager {
             LoggerUtils.info("HikariCP connection pool opened.");
             checkTables();
         } catch (HikariPool.PoolInitializationException e){
-            MySqlAvailable = true;
+            MySqlAvailable = false;
             LoggerUtils.warning("Failed to initialize HikariCP, features that require MySQL will not properly.");
         }
     }
