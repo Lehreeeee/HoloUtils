@@ -38,7 +38,7 @@ public class DisplayListener implements Listener {
     public void onEntityDeath(EntityDeathEvent event){
         Entity entity = event.getEntity();
         if(entity instanceof Player){
-            titleDisplayManager.hideTitle(entity.getUniqueId());
+            titleDisplayManager.toggleTitle(entity.getUniqueId(),false);
         }
         else{
             statusDisplayManager.removeStatusDisplay(entity.getUniqueId());
@@ -53,7 +53,7 @@ public class DisplayListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerRespawn(PlayerRespawnEvent event){
-        titleDisplayManager.showTitle(event.getPlayer().getUniqueId());
+        titleDisplayManager.toggleTitle(event.getPlayer().getUniqueId(),true);
     }
 
     @EventHandler(ignoreCancelled = true)

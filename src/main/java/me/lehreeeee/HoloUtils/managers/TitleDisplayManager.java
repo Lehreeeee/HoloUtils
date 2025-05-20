@@ -4,14 +4,11 @@ import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
@@ -104,9 +101,6 @@ public class TitleDisplayManager {
         // Sets the display text
         display.text(MessageHelper.process(title));
 
-        // Add on top of the entity and make it visible
-        //targetEntity.addPassenger(display);
-
         Bukkit.getScheduler().runTaskTimer(plugin, task -> {
             if(display.isValid()) {
                 display.teleport(targetEntity.getLocation().add(0, ((Player) targetEntity).getEyeHeight() + titleHeight,0));
@@ -150,38 +144,10 @@ public class TitleDisplayManager {
         LoggerUtils.debug("Removed all loaded titles");
     }
 
-    //TODO: Remove this
-    public void updateLocation(UUID uuid, Location location){
-        if(!loadedPlayerTitles.containsKey(uuid)) return;
-
-        Entity entity = Bukkit.getEntity(uuid);
-        TextDisplay title = loadedPlayerTitles.get(uuid);
-
-        if(entity != null){
-            // Delay it or it wont work when changing world
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    // Teleport is needed after changing world too
-                    title.teleport(location);
-                    entity.addPassenger(title);
-                    LoggerUtils.debug("Updated title location for entity " + uuid + " to " + title.getLocation());
-                }
-            }.runTaskLater(plugin, 5L);
-        }
-    }
-
-    public void hideTitle(UUID uuid){
+    public void toggleTitle(UUID uuid, boolean visible){
         TextDisplay display = loadedPlayerTitles.get(uuid);
         if(display != null) {
-            display.setVisibleByDefault(false);
-        }
-    }
-
-    public void showTitle(UUID uuid){
-        TextDisplay display = loadedPlayerTitles.get(uuid);
-        if(display != null) {
-            display.setVisibleByDefault(true);
+            display.setVisibleByDefault(visible);
         }
     }
 
@@ -196,11 +162,7 @@ public class TitleDisplayManager {
     }
 
     private TextDisplay spawnDisplayEntity(Entity targetEntity){
-        // Spawn the display entity
-        World world = targetEntity.getWorld();
-        Location location = targetEntity.getLocation();
-
-        return world.spawn(location, TextDisplay.class, entity -> {
+        return targetEntity.getWorld().spawn(targetEntity.getLocation(), TextDisplay.class, entity -> {
             entity.setPersistent(false);
             entity.setBillboard(Display.Billboard.CENTER);
 
