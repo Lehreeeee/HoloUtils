@@ -123,6 +123,14 @@ public class DamageLeaderboardManager {
         return true;
     }
 
+    public String getPlayerLeaderboardScore(UUID uuid, UUID playerUUID){
+        DamageLeaderboard leaderboard = getLeaderboard(uuid);
+
+        if(leaderboard == null) return "0.0";
+
+        return String.valueOf(leaderboard.getDamage(playerUUID));
+    }
+
     public Map.Entry<UUID,Double> getLeaderboardEntry(UUID uuid, int position){
         DamageLeaderboard leaderboard = getLeaderboard(uuid);
 

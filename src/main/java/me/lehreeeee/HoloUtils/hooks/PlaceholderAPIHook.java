@@ -30,6 +30,13 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         return true;
     }
 
+    /*
+        Available Placeholders:
+        1. %holoutils_damagelb_entry_{<uuid>}_{<position>}%
+        2. %holoutils_damagelb_score_{<uuid>}_{<position>}%
+        3. %holoutils_damagelb_scorep_{<uuid>}%
+        4. %holoutils_damagelb_duration_{<uuid>}%
+     */
     @Override
     public String onPlaceholderRequest(Player player, @NotNull String params) {
         if (player == null) return "";
@@ -46,6 +53,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
             String type = segments[0];
             // {<uuid>}_{<position>} OR {<uuid>}
             String rawParams = segments[1];
+            String uuid;
 
             switch (type) {
                 case "entry":
@@ -54,12 +62,32 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
                     if(entry == null) return "";
                     return type.equals("entry") ? entry.getKey().toString() : entry.getValue().toString();
                 }
+                case "scorep":{
+                    return getPlayerLeaderboardScore(rawParams,player.getUniqueId());
+                }
                 case "duration": {
                     return getLeaderboardDuration(rawParams);
                 }
             }
         }
         return "";
+    }
+
+    private String getPlayerLeaderboardScore(String params, UUID playerUUID){
+        try{
+            if (!params.startsWith("{") || !params.endsWith("}")) {
+                return "0.0";
+            }
+
+            String[] parts = splitParams(params);
+            if (parts.length != 1) return "0.0";
+
+            UUID uuid = UUID.fromString(parts[0]);
+
+            return DamageLeaderboardManager.getInstance().getPlayerLeaderboardScore(uuid,playerUUID);
+        }  catch (Exception e) {
+            return "0.0";
+        }
     }
 
     private Map.Entry<UUID,Double> getLeaderboardEntry(String params){

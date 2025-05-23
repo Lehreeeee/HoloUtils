@@ -7,7 +7,7 @@ import java.util.*;
 
 public class DamageLeaderboard {
     private final Map<UUID, Double> damageMap = new HashMap<>();
-    private List<Map.Entry<UUID, Double>> sortedLeaderboard = new ArrayList<>();
+    private double totalDamage = 0.0;
     private long startTime = 0;
     private long endTime = 0;
     private boolean ended = false;
@@ -16,6 +16,7 @@ public class DamageLeaderboard {
         if(damage <= 0) return;
 
         damageMap.merge(uuid,damage,Double::sum);
+        totalDamage = totalDamage + damage;
         LoggerUtils.debug(MessageFormat.format("{0} dealt {1} damage.",uuid,damage));
 
         if(startTime == 0){
