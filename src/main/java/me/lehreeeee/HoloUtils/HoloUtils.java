@@ -1,10 +1,8 @@
 package me.lehreeeee.HoloUtils;
 
 import me.lehreeeee.HoloUtils.commands.*;
-import me.lehreeeee.HoloUtils.listeners.DisplayListener;
-import me.lehreeeee.HoloUtils.listeners.InventoryListener;
-import me.lehreeeee.HoloUtils.listeners.PlayerChatListener;
-import me.lehreeeee.HoloUtils.listeners.PlayerProjectileListener;
+import me.lehreeeee.HoloUtils.hooks.PlaceholderAPIHook;
+import me.lehreeeee.HoloUtils.listeners.*;
 import me.lehreeeee.HoloUtils.managers.*;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -44,6 +42,7 @@ public final class HoloUtils extends JavaPlugin {
         new PlayerChatListener(this);
         new DisplayListener(this);
         new InventoryListener(this);
+        new EntityDamageListener(this);
 
         loadCommands();
 
@@ -51,6 +50,10 @@ public final class HoloUtils extends JavaPlugin {
 
         // Welcome to my yt channel, please saracabribe
         RedisManager.getInstance().subscribe();
+
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new PlaceholderAPIHook().register();
+        }
 
         logger.info("Enabled HoloUtils...");
     }

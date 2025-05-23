@@ -3,10 +3,12 @@ package me.lehreeeee.HoloUtils.commands;
 
 import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUI;
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.managers.DamageLeaderboardManager;
 import me.lehreeeee.HoloUtils.managers.RedisManager;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import me.lehreeeee.HoloUtils.utils.ItemPDCEditor;
+import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,18 +16,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.MessageFormat;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 public class HoloUtilsCommand implements CommandExecutor {
     private final HoloUtils plugin;
-    private final Logger logger;
-    private final TitleDisplayManager titleDisplayManager;
 
     public HoloUtilsCommand(HoloUtils plugin) {
         this.plugin = plugin;
-        this.logger = plugin.getLogger();
-        this.titleDisplayManager = TitleDisplayManager.getInstance();
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){
@@ -42,7 +42,7 @@ public class HoloUtilsCommand implements CommandExecutor {
 
         if(args.length == 1){
             if(args[0].equalsIgnoreCase("playertitle") && sender instanceof Player player){
-                if(titleDisplayManager.getAvailableTitles(player).isEmpty()) {
+                if(TitleDisplayManager.getInstance().getAvailableTitles(player).isEmpty()) {
                     sendFeedbackMessage(sender, "<#FFA500>You don't have any player title.");
                     return true;
                 }
@@ -69,13 +69,83 @@ public class HoloUtilsCommand implements CommandExecutor {
             }
         }
 
+        if(args[0].equalsIgnoreCase("damagelb")){
+            if (args.length == 3) {
+                UUID uuid;
+                try {
+                    uuid = UUID.fromString(args[2]);
+                } catch (IllegalArgumentException e) {
+                    sendFeedbackMessage(sender, "Invalid UUID: " + args[2]);
+                    return true;
+                }
+
+                switch (args[1].toLowerCase()) {
+                    case "track":
+                        if(!DamageLeaderboardManager.getInstance().trackEntity(uuid)){
+                            sendFeedbackMessage(sender,"Can't track entity " + uuid + ", it's already in tracked list or has a parent.");
+                        } else {
+                            sendFeedbackMessage(sender,"Started tracking entity " + uuid + ".");
+                        }
+                        return true;
+                    case "untrack":
+                        if(!DamageLeaderboardManager.getInstance().untrackEntity(uuid)){
+                            sendFeedbackMessage(sender,"Can't untrack entity " + uuid + ", it's not in tracked list.");
+                        } else {
+                            sendFeedbackMessage(sender,"Stopped tracking entity " + uuid + ".");
+                        }
+                        return true;
+                    case "unlink":
+                        UUID parentUUID = DamageLeaderboardManager.getInstance().unLinkEntity(uuid);
+                        if(parentUUID == null){
+                            sendFeedbackMessage(sender,"Can't unlink entity " + uuid + ", it has no parent.");
+                        } else {
+                            sendFeedbackMessage(sender,"Unlinked entity " + uuid + " from it's parent " + parentUUID + ".");
+                        }
+                        return true;
+                    case "reset":
+                        if(!DamageLeaderboardManager.getInstance().resetLeaderboard(uuid)){
+                            sendFeedbackMessage(sender,"Can't reset leaderboard for entity " + uuid + ", it has no leaderboard or already ended.");
+                        } else {
+                            sendFeedbackMessage(sender,"Successfully reset leaderboard for entity" + uuid + ".");
+                        }
+                        return true;
+                    default:
+                        sendFeedbackMessage(sender,"<#FFA500>Unknown command. Check /HoloUtils help.");
+                        return true;
+                }
+            }
+
+            if(args.length == 4 && args[1].equalsIgnoreCase("link")){
+                try{
+                    UUID childUUID = UUID.fromString(args[2]);
+                    UUID parentUUID = UUID.fromString(args[3]);
+
+                    if(DamageLeaderboardManager.getInstance().linkEntity(childUUID,parentUUID)){
+                        sendFeedbackMessage(sender,"Child entity " + childUUID + " has parent previously, replacing with " + parentUUID + ".");
+                    } else {
+                        sendFeedbackMessage(sender,"Linked child entity " + childUUID + " to it's parent " + parentUUID + ".");
+                    }
+                    return true;
+                } catch (IllegalArgumentException e){
+                    sendFeedbackMessage(sender,"Invallid UUID: '" + args[2] + "' or '" + args[3] + "'");
+                }
+            }
+
+            if(args[1].equalsIgnoreCase("list")  && args.length == 2){
+                sendTrackAndLinkedEntityList(sender);
+                return true;
+            }
+
+            return true;
+        }
+
         if(args[0].equalsIgnoreCase("statuseffect") && args.length == 4){
             try{
                 StatusDisplayManager.getInstance().setStatusDisplay(UUID.fromString(args[1]),args[2],Long.valueOf(args[3]));
             } catch(NumberFormatException e){
                 sendFeedbackMessage(sender,"Invalid duration, expected Long but get " + args[3]);
             } catch (IllegalArgumentException e){
-                sendFeedbackMessage(sender,"Invalid UUID - " + args[1]);
+                sendFeedbackMessage(sender,"Invalid UUID: '" + args[1] + "'");
             }
             return true;
         }
@@ -129,8 +199,44 @@ public class HoloUtilsCommand implements CommandExecutor {
         return true;
     }
 
+    private void sendTrackAndLinkedEntityList(CommandSender sender){
+        boolean hasTrackedEntity = false;
+        boolean hasLinkedEntity = false;
+
+        Set<UUID> trackedEntities = DamageLeaderboardManager.getInstance().getTrackedEntities();
+        Set<Map.Entry<UUID,UUID>> linkedEntities = DamageLeaderboardManager.getInstance().getLinkedEntities();
+
+        StringBuilder message = new StringBuilder("Tracked entities:\n");
+
+        if(!trackedEntities.isEmpty()){
+            hasTrackedEntity = true;
+            for(UUID uuid : trackedEntities){
+                message.append("<green>").append(uuid).append("<white>, ");
+            }
+            if(!message.isEmpty()){
+                message.setLength(message.length() - 2);
+            }
+        }
+
+        if(!linkedEntities.isEmpty()){
+            hasLinkedEntity = true;
+            message.append("\nChildren(Parent):\n");
+            for(Map.Entry<UUID,UUID> entry : linkedEntities){
+                message.append(MessageFormat.format("<green>{0}<white>(<blue>{1}<white>)<white>, ",entry.getKey(),entry.getValue()));
+            }
+            if(!message.isEmpty()){
+                message.setLength(message.length() - 2);
+            }
+        }
+
+        if(hasTrackedEntity || hasLinkedEntity)
+            sendFeedbackMessage(sender,message.toString());
+        else
+            sendFeedbackMessage(sender,"There is no tracked or linked entity.");
+    }
+
     private void sendFeedbackMessage(CommandSender sender, String msg){
-        logger.info(MessageHelper.getPlainText(msg));
+        LoggerUtils.info(MessageHelper.getPlainText(msg));
 
         if (sender instanceof Player) sender.sendMessage(MessageHelper.process(msg,true));
     }
@@ -154,15 +260,15 @@ public class HoloUtilsCommand implements CommandExecutor {
             sender.sendMessage(MessageHelper.process("<#FFA500>/holoutils testredis <white>-<aqua> For debug purpose, don't touch if you don't know what it does.",false));
         }
         else{
-            logger.info("Command Usage:");
-            logger.info("/holoutils help - Show command usage.");
-            logger.info("/holoutils reload - Take a guess.");
-            logger.info("/holoutils playertitle - Open gui to select display tag, must have atleast 1 tag permission to use.");
-            logger.info("/holoutils statuseffect [uuid] [effect] [ticks] - Apply status effect display on the mob.");
-            logger.info("/holoutils pdc get [namespacedkey] - Get the value of the namespaced key in mainhand item's pdc.");
-            logger.info("/holoutils pdc remove [namespacedkey] - Remove the data from mainhand item's pdc.");
-            logger.info("/holoutils pdc set [namespace] [key] [datatype] [value] - Add data to mainhand item's pdc.");
-            logger.info("/holoutils testredis - For debug purpose, don't touch if you don't know what it does.");
+            LoggerUtils.info("Command Usage:");
+            LoggerUtils.info("/holoutils help - Show command usage.");
+            LoggerUtils.info("/holoutils reload - Take a guess.");
+            LoggerUtils.info("/holoutils playertitle - Open gui to select display tag, must have atleast 1 tag permission to use.");
+            LoggerUtils.info("/holoutils statuseffect [uuid] [effect] [ticks] - Apply status effect display on the mob.");
+            LoggerUtils.info("/holoutils pdc get [namespacedkey] - Get the value of the namespaced key in mainhand item's pdc.");
+            LoggerUtils.info("/holoutils pdc remove [namespacedkey] - Remove the data from mainhand item's pdc.");
+            LoggerUtils.info("/holoutils pdc set [namespace] [key] [datatype] [value] - Add data to mainhand item's pdc.");
+            LoggerUtils.info("/holoutils testredis - For debug purpose, don't touch if you don't know what it does.");
         }
     }
 }

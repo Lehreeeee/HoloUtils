@@ -13,8 +13,7 @@ import java.util.List;
 
 public class HoloUtilsCommandTabCompleter implements TabCompleter {
     private final HoloUtils plugin;
-    private final List<String> commands = List.of("reload", "help", "playertitle", "statuseffect", "pdc", "testredis");
-    private final List<String> pdcActions = List.of("get", "set", "remove");
+    private final List<String> commands = List.of("reload", "help", "playertitle", "statuseffect", "damagelb", "pdc", "testredis");
     private final List<String> typeNames = List.of(
             "STRING",
             "INTEGER",
@@ -35,8 +34,12 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
         }
 
         if(args.length == 2){
+            if(args[0].equalsIgnoreCase("damagelb")){
+                return List.of("track", "untrack", "link", "unlink", "reset", "list");
+            }
+
             if(args[0].equalsIgnoreCase("pdc")){
-                return pdcActions;
+                return List.of("get", "set", "remove");
             }
 
             if(args[0].equalsIgnoreCase("statuseffect")){
@@ -45,6 +48,12 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
         }
 
         if(args.length == 3){
+            if(args[0].equalsIgnoreCase("damagelb")){
+                if(List.of("track", "untrack", "link", "unlink", "reset").contains(args[1])){
+                    return List.of("VictimUUID");
+                }
+            }
+
             if(args[0].equalsIgnoreCase("pdc") && sender instanceof Player player){
                 if(List.of("get","remove").contains(args[1])){
                     ItemPDCEditor pdcEditor = new ItemPDCEditor(plugin,player.getInventory().getItemInMainHand());
@@ -60,6 +69,12 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
         }
 
         if(args.length == 4) {
+            if(args[0].equalsIgnoreCase("damagelb")){
+                if(args[1].equalsIgnoreCase("link")){
+                    return List.of("ParentUUID");
+                }
+            }
+
             if(args[0].equalsIgnoreCase("pdc") && args[1].equalsIgnoreCase("set")) {
                 return List.of("Key");
             }
