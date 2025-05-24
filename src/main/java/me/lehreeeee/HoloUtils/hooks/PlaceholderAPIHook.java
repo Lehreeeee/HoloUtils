@@ -3,6 +3,8 @@ package me.lehreeeee.HoloUtils.hooks;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.lehreeeee.HoloUtils.managers.DamageLeaderboardManager;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,8 +35,8 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
     /*
         Available Placeholders:
         1. %holoutils_damagelb_entry_{<uuid>}_{<position>}%
-        2. %holoutils_damagelb_score_{<uuid>}_{<position>}%
-        3. %holoutils_damagelb_scorep_{<uuid>}%
+        2. %holoutils_damagelb_damage_{<uuid>}_{<position>}%
+        3. %holoutils_damagelb_damagep_{<uuid>}%
         4. %holoutils_damagelb_duration_{<uuid>}%
      */
     @Override
@@ -52,18 +54,31 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
             // <type>
             String type = segments[0];
             // {<uuid>}_{<position>} OR {<uuid>}
+            // {<uuid>}_{<position>}_simple OR {<uuid>}_simple
             String rawParams = segments[1];
-            String uuid;
 
             switch (type) {
                 case "entry":
-                case "score": {
-                    Map.Entry<UUID,Double> entry = getLeaderboardEntry(rawParams);
-                    if(entry == null) return "";
-                    return type.equals("entry") ? entry.getKey().toString() : entry.getValue().toString();
+                case "damage": {
+                    Pair<Map.Entry<UUID,Double>,Double> pair = getLeaderboardEntry(rawParams);
+                    if(pair == null) return "";
+
+                    Map.Entry<UUID,Double> entry = pair.getKey();
+                    String value = String.valueOf(entry.getValue());
+
+                    if(type.equals("entry")){
+                        return Bukkit.getOfflinePlayer(entry.getKey()).getName();
+                    }
+
+                    return rawParams.endsWith("_simple") ?
+                            value : value + " ("+ pair.getValue() + "%)";
                 }
-                case "scorep":{
-                    return getPlayerLeaderboardScore(rawParams,player.getUniqueId());
+                case "damagep":{
+                    Pair<Double,Double> pair = getPlayerLeaderboardDamage(rawParams,player.getUniqueId());
+                    String damage = String.valueOf(pair.getKey());
+
+                    return rawParams.endsWith("_simple") ?
+                            damage : damage + " ("+ pair.getValue() + "%)";
                 }
                 case "duration": {
                     return getLeaderboardDuration(rawParams);
@@ -73,24 +88,24 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         return "";
     }
 
-    private String getPlayerLeaderboardScore(String params, UUID playerUUID){
+    private Pair<Double,Double> getPlayerLeaderboardDamage(String params, UUID playerUUID){
         try{
             if (!params.startsWith("{") || !params.endsWith("}")) {
-                return "0.0";
+                return Pair.of(0.0,0.0);
             }
 
             String[] parts = splitParams(params);
-            if (parts.length != 1) return "0.0";
+            if (parts.length != 1) return Pair.of(0.0,0.0);
 
             UUID uuid = UUID.fromString(parts[0]);
 
-            return DamageLeaderboardManager.getInstance().getPlayerLeaderboardScore(uuid,playerUUID);
+            return DamageLeaderboardManager.getInstance().getPlayerLeaderboardDamage(uuid,playerUUID);
         }  catch (Exception e) {
-            return "0.0";
+            return Pair.of(0.0,0.0);
         }
     }
 
-    private Map.Entry<UUID,Double> getLeaderboardEntry(String params){
+    private Pair<Map.Entry<UUID,Double>,Double> getLeaderboardEntry(String params){
         try{
             if (!params.startsWith("{") || !params.contains("}_{") || !params.endsWith("}")) {
                 return null;

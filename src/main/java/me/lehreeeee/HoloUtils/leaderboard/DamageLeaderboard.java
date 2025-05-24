@@ -7,6 +7,7 @@ import java.util.*;
 
 public class DamageLeaderboard {
     private final Map<UUID, Double> damageMap = new HashMap<>();
+    private List<Map.Entry<UUID,Double>> sortedListCache;
     private double totalDamage = 0.0;
     private long startTime = 0;
     private long endTime = 0;
@@ -27,6 +28,7 @@ public class DamageLeaderboard {
 
     public void reset(){
         startTime = 0;
+        totalDamage = 0;
         damageMap.clear();
     }
 
@@ -41,6 +43,10 @@ public class DamageLeaderboard {
         return damageMap.getOrDefault(uuid, 0.0);
     }
 
+    public double getTotalDamage(){
+        return totalDamage;
+    }
+
     public long getDuration(){
         if(startTime == 0) return 0;
 
@@ -48,6 +54,18 @@ public class DamageLeaderboard {
     }
 
     public List<Map.Entry<UUID,Double>> getSorted(){
+        // If ended, sort and cache it, use the cache after that
+        if(ended) {
+            if(sortedListCache != null) return sortedListCache;
+
+            sortedListCache = new ArrayList<>(
+                    damageMap.entrySet().stream()
+                            .sorted((a,b) -> Double.compare(b.getValue(), a.getValue()))
+                            .toList());
+
+            return sortedListCache;
+        }
+
         return damageMap.entrySet().stream()
                 .sorted((a,b) -> Double.compare(b.getValue(), a.getValue()))
                 .toList();

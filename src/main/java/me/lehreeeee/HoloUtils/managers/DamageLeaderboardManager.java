@@ -2,6 +2,7 @@ package me.lehreeeee.HoloUtils.managers;
 
 import me.lehreeeee.HoloUtils.leaderboard.DamageLeaderboard;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.Duration;
 import java.util.*;
@@ -123,21 +124,33 @@ public class DamageLeaderboardManager {
         return true;
     }
 
-    public String getPlayerLeaderboardScore(UUID uuid, UUID playerUUID){
+    public Pair<Double,Double> getPlayerLeaderboardDamage(UUID uuid, UUID playerUUID){
         DamageLeaderboard leaderboard = getLeaderboard(uuid);
 
-        if(leaderboard == null) return "0.0";
+        if(leaderboard == null) return Pair.of(0.0,0.0);
 
-        return String.valueOf(leaderboard.getDamage(playerUUID));
+        double damage = leaderboard.getDamage(playerUUID);
+        double damagePct = (damage / leaderboard.getTotalDamage()) * 100;
+
+        damagePct = roundDouble3F(damagePct);
+        damage = roundDouble3F(damage);
+
+        return Pair.of(damage,damagePct);
     }
 
-    public Map.Entry<UUID,Double> getLeaderboardEntry(UUID uuid, int position){
+    public Pair<Map.Entry<UUID,Double>,Double> getLeaderboardEntry(UUID uuid, int position){
         DamageLeaderboard leaderboard = getLeaderboard(uuid);
 
         if(leaderboard == null) return null;
 
         try{
-            return leaderboard.getSorted().get(position - 1);
+            Map.Entry<UUID,Double> entry = leaderboard.getSorted().get(position - 1);
+            double damagePct = (entry.getValue() / leaderboard.getTotalDamage()) * 100;
+
+            damagePct = roundDouble3F(damagePct);
+            entry.setValue(roundDouble3F(entry.getValue()));
+
+            return Pair.of(entry,damagePct);
         } catch (IndexOutOfBoundsException e){
             return null;
         }
@@ -164,5 +177,9 @@ public class DamageLeaderboardManager {
             return endedLeaderboards.get(uuid);
         }
         return leaderboard;
+    }
+
+    private double roundDouble3F(double value){
+        return (double) Math.round(value * 1000) / 1000;
     }
 }
