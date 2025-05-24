@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -97,21 +98,48 @@ public class DevChatManager {
                 return;
             }
 
+            Component itemComp;
+            Component messageComponent;
+
             String message = json.get("message").getAsString();
+
+            String logMessage = devChatPrefix
+                    + "<aqua>[" + json.get("messageSender").getAsString() + "<reset><aqua>] "
+                    + devChatColor + message;
+
             if(message.contains("[item]") && json.has("encodedItem")){
                 String encoded = json.get("encodedItem").getAsString();
 
                 if(!encoded.isEmpty()) {
                     ItemStack item = ItemUtils.decodeItem(encoded);
-                    message =  message.replace("[item]", MessageHelper.revert(item.displayName()));
+                    ItemMeta itemMeta = item.getItemMeta();
+                    Component displayName = itemMeta.hasDisplayName() ?
+                            itemMeta.displayName() : Component.translatable(item);
+                    int itemAmount = item.getAmount();
+                    if(itemAmount > 1)
+                        displayName = displayName.append(MessageHelper.process("<gold> x" + itemAmount));
+
+                    itemComp = MessageHelper.process("<white>[" + MessageHelper.revert(displayName) + "<reset><white>]").hoverEvent(item);
+
+                    String[] parts = message.split("\\[item\\]", -1);
+                    messageComponent = Component.empty();
+                    for (int i = 0; i < parts.length; i++) {
+                        messageComponent = messageComponent.append(Component.text(parts[i]));
+                        if (i != parts.length - 1) {
+                            messageComponent = messageComponent.append(itemComp);
+                        }
+                    }
+                    logMessage = logMessage.replace("[item]", "[" + MessageHelper.revert(displayName) + "]");
+                } else {
+                    messageComponent = MessageHelper.process(message.replace("\\<", "<"));
                 }
+            } else {
+                messageComponent = MessageHelper.process(message.replace("\\<", "<"));
             }
 
-            // Process final message to be sent to developers
-            Component finalMessage = MessageHelper.process(devChatPrefix + "<aqua>["
-                    + json.get("messageSender").getAsString() + "<reset><aqua>] " + devChatColor
-                    + message.replace("\\<", "<"));
-
+            Component finalMessage = MessageHelper.process(devChatPrefix)
+                    .append(MessageHelper.process("<aqua>[" + json.get("messageSender").getAsString() + "<reset><aqua>] " + devChatColor))
+                    .append(messageComponent);
 
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.hasPermission("holoutils.devchat")) {
@@ -119,7 +147,7 @@ public class DevChatManager {
                 }
             }
 
-            LoggerUtils.info(MessageHelper.getPlainText(MessageHelper.revert(finalMessage)));
+            LoggerUtils.info(MessageHelper.getPlainText(logMessage));
         } catch (JsonSyntaxException e){
             LoggerUtils.warning("Invalid JSON format received from devchat channel - " + data);
         }
