@@ -2,7 +2,6 @@ package me.lehreeeee.HoloUtils.hooks;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.lehreeeee.HoloUtils.managers.DamageLeaderboardManager;
-import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -36,15 +35,13 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         Available Placeholders:
         1. %holoutils_damagelb_entry_{<uuid>}_{<position>}%
         2. %holoutils_damagelb_damage_{<uuid>}_{<position>}%
-        3. %holoutils_damagelb_damagep_{<uuid>}%
-        4. %holoutils_damagelb_duration_{<uuid>}%
+        3. %holoutils_damagelb_damage_{<uuid>}_{<position>}_simple%
+        4. %holoutils_damagelb_damagep_{<uuid>}%
+        5. %holoutils_damagelb_damagep_{<uuid>}_simple%
+        6. %holoutils_damagelb_duration_{<uuid>}%
      */
     @Override
     public String onPlaceholderRequest(Player player, @NotNull String params) {
-        if (player == null) return "";
-
-        LoggerUtils.debug("Requesting holoutils placeholder: " + params);
-
         // Expecting format: "damagelb_<type>_{<uuid>}_{<position>}"
         if (params.startsWith("damagelb_")) {
             String[] segments = params.substring(9).split("_", 2);
@@ -74,6 +71,8 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
                             value : value + " ("+ pair.getValue() + "%)";
                 }
                 case "damagep":{
+                    if(player == null) return "";
+
                     Pair<Double,Double> pair = getPlayerLeaderboardDamage(rawParams,player.getUniqueId());
                     String damage = String.valueOf(pair.getKey());
 
@@ -90,6 +89,10 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
 
     private Pair<Double,Double> getPlayerLeaderboardDamage(String params, UUID playerUUID){
         try{
+            if (params.endsWith("_simple")) {
+                params = params.substring(0, params.length() - "_simple".length());
+            }
+
             if (!params.startsWith("{") || !params.endsWith("}")) {
                 return Pair.of(0.0,0.0);
             }
@@ -107,7 +110,11 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
 
     private Pair<Map.Entry<UUID,Double>,Double> getLeaderboardEntry(String params){
         try{
-            if (!params.startsWith("{") || !params.contains("}_{") || !params.endsWith("}")) {
+            if (params.endsWith("_simple")) {
+                params = params.substring(0, params.length() - "_simple".length());
+            }
+
+            if (!params.startsWith("{") || !params.contains("}_{") || !(params.endsWith("}"))) {
                 return null;
             }
 
