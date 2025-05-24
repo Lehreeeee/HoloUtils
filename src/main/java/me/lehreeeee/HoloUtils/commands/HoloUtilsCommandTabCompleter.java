@@ -49,8 +49,11 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
 
         if(args.length == 3){
             if(args[0].equalsIgnoreCase("damagelb")){
-                if(List.of("track", "untrack", "link", "unlink", "reset").contains(args[1])){
+                if(List.of("track", "untrack", "reset").contains(args[1])){
                     return List.of("VictimUUID");
+                }
+                if(List.of("link", "unlink").contains(args[1])){
+                    return List.of("ChildUUID");
                 }
             }
 
