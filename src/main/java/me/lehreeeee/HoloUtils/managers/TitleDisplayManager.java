@@ -151,13 +151,14 @@ public class TitleDisplayManager {
         }
     }
 
-    public void handlePlayerJoin(UUID uuid){
+    // If player has equipped title set in database AND has permission for the title in the server they join,
+    // equip back the title
+    public void handlePlayerJoin(Player player){
+        UUID uuid = player.getUniqueId();
         MySQLManager.getInstance().getUserData(String.valueOf(uuid), data -> {
-            if(!data.has("title")) return;
+            if(!data.has("title") || !player.hasPermission("holoutils.playertitle." + data.get("title").getAsString())) return;
 
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                setTitleDisplay(uuid, data.get("title").getAsString());
-            });
+            Bukkit.getScheduler().runTask(plugin, () -> setTitleDisplay(uuid, data.get("title").getAsString()));
         });
     }
 

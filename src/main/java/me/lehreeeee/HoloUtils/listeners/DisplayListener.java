@@ -50,7 +50,7 @@ public class DisplayListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event){
-        titleDisplayManager.handlePlayerJoin(event.getPlayer().getUniqueId());
+        titleDisplayManager.handlePlayerJoin(event.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = true)

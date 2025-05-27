@@ -106,7 +106,7 @@ public class HoloUtilsCommand implements CommandExecutor {
                         if(!DamageLeaderboardManager.getInstance().resetLeaderboard(uuid)){
                             sendFeedbackMessage(sender,"Can't reset leaderboard for entity " + uuid + ", it has no leaderboard or already ended.");
                         } else {
-                            sendFeedbackMessage(sender,"Successfully reset leaderboard for entity" + uuid + ".");
+                            sendFeedbackMessage(sender,"Successfully reset leaderboard for entity " + uuid + ".");
                         }
                         return true;
                     default:
