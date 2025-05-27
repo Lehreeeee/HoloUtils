@@ -1,6 +1,5 @@
 package me.lehreeeee.HoloUtils.commands;
 
-import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.utils.ItemPDCEditor;
 import org.bukkit.command.Command;
@@ -12,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class HoloUtilsCommandTabCompleter implements TabCompleter {
-    private final HoloUtils plugin;
     private final List<String> commands = List.of("reload", "help", "playertitle", "statuseffect", "damagelb", "pdc", "testredis");
     private final List<String> typeNames = List.of(
             "STRING",
@@ -22,10 +20,6 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
             "LONG",
             "BYTE"
     );
-
-    public HoloUtilsCommandTabCompleter(HoloUtils plugin) {
-        this.plugin = plugin;
-    }
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
@@ -59,7 +53,7 @@ public class HoloUtilsCommandTabCompleter implements TabCompleter {
 
             if(args[0].equalsIgnoreCase("pdc") && sender instanceof Player player){
                 if(List.of("get","remove").contains(args[1])){
-                    ItemPDCEditor pdcEditor = new ItemPDCEditor(plugin,player.getInventory().getItemInMainHand());
+                    ItemPDCEditor pdcEditor = new ItemPDCEditor(player.getInventory().getItemInMainHand());
                     return pdcEditor.getNSKs();
                 } else if(args[1].equalsIgnoreCase("set")){
                     return List.of("Namespace");

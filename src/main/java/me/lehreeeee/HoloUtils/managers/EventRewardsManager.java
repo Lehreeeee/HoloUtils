@@ -5,7 +5,7 @@ import com.destroystokyo.paper.profile.ProfileProperty;
 import me.lehreeeee.HoloUtils.eventrewards.EventReward;
 import me.lehreeeee.HoloUtils.utils.InventoryUtils;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
-import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import me.lehreeeee.HoloUtils.utils.MessageUtils;
 import me.lehreeeee.HoloUtils.utils.SoundUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -110,7 +110,7 @@ public class EventRewardsManager {
                     inv.getItem(49).getItemMeta().getPersistentDataContainer().get(pageNSK, PersistentDataType.INTEGER),
                     inv);
 
-            player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed the reward: "
+            player.sendMessage(MessageUtils.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed the reward: "
                     + reward.displayName()
                     + ".",false));
 
@@ -148,10 +148,10 @@ public class EventRewardsManager {
 
             if(hasUnclaimable){
                 SoundUtils.playSound(player,"block.chest.locked");
-                player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] 1 or more rewards are not set up correctly, please report to a developer.",false));
+                player.sendMessage(MessageUtils.process("<aqua>[<#FFA500>Event Rewards<aqua>] 1 or more rewards are not set up correctly, please report to a developer.",false));
             } else {
                 SoundUtils.playSound(player,"block.chest.open");
-                player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed all the rewards.",false));
+                player.sendMessage(MessageUtils.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed all the rewards.",false));
             }
 
             if(!claimedRowId.isEmpty())
@@ -226,7 +226,7 @@ public class EventRewardsManager {
         SkullMeta skullMeta = (SkullMeta) rewardHead.getItemMeta();
 
         if(skullMeta != null){
-            skullMeta.displayName(MessageHelper.process(getRewardDisplayName(rewardId)));
+            skullMeta.displayName(MessageUtils.process(getRewardDisplayName(rewardId)));
             String base64 = getRewardSkullTexture(rewardId);
 
             PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
@@ -236,7 +236,7 @@ public class EventRewardsManager {
             List<String> loreList = new ArrayList<>(getRewardLoreList(rewardId));
             loreList.add("<blue>Time Received: <green>" + timeStamp + " GMT+8");
 
-            List<Component> deserializedLoreList = loreList.stream().map(MessageHelper::process).toList();
+            List<Component> deserializedLoreList = loreList.stream().map(MessageUtils::process).toList();
 
             skullMeta.lore(deserializedLoreList);
 

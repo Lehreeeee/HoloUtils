@@ -8,7 +8,7 @@ import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
-import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import me.lehreeeee.HoloUtils.utils.MessageUtils;
 import me.lehreeeee.HoloUtils.utils.SoundUtils;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.crafting.ConfigMMOItem;
@@ -166,7 +166,7 @@ public class InventoryListener implements Listener {
             } else { // Else put back the pane
                 ItemStack glassPane = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
                 ItemMeta glassPaneMeta = glassPane.getItemMeta();
-                glassPaneMeta.displayName(MessageHelper.process("<aqua>Put the item you wish to reroll here."));
+                glassPaneMeta.displayName(MessageUtils.process("<aqua>Put the item you wish to reroll here."));
                 glassPane.setItemMeta(glassPaneMeta);
 
                 clickedInv.setItem(11, glassPane);
@@ -183,7 +183,7 @@ public class InventoryListener implements Listener {
 
             if(updatedItem != null) {
                 SoundUtils.playSound(player,"block.amethyst_block.resonate");
-                player.sendMessage(MessageHelper.process("<aqua>[<gold>Reroll<aqua>] <gold>Item stats have been rerolled!",false));
+                player.sendMessage(MessageUtils.process("<aqua>[<gold>Reroll<aqua>] <gold>Item stats have been rerolled!",false));
                 clickedInv.setItem(11, updatedItem);
 
                 // Update requirements again
@@ -241,7 +241,7 @@ public class InventoryListener implements Listener {
                 // Ignore invalid reward
                 if(!EventRewardsManager.getInstance().isRewardIdValid(rewardId)) {
                     SoundUtils.playSound(player,"block.chest.locked");
-                    player.sendMessage(MessageHelper.process("<aqua>[<#FFA500>Event Rewards<aqua>] This reward is not set up correctly, please report to a developer.",false));
+                    player.sendMessage(MessageUtils.process("<aqua>[<#FFA500>Event Rewards<aqua>] This reward is not set up correctly, please report to a developer.",false));
                     return;
                 }
 
@@ -262,7 +262,7 @@ public class InventoryListener implements Listener {
 
         // Drop the item when inventory is full.
         if(!extraItems.isEmpty()){
-            player.sendMessage(MessageHelper.process("<aqua>[<gold>Reroll<aqua>] <gold>Looks like your inventory is full, please check the ground for your item!"));
+            player.sendMessage(MessageUtils.process("<aqua>[<gold>Reroll<aqua>] <gold>Looks like your inventory is full, please check the ground for your item!"));
             for (ItemStack extraitem : extraItems.values()){
                 if(extraitem != null)
                     player.getWorld().dropItem(player.getLocation(),extraitem);
@@ -312,7 +312,7 @@ public class InventoryListener implements Listener {
             case OUT -> {
                 ItemStack templatePane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
                 ItemMeta templatePaneMeta = templatePane.getItemMeta();
-                templatePaneMeta.displayName(MessageHelper.process("<aqua>Item template will be shown here."));
+                templatePaneMeta.displayName(MessageUtils.process("<aqua>Item template will be shown here."));
 
                 templatePane.setItemMeta(templatePaneMeta);
 

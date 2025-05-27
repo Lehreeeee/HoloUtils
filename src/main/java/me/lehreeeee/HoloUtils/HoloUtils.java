@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 public final class HoloUtils extends JavaPlugin {
+    public static HoloUtils plugin;
+
     private final Logger logger = getLogger();
     private PlayerProjectileListener playerProjectileListener;
     private boolean debug = false;
@@ -29,6 +31,8 @@ public final class HoloUtils extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        plugin = this;
+
         this.MMOItemsAvailable = Bukkit.getPluginManager().getPlugin("MMOItems") != null;
 
         // Save the default config.yml
@@ -173,8 +177,8 @@ public final class HoloUtils extends JavaPlugin {
 
     private void loadCommands(){
         logger.info("Loading holoutils commands...");
-        getCommand("holoutils").setExecutor(new HoloUtilsCommand(this));
-        getCommand("holoutils").setTabCompleter(new HoloUtilsCommandTabCompleter(this));
+        getCommand("holoutils").setExecutor(new HoloUtilsCommand());
+        getCommand("holoutils").setTabCompleter(new HoloUtilsCommandTabCompleter());
         logger.info("Loading adminchat commands...");
         getCommand("devchat").setExecutor(new DevChatCommand());
         getCommand("devchat").setTabCompleter(new DevChatCommandTabCompleter());
@@ -186,13 +190,13 @@ public final class HoloUtils extends JavaPlugin {
 
         if(MMOItemsAvailable){
             logger.info("Found MMOItems, loading reroll commands...");
-            getCommand("reroll").setExecutor(new RerollCommand(this));
+            getCommand("reroll").setExecutor(new RerollCommand());
         }
 
         // TODO: To be removed after 3 months
         if(enableClaimaccessoriesCommand){
             logger.info("Loading claimaccessories commands...");
-            getCommand("claimaccessories").setExecutor(new ClaimAccessoriesCommand(logger));
+            getCommand("claimaccessories").setExecutor(new ClaimAccessoriesCommand());
         }
     }
 

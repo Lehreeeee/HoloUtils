@@ -3,7 +3,7 @@ package me.lehreeeee.HoloUtils.listeners;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.DevChatManager;
-import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import me.lehreeeee.HoloUtils.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,7 +27,7 @@ public class PlayerChatListener implements Listener {
         event.setCancelled(true);
 
         // Sends the message
-        devChatManager.publishMessage(player, MessageHelper.revert(event.message()));
+        devChatManager.publishMessage(player, MessageUtils.revert(event.message()));
     }
 
     // This event is called before AsyncChatEvent, need to cancel this cuz i only need AsyncChatEvent

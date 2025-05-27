@@ -8,7 +8,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
-import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import me.lehreeeee.HoloUtils.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
@@ -209,7 +209,7 @@ public class MySQLManager {
                         // Back to server main thread
                         Bukkit.getScheduler().runTask(plugin, () -> decodeInventory(inventoryBase64, uuid));
                     } else {
-                        sendFeedbackMessage(Bukkit.getPlayer(UUID.fromString(uuid)),"<#FFA500>You have no unclaimed accessories.");
+                        MessageUtils.sendFeedbackMessage(Bukkit.getPlayer(UUID.fromString(uuid)),"<#FFA500>You have no unclaimed accessories.");
                     }
                 }
             } catch (SQLException e) {
@@ -428,10 +428,10 @@ public class MySQLManager {
 
                 // Inventory full, return and ask to clear inventory
                 if(!extraItems.isEmpty()){
-                    sendFeedbackMessage(player,"<#FFA500>Your inventory is full, please clear up some space first.");
+                    MessageUtils.sendFeedbackMessage(player,"<#FFA500>Your inventory is full, please clear up some space first.");
                     return;
                 } else {
-                    sendFeedbackMessage(player,"<#FFA500>Successfully claimed old accessories. You should find a orange shulker box in your inventory.");
+                    MessageUtils.sendFeedbackMessage(player,"<#FFA500>Successfully claimed old accessories. You should find a orange shulker box in your inventory.");
                 }
 
                 // Done giving items to player, update entry from table to prevent 2nd claim
@@ -459,12 +459,6 @@ public class MySQLManager {
         } catch (SQLException e){
             LoggerUtils.severe("Failed to update entry for claimed player." + " Error: " + e.getMessage());
         }
-    }
-
-    private void sendFeedbackMessage(Player player, String msg){
-        LoggerUtils.info(MessageHelper.getPlainText(msg));
-
-        if(player != null) player.sendMessage(MessageHelper.process(msg,true));
     }
 }
 

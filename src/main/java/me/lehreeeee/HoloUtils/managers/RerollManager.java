@@ -4,7 +4,7 @@ import io.lumine.mythic.lib.api.item.NBTItem;
 import me.lehreeeee.HoloUtils.reroll.RerollRequirement;
 import me.lehreeeee.HoloUtils.reroll.RerollRequirementValidator;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
-import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import me.lehreeeee.HoloUtils.utils.MessageUtils;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.util.MMOItemReforger;
 import net.kyori.adventure.text.Component;
@@ -115,20 +115,20 @@ public class RerollManager {
 
     public List<Component> getDefaultDiceLore(){
         return List.of(
-                MessageHelper.process("<aqua>Place an item to check"),
-                MessageHelper.process("<aqua>reroll requirements.")
+                MessageUtils.process("<aqua>Place an item to check"),
+                MessageUtils.process("<aqua>reroll requirements.")
         );
     }
 
     public List<Component> getRequirementsLoreList(String itemKey, Player player){
         if(!rerollableItems.containsKey(itemKey)){
-            return List.of(MessageHelper.process("<red>You cannot reroll any stat on this item."));
+            return List.of(MessageUtils.process("<red>You cannot reroll any stat on this item."));
         } else {
             List<Component> requirementsLore = new ArrayList<>();
-            requirementsLore.add(MessageHelper.process("<aqua>Requirements:"));
+            requirementsLore.add(MessageUtils.process("<aqua>Requirements:"));
 
             for(RerollRequirement requirement : rerollableItems.get(itemKey)) {
-                requirementsLore.add(MessageHelper.process(RerollRequirementValidator.getValidatedLore(requirement,player)));
+                requirementsLore.add(MessageUtils.process(RerollRequirementValidator.getValidatedLore(requirement,player)));
             }
 
             return requirementsLore;

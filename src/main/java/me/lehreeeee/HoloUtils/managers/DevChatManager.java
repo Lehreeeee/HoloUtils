@@ -5,7 +5,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import me.lehreeeee.HoloUtils.utils.ItemUtils;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
-import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import me.lehreeeee.HoloUtils.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -69,7 +69,7 @@ public class DevChatManager {
 
         // Update sender if its player
         if(sender instanceof Player player){
-            messageSender = MessageHelper.revert(player.displayName());
+            messageSender = MessageUtils.revert(player.displayName());
 
             // TODO: Maybe add [item] for showing item in chat when hovered
             if(message.contains("[item]")){
@@ -117,9 +117,9 @@ public class DevChatManager {
                             itemMeta.displayName() : Component.translatable(item);
                     int itemAmount = item.getAmount();
                     if(itemAmount > 1)
-                        displayName = displayName.append(MessageHelper.process("<gold> x" + itemAmount));
+                        displayName = displayName.append(MessageUtils.process("<gold> x" + itemAmount));
 
-                    itemComp = MessageHelper.process("<white>[" + MessageHelper.revert(displayName) + "<reset><white>]").hoverEvent(item);
+                    itemComp = MessageUtils.process("<white>[" + MessageUtils.revert(displayName) + "<reset><white>]").hoverEvent(item);
 
                     String[] parts = message.split("\\[item\\]", -1);
                     messageComponent = Component.empty();
@@ -129,16 +129,16 @@ public class DevChatManager {
                             messageComponent = messageComponent.append(itemComp);
                         }
                     }
-                    logMessage = logMessage.replace("[item]", "[" + MessageHelper.revert(displayName) + "]");
+                    logMessage = logMessage.replace("[item]", "[" + MessageUtils.revert(displayName) + "]");
                 } else {
-                    messageComponent = MessageHelper.process(message.replace("\\<", "<"));
+                    messageComponent = MessageUtils.process(message.replace("\\<", "<"));
                 }
             } else {
-                messageComponent = MessageHelper.process(message.replace("\\<", "<"));
+                messageComponent = MessageUtils.process(message.replace("\\<", "<"));
             }
 
-            Component finalMessage = MessageHelper.process(devChatPrefix)
-                    .append(MessageHelper.process("<aqua>[" + json.get("messageSender").getAsString() + "<reset><aqua>] " + devChatColor))
+            Component finalMessage = MessageUtils.process(devChatPrefix)
+                    .append(MessageUtils.process("<aqua>[" + json.get("messageSender").getAsString() + "<reset><aqua>] " + devChatColor))
                     .append(messageComponent);
 
             for (Player player : Bukkit.getOnlinePlayers()) {
@@ -147,7 +147,7 @@ public class DevChatManager {
                 }
             }
 
-            LoggerUtils.info(MessageHelper.getPlainText(logMessage));
+            LoggerUtils.info(MessageUtils.getPlainText(logMessage));
         } catch (JsonSyntaxException e){
             LoggerUtils.warning("Invalid JSON format received from devchat channel - " + data);
         }

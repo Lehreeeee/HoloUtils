@@ -8,7 +8,7 @@ package me.lehreeeee.HoloUtils.managers;
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.hooks.ModelEngineHook;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
-import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import me.lehreeeee.HoloUtils.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -94,7 +94,7 @@ public class StatusDisplayManager {
         if(loadedStatusDisplay.containsKey(uuid)){
             LoggerUtils.debug("Found existing display, appending to it.");
             TextDisplay display = loadedStatusDisplay.get(uuid);
-            String currentString = MessageHelper.revert(display.text());
+            String currentString = MessageUtils.revert(display.text());
 
             // If exists, remove first
             if(scheduledTasks.containsKey(uuid + ";" + status)) {
@@ -107,11 +107,11 @@ public class StatusDisplayManager {
                 removeStatus(uuid,display,status,true);
 
                 // Update current string
-                currentString = MessageHelper.revert(display.text());
+                currentString = MessageUtils.revert(display.text());
             }
 
             // Add the status
-            display.text(MessageHelper.process(currentString + statusSymbol));
+            display.text(MessageUtils.process(currentString + statusSymbol));
 
             // Schedule for removal
             BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -125,7 +125,7 @@ public class StatusDisplayManager {
             TextDisplay display = spawnDisplayEntity(targetEntity);
 
             // Sets the display text
-            display.text(MessageHelper.process(statusSymbol));
+            display.text(MessageUtils.process(statusSymbol));
 
             // Add on top of the entity and make it visible
             mountDisplay(targetEntity,display);
@@ -220,7 +220,7 @@ public class StatusDisplayManager {
         }
 
         // Update display
-        display.text(MessageHelper.process(updatedString));
+        display.text(MessageUtils.process(updatedString));
     }
 
     private String getLatestStatusEffectString(UUID uuid){

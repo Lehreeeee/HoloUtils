@@ -3,7 +3,7 @@ package me.lehreeeee.HoloUtils.commands;
 
 import me.lehreeeee.HoloUtils.managers.DevChatManager;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
-import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import me.lehreeeee.HoloUtils.utils.MessageUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,7 +14,7 @@ public class DevChatCommand implements CommandExecutor {
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){
         if(!sender.hasPermission("holoutils.devchat")){
-            sendFeedbackMessage(sender,"<#FFA500>Who are you?! You don't have permission to do this!");
+            MessageUtils.sendFeedbackMessage(sender,"<#FFA500>Who are you?! You don't have permission to do this!");
             return true;
         }
 
@@ -26,15 +26,15 @@ public class DevChatCommand implements CommandExecutor {
                 boolean toggledON = devChatManager.toggleDevChat(player.getUniqueId(), !devChatManager.hasDevChatOn(player.getUniqueId()));
 
                 if(toggledON){
-                    sendFeedbackMessage(sender,"<#FFA500>Toggled <green>on <#FFA500>dev chat.");
+                    MessageUtils.sendFeedbackMessage(sender,"<#FFA500>Toggled <green>on <#FFA500>dev chat.");
                 } else{
-                    sendFeedbackMessage(sender,"<#FFA500>Toggled <red>off <#FFA500>dev chat.");
+                    MessageUtils.sendFeedbackMessage(sender,"<#FFA500>Toggled <red>off <#FFA500>dev chat.");
                 }
 
                 return true;
             }
 
-            sendFeedbackMessage(sender,"Console cannot toggle dev chat, just use /devchat [message] :amewtf:");
+            MessageUtils.sendFeedbackMessage(sender,"Console cannot toggle dev chat, just use /devchat [message] :amewtf:");
             return true;
         }
 
@@ -49,13 +49,13 @@ public class DevChatCommand implements CommandExecutor {
                 // Toggle on if not already toggled on
                 if(args[0].equalsIgnoreCase("on")){
                     devChatManager.toggleDevChat(player.getUniqueId(),true);
-                    sendFeedbackMessage(sender,"<#FFA500>Toggled <green>on <#FFA500>dev chat.");
+                    MessageUtils.sendFeedbackMessage(sender,"<#FFA500>Toggled <green>on <#FFA500>dev chat.");
                     return true;
                 }
                 // Toggle off if already toggled on
                 if(args[0].equalsIgnoreCase("off")){
                     devChatManager.toggleDevChat(player.getUniqueId(),false);
-                    sendFeedbackMessage(sender,"<#FFA500>Toggled <red>off <#FFA500>dev chat.");
+                    MessageUtils.sendFeedbackMessage(sender,"<#FFA500>Toggled <red>off <#FFA500>dev chat.");
                     return true;
                 }
             }
@@ -71,16 +71,10 @@ public class DevChatCommand implements CommandExecutor {
         return true;
     }
 
-    private void sendFeedbackMessage(CommandSender sender, String msg){
-        LoggerUtils.info(MessageHelper.getPlainText(msg));
-
-        if (sender instanceof Player) sender.sendMessage(MessageHelper.process(msg,true));
-    }
-
     private void sendCommandUsage(CommandSender sender){
         if (sender instanceof Player) {
-            sender.sendMessage(MessageHelper.process("<#FFA500>Command Usage:",true));
-            sender.sendMessage(MessageHelper.process("<#FFA500>What u need help for, never use staffchat b4 is it :amewtf:",false));
+            sender.sendMessage(MessageUtils.process("<#FFA500>Command Usage:",true));
+            sender.sendMessage(MessageUtils.process("<#FFA500>What u need help for, never use staffchat b4 is it :amewtf:",false));
         }
         else{
             LoggerUtils.info("Command Usage:");

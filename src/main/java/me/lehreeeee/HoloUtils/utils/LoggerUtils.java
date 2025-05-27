@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.logging.Logger;
 
 public class LoggerUtils {
-    private static final Logger logger = HoloUtils.getPlugin().getLogger();
+    private static final Logger logger = HoloUtils.plugin.getLogger();
 
     public static void info(String message) {
         logger.info(message);
@@ -26,14 +26,14 @@ public class LoggerUtils {
     }
 
     public static void debug(String message) {
-        if (HoloUtils.getPlugin().shouldPrintDebug()) {
+        if (HoloUtils.plugin.shouldPrintDebug()) {
             logger.info("[DEBUG] " + message);
         }
     }
 
     public static void file(String folderName, String message) {
         folderName = folderName + "/logs";
-        File folder = new File(HoloUtils.getPlugin().getDataFolder() , folderName);
+        File folder = new File(HoloUtils.plugin.getDataFolder() , folderName);
 
         // Ensure the folder exists
         if(folder.mkdirs()){

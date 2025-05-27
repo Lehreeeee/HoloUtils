@@ -4,10 +4,18 @@ package me.lehreeeee.HoloUtils.utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-public class MessageHelper {
+public class MessageUtils {
 
     private static final String prefix = "<aqua>[<#FFA500>HoloUtils<aqua>] <#FFA500>";
+
+    public static void sendFeedbackMessage(CommandSender sender, String msg){
+        LoggerUtils.info(getPlainText(msg));
+
+        if (sender instanceof Player) sender.sendMessage(process(msg,true));
+    }
 
     public static Component process(String msg) {
         return process(msg,false);

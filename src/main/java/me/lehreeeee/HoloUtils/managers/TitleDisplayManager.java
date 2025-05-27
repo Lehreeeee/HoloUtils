@@ -2,7 +2,7 @@ package me.lehreeeee.HoloUtils.managers;
 
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
-import me.lehreeeee.HoloUtils.utils.MessageHelper;
+import me.lehreeeee.HoloUtils.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Display;
@@ -99,7 +99,7 @@ public class TitleDisplayManager {
         TextDisplay display = spawnDisplayEntity(targetEntity);
 
         // Sets the display text
-        display.text(MessageHelper.process(title));
+        display.text(MessageUtils.process(title));
 
         Bukkit.getScheduler().runTaskTimer(plugin, task -> {
             if(display.isValid()) {

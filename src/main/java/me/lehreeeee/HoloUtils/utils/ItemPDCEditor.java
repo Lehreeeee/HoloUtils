@@ -1,6 +1,5 @@
 package me.lehreeeee.HoloUtils.utils;
 
-import me.lehreeeee.HoloUtils.HoloUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -9,18 +8,13 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class ItemPDCEditor {
-    private final HoloUtils plugin;
-    private final Logger logger;
     private final ItemStack itemStack;
     private final ItemMeta itemMeta;
     private PersistentDataContainer pdc;
 
-    public ItemPDCEditor(HoloUtils plugin, ItemStack itemStack){
-        this.plugin = plugin;
-        this.logger = plugin.getLogger();
+    public ItemPDCEditor(ItemStack itemStack){
         this.itemStack = itemStack;
         this.itemMeta = itemStack.getItemMeta();
         if(itemMeta != null) this.pdc = itemMeta.getPersistentDataContainer();
@@ -65,9 +59,9 @@ public class ItemPDCEditor {
 
                     if (className.startsWith("java.lang.")) {
                         className = className.substring("java.lang.".length());
-                        debugLogger("Data found with type: " + className);
+                        LoggerUtils.debug("Data found with type: " + className);
                     } else {
-                        debugLogger("Data found with type: " + className);
+                        LoggerUtils.debug("Data found with type: " + className);
                     }
 
                     return result + " (" + className + ")";
@@ -129,9 +123,5 @@ public class ItemPDCEditor {
 
     public ItemStack getItemStack(){
         return itemStack;
-    }
-
-    private void debugLogger(String debugMessage){
-        if(plugin.shouldPrintDebug()) logger.info(debugMessage);
     }
 }
