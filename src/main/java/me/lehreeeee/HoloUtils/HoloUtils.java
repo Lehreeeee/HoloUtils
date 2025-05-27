@@ -131,10 +131,6 @@ public final class HoloUtils extends JavaPlugin {
         }.runTaskLater(this, 1L);
     }
 
-    public static HoloUtils getPlugin(){
-        return (HoloUtils) Bukkit.getPluginManager().getPlugin("HoloUtils");
-    }
-
     private void saveCustomConfig(){
         Set<String> customConfigs = Set.of(
                 "DisplayTag/PlayerTitles.yml",
