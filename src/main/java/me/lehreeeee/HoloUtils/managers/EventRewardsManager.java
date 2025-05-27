@@ -7,6 +7,7 @@ import me.lehreeeee.HoloUtils.utils.InventoryUtils;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageHelper;
 import me.lehreeeee.HoloUtils.utils.SoundUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -52,6 +53,7 @@ public class EventRewardsManager {
         for(String rewardId : rewards.getKeys(false)){
             EventReward reward = new EventReward(rewardId,
                     rewards.getString(rewardId + ".display"),
+                    rewards.getStringList(rewardId + ".lore"),
                     rewards.getString(rewardId + ".skull_texture"),
                     rewards.getStringList(rewardId + ".commands"));
             eventRewards.put(reward.rewardId(),reward);
@@ -231,9 +233,12 @@ public class EventRewardsManager {
             profile.getProperties().add((new ProfileProperty("textures", base64)));
             skullMeta.setPlayerProfile(profile);
 
-            skullMeta.lore(List.of(
-                    MessageHelper.process("<blue>Time Received: <green>" + timeStamp + " GMT+8")
-            ));
+            List<String> loreList = new ArrayList<>(getRewardLoreList(rewardId));
+            loreList.add("<blue>Time Received: <green>" + timeStamp + " GMT+8");
+
+            List<Component> deserializedLoreList = loreList.stream().map(MessageHelper::process).toList();
+
+            skullMeta.lore(deserializedLoreList);
 
             PersistentDataContainer skullPDC = skullMeta.getPersistentDataContainer();
             skullPDC.set(new NamespacedKey("holoutils","reward_id"), PersistentDataType.STRING, rewardId);
@@ -248,18 +253,22 @@ public class EventRewardsManager {
     private String getRewardDisplayName(String rewardId){
         EventReward reward = eventRewards.get(rewardId);
 
-        if(reward != null && reward.displayName() != null)
-            return reward.displayName();
-        else
-            return "<gold>" + rewardId;
+        return (reward != null && reward.displayName() != null)
+            ? reward.displayName() : "<gold>" + rewardId;
+    }
+
+    private List<String> getRewardLoreList(String rewardId){
+        EventReward reward = eventRewards.get(rewardId);
+
+        return (reward != null && reward.displayName() != null)
+            ? reward.loreLines() : List.of("");
     }
 
     private String getRewardSkullTexture(String rewardId){
         EventReward reward = eventRewards.get(rewardId);
 
-        if(reward != null && reward.skullTexture() != null)
-            return reward.skullTexture();
-        else
-            return "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzIyZDRiZTFhYmNmMzgzMmM5MTYxOTFkMjRmOTYwN2JmMTk0ZWZmOGRmYmYzYjk1MjBiZDk3MjQwZTdjOCJ9fX0=";
+        return (reward != null && reward.skullTexture() != null)
+            ? reward.skullTexture()
+            : "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzIyZDRiZTFhYmNmMzgzMmM5MTYxOTFkMjRmOTYwN2JmMTk0ZWZmOGRmYmYzYjk1MjBiZDk3MjQwZTdjOCJ9fX0=";
     }
 }

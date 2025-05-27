@@ -29,7 +29,7 @@ public class HoloUtilsCommand implements CommandExecutor {
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){
-        // Only admin can use
+        // Only admins can access
         if(!sender.hasPermission("holoutils.admin")){
             sendFeedbackMessage(sender,"<#FFA500>Who are you?! You don't have permission to do this!");
             return true;

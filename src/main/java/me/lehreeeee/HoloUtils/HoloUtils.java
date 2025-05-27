@@ -181,6 +181,8 @@ public final class HoloUtils extends JavaPlugin {
         logger.info("Loading eventrewards command...");
         getCommand("eventrewards").setExecutor(new EventRewardsCommand());
         getCommand("eventrewards").setTabCompleter(new EventRewardsCommandTabCompleter());
+        logger.info("Loading playertitle command...");
+        getCommand("playertitle").setExecutor(new PlayerTitleCommand());
 
         if(MMOItemsAvailable){
             logger.info("Found MMOItems, loading reroll commands...");
