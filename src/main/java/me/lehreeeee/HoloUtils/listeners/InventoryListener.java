@@ -9,6 +9,7 @@ import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
+import me.lehreeeee.HoloUtils.utils.InventoryUtils;
 import me.lehreeeee.HoloUtils.utils.MessageUtils;
 import me.lehreeeee.HoloUtils.utils.SoundUtils;
 import net.Indyuce.mmoitems.MMOItems;
@@ -31,10 +32,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class InventoryListener implements Listener {
     private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
@@ -61,8 +59,12 @@ public class InventoryListener implements Listener {
             player.sendMessage(MessageUtils.process("<red>Yabai! Custom item(s) detected in the trade peko! Trade cancelled, please try again peko \uD83D\uDC30"));
 
             // Try to help them put vanilla item in :)
-            replaceIfCustomItem(merchantInv, playerInv, 0);
-            replaceIfCustomItem(merchantInv, playerInv, 1);
+            List<ItemStack> itemsToReturn = Arrays.asList(
+                    replaceIfCustomItem(merchantInv, playerInv, 0),
+                    replaceIfCustomItem(merchantInv, playerInv, 1)
+            );
+
+            InventoryUtils.giveItem(itemsToReturn, player);
 
             // Update the vanilla items, they might still contain the replaced custom item's name and lore. (Client side desync, probably)
             player.updateInventory();
@@ -113,7 +115,7 @@ public class InventoryListener implements Listener {
             event.setCancelled(true);
             // If already has MMOItems in there, return item to their inventory
             Player player = (Player) event.getWhoClicked();
-            returnItem(topInv.getItem(11),player);
+            InventoryUtils.giveItem(Collections.singletonList(topInv.getItem(11)),player,true);
 
             topInv.setItem(11, clickedItem);
             event.setCurrentItem(null);
@@ -130,7 +132,7 @@ public class InventoryListener implements Listener {
         InventoryHolder invHolder = closedInv.getHolder(false);
 
         if(invHolder instanceof RerollGUI){
-            returnItem(closedInv.getItem(11), (Player) event.getPlayer());
+            InventoryUtils.giveItem(Collections.singletonList(closedInv.getItem(11)), (Player) event.getPlayer(),true);
             return;
         }
 
@@ -139,13 +141,12 @@ public class InventoryListener implements Listener {
         }
     }
 
-    private void replaceIfCustomItem(MerchantInventory merchantInv, Inventory playerInv, int slot) {
+    private ItemStack replaceIfCustomItem(MerchantInventory merchantInv, Inventory playerInv, int slot) {
         ItemStack item = merchantInv.getItem(slot);
-        if (item == null || !item.hasItemMeta()) return;
+        if (item == null || !item.hasItemMeta()) return null;
 
         // Return item
         merchantInv.setItem(slot, null);
-        playerInv.addItem(item);
 
         Material material = item.getType();
         int max = 64;
@@ -163,7 +164,7 @@ public class InventoryListener implements Listener {
         }
 
         int totalAvailableAmount = 64 - Math.max(0, max);
-        if(totalAvailableAmount == 0) return;
+        if(totalAvailableAmount == 0) return item;
 
         // Put vanilla item in
         merchantInv.setItem(slot, new ItemStack(material, totalAvailableAmount));
@@ -182,6 +183,8 @@ public class InventoryListener implements Listener {
                 break;
             }
         }
+
+        return item;
     }
 
     private void handlePlayerTitleGUI(InventoryClickEvent event, Inventory clickedInv){;
@@ -224,7 +227,7 @@ public class InventoryListener implements Listener {
             ItemStack existingItem = clickedInv.getItem(11);
 
             // If already has MMOItems in there, return item to their inventory
-            returnItem(existingItem,player);
+            InventoryUtils.giveItem(Collections.singletonList(existingItem),player,true);
 
             // If cursor has MMOItems, force move into slot
             if(NBTItem.get(cursorItem).hasType()) {
@@ -319,24 +322,6 @@ public class InventoryListener implements Listener {
                 // Remove before giving rewards to prevent double claiming
                 clickedInv.setItem(clickedSlot,null);
                 EventRewardsManager.getInstance().claimReward(player, clickedInv, rowId);
-            }
-        }
-    }
-
-    private void returnItem(ItemStack item, Player player){
-        // Ignore if it's not MMOItem
-        if(!NBTItem.get(item).hasType()) return;
-
-        // Attempt to add into their inventory
-        HashMap<Integer, ItemStack> extraItems = player.getInventory().addItem(item);
-        SoundUtils.playSound(player,"block.amethyst_block.place");
-
-        // Drop the item when inventory is full.
-        if(!extraItems.isEmpty()){
-            player.sendMessage(MessageUtils.process("<aqua>[<gold>Reroll<aqua>] <gold>Looks like your inventory is full, please check the ground for your item!"));
-            for (ItemStack extraitem : extraItems.values()){
-                if(extraitem != null)
-                    player.getWorld().dropItem(player.getLocation(),extraitem);
             }
         }
     }
