@@ -1,6 +1,7 @@
 package me.lehreeeee.HoloUtils.listeners;
 
 import io.lumine.mythic.lib.api.item.NBTItem;
+import io.papermc.paper.event.player.PlayerTradeEvent;
 import me.lehreeeee.HoloUtils.GUI.EventRewardsGUI;
 import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUIHolder;
 import me.lehreeeee.HoloUtils.GUI.RerollGUI;
@@ -24,12 +25,15 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class InventoryListener implements Listener {
@@ -41,6 +45,28 @@ public class InventoryListener implements Listener {
 
     public InventoryListener(HoloUtils plugin){
         Bukkit.getPluginManager().registerEvents(this,plugin);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerTrade(PlayerTradeEvent event){
+        MerchantInventory merchantInv = (MerchantInventory) event.getPlayer().getOpenInventory().getTopInventory();
+        Inventory playerInv = event.getPlayer().getOpenInventory().getBottomInventory();
+        Player player = event.getPlayer();
+
+        ItemStack item1 = merchantInv.getItem(0);
+        ItemStack item2 = merchantInv.getItem(1);
+
+        if((item1 != null && item1.hasItemMeta()) || (item2 != null && item2.hasItemMeta())){
+            event.setCancelled(true);
+            player.sendMessage(MessageUtils.process("<red>Yabai! Custom item(s) detected in the trade peko! Trade cancelled, please try again peko \uD83D\uDC30"));
+
+            // Try to help them put vanilla item in :)
+            replaceIfCustomItem(merchantInv, playerInv, 0);
+            replaceIfCustomItem(merchantInv, playerInv, 1);
+
+            // Update the vanilla items, they might still contain the replaced custom item's name and lore. (Client side desync, probably)
+            player.updateInventory();
+        }
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -110,6 +136,51 @@ public class InventoryListener implements Listener {
 
         if (invHolder instanceof EventRewardsGUI) {
             EventRewardsManager.getInstance().clearPlayerRewardsCache(String.valueOf(event.getPlayer().getUniqueId()));
+        }
+    }
+
+    private void replaceIfCustomItem(MerchantInventory merchantInv, Inventory playerInv, int slot) {
+        ItemStack item = merchantInv.getItem(slot);
+        if (item == null || !item.hasItemMeta()) return;
+
+        // Return item
+        merchantInv.setItem(slot, null);
+        playerInv.addItem(item);
+
+        Material material = item.getType();
+        int max = 64;
+        List<Integer> useableSlot = new ArrayList<>();
+
+        // Search for useable slot
+        for(int i = 0; i < playerInv.getSize(); i++){
+            ItemStack useableItem = playerInv.getItem(i);
+            if(useableItem != null && useableItem.getType() == material && !useableItem.hasItemMeta()){
+                useableSlot.add(i);
+                max -= useableItem.getAmount();
+
+                if(max <= 0) break;
+            }
+        }
+
+        int totalAvailableAmount = 64 - Math.max(0, max);
+        if(totalAvailableAmount == 0) return;
+
+        // Put vanilla item in
+        merchantInv.setItem(slot, new ItemStack(material, totalAvailableAmount));
+
+        // Remove vanilla item from player inventory
+        int remainingToRemove = totalAvailableAmount;
+        for (int i : useableSlot) {
+            ItemStack stack = playerInv.getItem(i);
+            int amount = stack.getAmount();
+
+            if (amount <= remainingToRemove) {
+                playerInv.setItem(i, null);
+                remainingToRemove -= amount;
+            } else {
+                stack.setAmount(amount - remainingToRemove);
+                break;
+            }
         }
     }
 

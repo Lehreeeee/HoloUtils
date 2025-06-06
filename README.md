@@ -51,10 +51,12 @@ Includes PlaceholderAPI (PAPI) placeholders:
 - %holoutils_damagelb_duration_{<uuid>}% - Returns the fight duration of this leaderboard
 ```
 
-## Bug Fixes Implemented
+## Bug Fixes and QoL Implemented
 - Certain plugins in the server are causing mob to be alive and immortal even after death, this is fixed by force removing the immortal mob if they have >0 Health after death event is fired.
 
 (Limitation: `- cancelevent{sync=true} @self ~onDeath` can no longer be used in MythicMobs as this option will still force remove the mob)
+
+- Will cancel merchant(Villagers & Wanderer) trade if custom item is detected in the ingredient slot. Then, try to place vanilla items from player's inventory into the ingredient slot if possible.
 
 ## Upcoming Features
 ~~- Network rewards either using MySQL or Redis. Allows developers to give rewards to players in Event Server and players can choose to claim from any other server in the network.~~

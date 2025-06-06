@@ -71,7 +71,6 @@ public class DevChatManager {
         if(sender instanceof Player player){
             messageSender = MessageUtils.revert(player.displayName());
 
-            // TODO: Maybe add [item] for showing item in chat when hovered
             if(message.contains("[item]")){
                 ItemStack itemHeld = player.getInventory().getItemInMainHand();
 
