@@ -324,7 +324,7 @@ public class MySQLManager {
 
     public void createUserId(UUID uuid) {
         String uuidString = String.valueOf(uuid);
-        String sql = "INSERT INTO holoutils_users (uuid,data) VALUES (?,?) ON DUPLICATE KEY UPDATE uuid = VALUES(uuid)";
+        String sql = "INSERT IGNORE INTO holoutils_users (uuid,data) VALUES (?,?)";
         try (Connection con = dataSource.getConnection()){
             try(PreparedStatement stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
                 stmt.setString(1, uuidString);
