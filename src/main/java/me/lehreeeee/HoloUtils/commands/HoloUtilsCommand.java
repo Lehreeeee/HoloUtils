@@ -21,6 +21,7 @@ import java.util.UUID;
 
 public class HoloUtilsCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){
+
         // Only admins can access
         if(!sender.hasPermission("holoutils.admin")){
             MessageUtils.sendFeedbackMessage(sender,"<#FFA500>Who are you?! You don't have permission to do this!");
@@ -47,6 +48,14 @@ public class HoloUtilsCommand implements CommandExecutor {
 
             if(args[0].equalsIgnoreCase("help")){
                 sendCommandUsage(sender);
+                return true;
+            }
+
+            if(args[0].equalsIgnoreCase("version")){
+                MessageUtils.sendFeedbackMessage(sender,"<#FFA500>HoloUtils - v"
+                        + HoloUtils.plugin.getPluginMeta().getVersion()
+                        + " by "
+                        + HoloUtils.plugin.getPluginMeta().getAuthors());
                 return true;
             }
         }

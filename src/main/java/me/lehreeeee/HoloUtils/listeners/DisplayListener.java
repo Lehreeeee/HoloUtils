@@ -2,6 +2,7 @@ package me.lehreeeee.HoloUtils.listeners;
 
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.DevChatManager;
+import me.lehreeeee.HoloUtils.managers.MySQLManager;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
 import org.bukkit.Bukkit;
@@ -50,6 +51,7 @@ public class DisplayListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event){
+        MySQLManager.getInstance().createUserId(event.getPlayer().getUniqueId());
         titleDisplayManager.handlePlayerJoin(event.getPlayer());
     }
 

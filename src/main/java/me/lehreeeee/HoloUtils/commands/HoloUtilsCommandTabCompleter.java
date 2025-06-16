@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class HoloUtilsCommandTabCompleter implements TabCompleter {
-    private final List<String> commands = List.of("reload", "help", "playertitle", "statuseffect", "damagelb", "pdc", "testredis");
+    private final List<String> commands = List.of("reload", "help", "version" , "playertitle", "statuseffect", "damagelb", "pdc", "testredis");
     private final List<String> typeNames = List.of(
             "STRING",
             "INTEGER",

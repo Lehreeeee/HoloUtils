@@ -322,30 +322,18 @@ public class MySQLManager {
         });
     }
 
-    public int createUserId(String uuid) {
-        String sql = "INSERT INTO holoutils_users (uuid,data) VALUES (?,?)";
+    public void createUserId(UUID uuid) {
+        String uuidString = String.valueOf(uuid);
+        String sql = "INSERT INTO holoutils_users (uuid,data) VALUES (?,?) ON DUPLICATE KEY UPDATE uuid = VALUES(uuid)";
         try (Connection con = dataSource.getConnection()){
             try(PreparedStatement stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
-                stmt.setString(1, uuid);
+                stmt.setString(1, uuidString);
                 stmt.setString(2, "{}");
-                int affectedRows = stmt.executeUpdate();
-                if(affectedRows == 0) {
-                    LoggerUtils.severe("Creating user failed, no rows affected.");
-                    return -1;
-                }
 
-                ResultSet generatedKeys = stmt.getGeneratedKeys();
-                if(generatedKeys.next()) {
-                    LoggerUtils.debug("Created new user: " + uuid);
-                    return generatedKeys.getInt(1);
-                } else {
-                    LoggerUtils.severe("Creating user failed, no ID obtained.");
-                    return -1;
-                }
+                stmt.executeUpdate();
             }
         } catch (SQLException e) {
             LoggerUtils.severe("Failed to create user. Error: " + e.getMessage());
-            return -1;
         }
     }
 
@@ -356,11 +344,14 @@ public class MySQLManager {
             ResultSet result = stmt.executeQuery();
             if (result.next()) {
                 return result.getInt("user_id");
+            } else {
+                LoggerUtils.severe("User not found: " + uuid);
+                return -1;
             }
         } catch (SQLException e) {
             LoggerUtils.severe("Failed to get user id. Error: " + e.getMessage());
+            return -1;
         }
-        return createUserId(uuid);
     }
 
     private void checkTables(){
