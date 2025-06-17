@@ -1,9 +1,11 @@
 package me.lehreeeee.HoloUtils.managers;
 
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.hooks.CMIHook;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
@@ -109,7 +111,11 @@ public class TitleDisplayManager {
             task.cancel();
         },1L,1L);
 
-        display.setVisibleByDefault(true);
+        // If not vanish or in spectator then set it visible
+        if((Bukkit.getPluginManager().getPlugin("CMI") == null || !CMIHook.isVanished(uuid))
+                && ((Player) targetEntity).getGameMode() != GameMode.SPECTATOR) {
+            display.setVisibleByDefault(true);
+        }
 
         // Tracks the loaded titles
         loadedPlayerTitles.put(uuid,display);

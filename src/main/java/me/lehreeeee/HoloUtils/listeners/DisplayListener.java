@@ -1,10 +1,12 @@
 package me.lehreeeee.HoloUtils.listeners;
 
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.hooks.CMIHook;
 import me.lehreeeee.HoloUtils.managers.DevChatManager;
 import me.lehreeeee.HoloUtils.managers.MySQLManager;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -44,7 +46,10 @@ public class DisplayListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event){
-        MySQLManager.getInstance().createUserId(event.getPlayer().getUniqueId());
+        UUID uuid = event.getPlayer().getUniqueId();
+
+        MySQLManager.getInstance().createUserId(uuid);
+
         titleDisplayManager.handlePlayerJoin(event.getPlayer());
     }
 
@@ -65,8 +70,11 @@ public class DisplayListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerChangeGameMode(PlayerGameModeChangeEvent event){
-        GameMode gameMode = event.getNewGameMode();
+        UUID uuid = event.getPlayer().getUniqueId();
 
-        titleDisplayManager.toggleTitle(event.getPlayer().getUniqueId(), gameMode != GameMode.SPECTATOR);
+        if(Bukkit.getPluginManager().getPlugin("CMI") != null && CMIHook.isVanished(uuid)) return;
+
+        titleDisplayManager.toggleTitle(uuid, event.getNewGameMode() != GameMode.SPECTATOR);
     }
+
 }
