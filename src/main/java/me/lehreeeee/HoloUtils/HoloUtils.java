@@ -4,6 +4,7 @@ import me.lehreeeee.HoloUtils.commands.*;
 import me.lehreeeee.HoloUtils.hooks.PlaceholderAPIHook;
 import me.lehreeeee.HoloUtils.listeners.*;
 import me.lehreeeee.HoloUtils.managers.*;
+import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -17,14 +18,12 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 public final class HoloUtils extends JavaPlugin {
     public static HoloUtils plugin;
+    public static boolean debug = false;
 
-    private final Logger logger = getLogger();
     private PlayerProjectileListener playerProjectileListener;
-    private boolean debug = false;
     private boolean fixImmortal = false;
     private boolean enableClaimaccessoriesCommand = false;
     private boolean MMOItemsAvailable = false;
@@ -42,11 +41,7 @@ public final class HoloUtils extends JavaPlugin {
         // Wake up the managers
         initializeManagers();
 
-        playerProjectileListener = new PlayerProjectileListener(this);
-        new PlayerChatListener(this);
-        new DisplayListener(this);
-        new InventoryListener(this);
-        new EntityDamageListener(this);
+        initializeListeners();
 
         loadCommands();
 
@@ -59,21 +54,21 @@ public final class HoloUtils extends JavaPlugin {
             new PlaceholderAPIHook().register();
         }
 
-        logger.info("Enabled HoloUtils...");
+        LoggerUtils.info("Enabled HoloUtils...");
     }
 
     @Override
     public void onDisable() {
         // Remove all loaded tags, just in case... idk if they really persist or not LOL
-        logger.info("Removing remaining player title display...");
+        LoggerUtils.info("Removing remaining player title display...");
         TitleDisplayManager.getInstance().removeAllTitles();
-        logger.info("Removing remaining status effect display...");
+        LoggerUtils.info("Removing remaining status effect display...");
         StatusDisplayManager.getInstance().removeAllStatusDisplay();
 
-        logger.info("Closing MySQL ConnectionPool...");
+        LoggerUtils.info("Closing MySQL ConnectionPool...");
         MySQLManager.getInstance().closeConnectionPool();
 
-        logger.info("Disabled HoloUtils...");
+        LoggerUtils.info("Disabled HoloUtils...");
     }
 
     public void reloadData(){
@@ -106,8 +101,8 @@ public final class HoloUtils extends JavaPlugin {
 
         playerProjectileListener.setDisabledWorlds(new HashSet<>(config.getStringList("arrow-shoots-thru-players-worlds")));
 
-        // Should print debug msg?
-        this.debug = config.getBoolean("debug",false);
+        // Should print debug log?
+        debug = config.getBoolean("debug",false);
 
         // Should plugin check for immortal mob and remove them?
         this.fixImmortal = config.getBoolean("fix-immortal-mob",false);
@@ -123,7 +118,7 @@ public final class HoloUtils extends JavaPlugin {
             @Override
             public void run() {
                 if (livingEntity.getHealth() > 0) {
-                    logger.info(MessageFormat.format("Entity {0} or {1} is still alive after death event, force removing.",
+                    LoggerUtils.info(MessageFormat.format("Entity {0} or {1} is still alive after death event, force removing.",
                             entity.getUniqueId(),entity.getName()));
                     entity.remove();
                 }
@@ -143,61 +138,69 @@ public final class HoloUtils extends JavaPlugin {
 
         for(String path : customConfigs){
             if(!(new File(dataFolder, path).exists())){
-                logger.info("Unable to locate " + path + ", creating new one.");
+                LoggerUtils.info("Unable to locate " + path + ", creating new one.");
                 saveResource(path,false);
             }
         }
     }
 
     private void initializeManagers(){
-        logger.info("Initializing TitleDisplayManager...");
+        LoggerUtils.info("Initializing TitleDisplayManager...");
         TitleDisplayManager.initialize(this);
-        logger.info("Initializing StatusDisplayManager...");
+        LoggerUtils.info("Initializing StatusDisplayManager...");
         StatusDisplayManager.initialize(this);
-        logger.info("Initializing RedisManager...");
+        LoggerUtils.info("Initializing RedisManager...");
         RedisManager.initialize();
-        logger.info("Initializing DevChatManager...");
+        LoggerUtils.info("Initializing DevChatManager...");
         DevChatManager.initialize();
-        logger.info("Initializing MySQLManager...");
+        LoggerUtils.info("Initializing MySQLManager...");
         MySQLManager.initialize(this);
-        logger.info("Initializing EventRewardsManager...");
+        LoggerUtils.info("Initializing EventRewardsManager...");
         EventRewardsManager.initialize();
 
         if(MMOItemsAvailable){
-            logger.info("Found MMOItems, initializing RerollManager");
+            LoggerUtils.info("Found MMOItems, initializing RerollManager");
             RerollManager.initialize();
         }
-
-
     }
 
+    private void initializeListeners(){
+        playerProjectileListener = new PlayerProjectileListener(this);
+        Bukkit.getPluginManager().registerEvents(playerProjectileListener,this);
+        Bukkit.getPluginManager().registerEvents(new PlayerChatListener(),this);
+        Bukkit.getPluginManager().registerEvents(new DisplayListener(),this);
+        Bukkit.getPluginManager().registerEvents(new InventoryListener(),this);
+        Bukkit.getPluginManager().registerEvents(new EntityDamageListener(),this);
+        if(Bukkit.getPluginManager().getPlugin("CMI") != null){
+            LoggerUtils.info("Found CMI, initializing CMIListener");
+            Bukkit.getPluginManager().registerEvents(new CMIListener(),this);
+        }
+    }
+
+
     private void loadCommands(){
-        logger.info("Loading holoutils commands...");
+        LoggerUtils.info("Loading holoutils commands...");
         getCommand("holoutils").setExecutor(new HoloUtilsCommand());
         getCommand("holoutils").setTabCompleter(new HoloUtilsCommandTabCompleter());
-        logger.info("Loading adminchat commands...");
+        LoggerUtils.info("Loading adminchat commands...");
         getCommand("devchat").setExecutor(new DevChatCommand());
         getCommand("devchat").setTabCompleter(new DevChatCommandTabCompleter());
-        logger.info("Loading eventrewards command...");
+        LoggerUtils.info("Loading eventrewards command...");
         getCommand("eventrewards").setExecutor(new EventRewardsCommand());
         getCommand("eventrewards").setTabCompleter(new EventRewardsCommandTabCompleter());
-        logger.info("Loading playertitle command...");
+        LoggerUtils.info("Loading playertitle command...");
         getCommand("playertitle").setExecutor(new PlayerTitleCommand());
 
         if(MMOItemsAvailable){
-            logger.info("Found MMOItems, loading reroll commands...");
+            LoggerUtils.info("Found MMOItems, loading reroll commands...");
             getCommand("reroll").setExecutor(new RerollCommand());
         }
 
         // TODO: To be removed after 3 months
         if(enableClaimaccessoriesCommand){
-            logger.info("Loading claimaccessories commands...");
+            LoggerUtils.info("Loading claimaccessories commands...");
             getCommand("claimaccessories").setExecutor(new ClaimAccessoriesCommand());
         }
-    }
-
-    public boolean shouldPrintDebug(){
-        return this.debug;
     }
 }
 

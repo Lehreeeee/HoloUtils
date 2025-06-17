@@ -1,9 +1,7 @@
 package me.lehreeeee.HoloUtils.listeners;
 
 
-import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.DamageLeaderboardManager;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -16,9 +14,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import java.util.UUID;
 
 public class EntityDamageListener implements Listener {
-    public EntityDamageListener(HoloUtils plugin) {
-        Bukkit.getPluginManager().registerEvents(this,plugin);
-    }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {

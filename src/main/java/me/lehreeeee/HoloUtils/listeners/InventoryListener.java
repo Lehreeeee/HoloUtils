@@ -5,7 +5,6 @@ import io.papermc.paper.event.player.PlayerTradeEvent;
 import me.lehreeeee.HoloUtils.GUI.EventRewardsGUI;
 import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUIHolder;
 import me.lehreeeee.HoloUtils.GUI.RerollGUI;
-import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
@@ -15,7 +14,6 @@ import me.lehreeeee.HoloUtils.utils.SoundUtils;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.crafting.ConfigMMOItem;
 import net.Indyuce.mmoitems.api.item.template.MMOItemTemplate;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -40,10 +38,6 @@ public class InventoryListener implements Listener {
     private final NamespacedKey rewardIdNSK = new NamespacedKey("holoutils","reward_id");
     private final NamespacedKey rowIdNSK = new NamespacedKey("holoutils","row_id");
     private final NamespacedKey pageNSK = new NamespacedKey("holoutils","page");
-
-    public InventoryListener(HoloUtils plugin){
-        Bukkit.getPluginManager().registerEvents(this,plugin);
-    }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerTrade(PlayerTradeEvent event){

@@ -5,7 +5,6 @@ import me.lehreeeee.HoloUtils.managers.DevChatManager;
 import me.lehreeeee.HoloUtils.managers.MySQLManager;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -21,14 +20,8 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import java.util.UUID;
 
 public class DisplayListener implements Listener {
-    private final HoloUtils plugin;
     private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
     private final StatusDisplayManager statusDisplayManager = StatusDisplayManager.getInstance();
-
-    public DisplayListener(HoloUtils plugin){
-        this.plugin = plugin;
-        Bukkit.getPluginManager().registerEvents(this,plugin);
-    }
 
     // For non-player only
     @EventHandler(ignoreCancelled = true)
@@ -45,7 +38,7 @@ public class DisplayListener implements Listener {
         }
         else{
             statusDisplayManager.removeStatusDisplay(entity.getUniqueId());
-            plugin.checkImmortal(entity);
+            HoloUtils.plugin.checkImmortal(entity);
         }
     }
 
@@ -76,5 +69,4 @@ public class DisplayListener implements Listener {
 
         titleDisplayManager.toggleTitle(event.getPlayer().getUniqueId(), gameMode != GameMode.SPECTATOR);
     }
-
 }

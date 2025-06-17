@@ -26,7 +26,7 @@ public class LoggerUtils {
     }
 
     public static void debug(String message) {
-        if (HoloUtils.plugin.shouldPrintDebug()) {
+        if (HoloUtils.debug) {
             logger.info("[DEBUG] " + message);
         }
     }

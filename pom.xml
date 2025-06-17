@@ -6,7 +6,7 @@
 
     <groupId>me.lehreeeee</groupId>
     <artifactId>HoloUtils</artifactId>
-    <version>1.11.5</version>
+    <version>1.11.6</version>
     <packaging>jar</packaging>
 
     <name>HoloUtils</name>
@@ -177,6 +177,18 @@
             <groupId>io.lumine</groupId>
             <artifactId>Mythic-Dist</artifactId>
             <version>5.8.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--
+        Plugin: CMI
+        Usage: Handle title for player vanished by CMI
+        Download: https://github.com/Zrips/CMI-API
+        -->
+        <dependency>
+            <groupId>com.zrips</groupId>
+            <artifactId>CMIAPI</artifactId>
+            <version>9.7.4.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
