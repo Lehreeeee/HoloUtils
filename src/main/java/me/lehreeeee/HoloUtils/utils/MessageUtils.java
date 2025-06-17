@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 public class MessageUtils {
 
-    private static final String prefix = "<aqua>[<#FFA500>HoloUtils<aqua>] <#FFA500>";
+    private static final String prefix = "<aqua>[<gold>HoloUtils<aqua>] <gold>";
 
     public static void sendFeedbackMessage(CommandSender sender, String msg){
         LoggerUtils.info(getPlainText(msg));

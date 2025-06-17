@@ -2,10 +2,7 @@ package me.lehreeeee.HoloUtils.listeners;
 
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.hooks.CMIHook;
-import me.lehreeeee.HoloUtils.managers.DevChatManager;
-import me.lehreeeee.HoloUtils.managers.MySQLManager;
-import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
-import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
+import me.lehreeeee.HoloUtils.managers.*;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
@@ -51,6 +48,7 @@ public class DisplayListener implements Listener {
         MySQLManager.getInstance().createUserId(uuid);
 
         titleDisplayManager.handlePlayerJoin(event.getPlayer());
+        EventRewardsManager.getInstance().checkUnclaimedReward(event.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = true)

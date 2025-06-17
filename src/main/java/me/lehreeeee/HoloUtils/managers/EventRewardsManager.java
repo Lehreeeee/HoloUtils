@@ -208,6 +208,19 @@ public class EventRewardsManager {
         }
     }
 
+    public void checkUnclaimedReward(Player player){
+        MySQLManager.getInstance().getAllEventRewards(String.valueOf(player.getUniqueId()), serverName, rewards -> {
+            if(!rewards.isEmpty()){
+                SoundUtils.playSound(player,"block.amethyst_block.resonate");
+                player.sendMessage(MessageUtils.process(
+                        "<aqua>[<gold>Event Rewards<aqua>] <gold>You have <red>"
+                                + rewards.size()
+                                + " <gold>unclaimed reward(s). Claim them with <red>/eventrewards claim<gold>!"
+                ));
+            }
+        });
+    }
+
     public boolean isRewardIdValid(String rewardId){
         return eventRewards.containsKey(rewardId);
     }
