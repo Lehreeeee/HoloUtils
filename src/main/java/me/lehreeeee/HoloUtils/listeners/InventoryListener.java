@@ -3,7 +3,7 @@ package me.lehreeeee.HoloUtils.listeners;
 import io.lumine.mythic.lib.api.item.NBTItem;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import me.lehreeeee.HoloUtils.GUI.EventRewardsGUI;
-import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUIHolder;
+import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUI;
 import me.lehreeeee.HoloUtils.GUI.RerollGUI;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
@@ -73,7 +73,7 @@ public class InventoryListener implements Listener {
 
         InventoryHolder invHolder = clickedInv.getHolder(false);
 
-        if (invHolder instanceof PlayerTitleGUIHolder) {
+        if (invHolder instanceof PlayerTitleGUI) {
             handlePlayerTitleGUI(event, clickedInv);
             return;
         }
@@ -185,7 +185,8 @@ public class InventoryListener implements Listener {
         event.setCancelled(true);
 
         int clickedSlot = event.getRawSlot();
-        UUID uuid = event.getWhoClicked().getUniqueId();
+        Player player = (Player) event.getWhoClicked();
+        UUID uuid = player.getUniqueId();
 
         // Remove all player tag
         if(clickedSlot == 49){
@@ -206,6 +207,33 @@ public class InventoryListener implements Listener {
                 titleDisplayManager.setTitleDisplay(uuid,titleName);
             }
             clickedInv.close();
+        }
+        // Previous Page
+        else if (clickedSlot == 48){
+            PersistentDataContainer removeTitleButtonPDC = clickedInv.getItem(49).getItemMeta().getPersistentDataContainer();
+
+            if(removeTitleButtonPDC.has(pageNSK)){
+                int newPage = removeTitleButtonPDC.get(pageNSK, PersistentDataType.INTEGER) - 1;
+                if(newPage < 1) return;
+
+                if (clickedInv.getHolder() instanceof PlayerTitleGUI gui) {
+                    gui.populateInventory(player, newPage);
+                }
+                SoundUtils.playSound(player,"item.book.page_turn");
+            }
+        }
+        // Next Page
+        else if (clickedSlot == 50){
+            PersistentDataContainer claimAllButtonPDC = clickedInv.getItem(49).getItemMeta().getPersistentDataContainer();
+
+            if(claimAllButtonPDC.has(pageNSK)){
+                int newPage = claimAllButtonPDC.get(pageNSK, PersistentDataType.INTEGER) + 1;
+
+                if (clickedInv.getHolder() instanceof PlayerTitleGUI gui) {
+                    gui.populateInventory(player, newPage);
+                }
+                SoundUtils.playSound(player,"item.book.page_turn");
+            }
         }
     }
 

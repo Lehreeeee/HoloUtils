@@ -20,7 +20,7 @@ public class PlayerTitleCommand implements CommandExecutor {
                 return true;
             }
 
-            player.openInventory(new PlayerTitleGUI().createPlayerTitleGUI(player));
+            player.openInventory(new PlayerTitleGUI(player).getPlayerTitleGUI());
             return true;
         }
 

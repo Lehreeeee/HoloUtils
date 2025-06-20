@@ -1,9 +1,8 @@
 package me.lehreeeee.HoloUtils.GUI;
 
-import com.destroystokyo.paper.profile.PlayerProfile;
-import com.destroystokyo.paper.profile.ProfileProperty;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.utils.InventoryUtils;
+import me.lehreeeee.HoloUtils.utils.ItemUtils;
 import me.lehreeeee.HoloUtils.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -12,12 +11,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 public class EventRewardsGUI implements InventoryHolder {
     private final Inventory inventory;
@@ -61,34 +57,12 @@ public class EventRewardsGUI implements InventoryHolder {
 
         // Set claim all button and arrows
         inventory.setItem(49, claimAllButton);
-        inventory.setItem(48, createArrowButton(true));
-        inventory.setItem(50, createArrowButton(false));
+        inventory.setItem(48, ItemUtils.getGUIArrowButton(true));
+        inventory.setItem(50, ItemUtils.getGUIArrowButton(false));
 
         // Insert rewards after data returned via callback
         EventRewardsManager.getInstance().getAllRewards(uuid, inventory);
 
         return inventory;
-    }
-
-    private ItemStack createArrowButton(boolean isLeft){
-        ItemStack arrowButton = new ItemStack(Material.PLAYER_HEAD);
-        SkullMeta skullMeta = (SkullMeta) arrowButton.getItemMeta();
-
-        String displayName = isLeft ? "<red>Previous Page" : "<red>Next Page";
-        String skullTexture = isLeft
-                ? "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzJmZjhhYWE0YjJlYzMwYmM1NTQxZDQxYzg3ODIxOTliYWEyNWFlNmQ4NTRjZGE2NTFmMTU5OWU2NTRjZmM3OSJ9fX0="
-                : "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWFiOTVhODc1MWFlYWEzYzY3MWE4ZTkwYjgzZGU3NmEwMjA0ZjFiZTY1NzUyYWMzMWJlMmY5OGZlYjY0YmY3ZiJ9fX0=";
-
-        if(skullMeta != null){
-            skullMeta.displayName(MessageUtils.process(displayName));
-
-            PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
-            profile.getProperties().add((new ProfileProperty("textures", skullTexture)));
-            skullMeta.setPlayerProfile(profile);
-
-            arrowButton.setItemMeta(skullMeta);
-        }
-
-        return arrowButton;
     }
 }

@@ -16,6 +16,7 @@ import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -62,15 +63,17 @@ public class TitleDisplayManager {
         if(playerTitleConfig.contains("title-height")) this.titleHeight = (float) playerTitleConfig.getDouble("title-height",0.6);
     }
 
-    public Map<String,String> getAvailableTitles(Player player){
-        Map<String,String> availableTitles = new HashMap<>();
-        for(String tagName : playerTitles.keySet()){
-            if(player.hasPermission("holoutils.playertitle." + tagName)){
-                availableTitles.put(tagName, playerTitles.get(tagName));
-            }
-        }
+    public Map<String, String> getAvailableTitles(Player player) {
+        Map<String, String> availableTitles = new LinkedHashMap<>();
+
+        playerTitles.keySet().stream()
+                .filter(tagName -> player.hasPermission("holoutils.playertitle." + tagName))
+                .sorted()
+                .forEach(tagName -> availableTitles.put(tagName, playerTitles.get(tagName)));
+
         return availableTitles;
     }
+
 
     public String getGUIName(){
         return this.GUIName;
