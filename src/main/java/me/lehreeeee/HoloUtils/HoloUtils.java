@@ -27,6 +27,7 @@ public final class HoloUtils extends JavaPlugin {
     private boolean fixImmortal = false;
     private boolean enableClaimaccessoriesCommand = false;
     private boolean MMOItemsAvailable = false;
+    private String serverName;
 
     @Override
     public void onEnable() {
@@ -105,9 +106,13 @@ public final class HoloUtils extends JavaPlugin {
         debug = config.getBoolean("debug",false);
 
         // Should plugin check for immortal mob and remove them?
-        this.fixImmortal = config.getBoolean("fix-immortal-mob",false);
+        fixImmortal = config.getBoolean("fix-immortal-mob",false);
 
-
+        // Set the server the plugin is at
+        serverName = config.getString("server_name",null);
+        if(serverName == null || serverName.isBlank()) {
+            LoggerUtils.severe("Server name not found, some features may not work properly.");
+        }
     }
 
     public void checkImmortal(Entity entity){
@@ -124,6 +129,14 @@ public final class HoloUtils extends JavaPlugin {
                 }
             }
         }.runTaskLater(this, 1L);
+    }
+
+    public String getServerName(){
+        if(serverName == null || serverName.isBlank()) {
+            LoggerUtils.severe("Server name not found, some features may not work properly.");
+            return "";
+        }
+        return serverName;
     }
 
     private void saveCustomConfig(){

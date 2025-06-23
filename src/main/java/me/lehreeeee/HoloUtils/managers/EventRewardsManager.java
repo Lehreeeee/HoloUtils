@@ -2,6 +2,7 @@ package me.lehreeeee.HoloUtils.managers;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
+import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.eventrewards.EventReward;
 import me.lehreeeee.HoloUtils.utils.InventoryUtils;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
@@ -26,7 +27,6 @@ public class EventRewardsManager {
     private static EventRewardsManager instance;
     private final Map<String,EventReward> eventRewards = new HashMap<>();
     private final Map<String,List<String>> cachedPlayerRewards = new HashMap<>();
-    private String serverName;
     private final NamespacedKey pageNSK = new NamespacedKey("holoutils","page");
 
     public static EventRewardsManager getInstance(){
@@ -44,9 +44,6 @@ public class EventRewardsManager {
 
     public void loadEventRewardsConfig(ConfigurationSection EventRewardsConfig){
         eventRewards.clear();
-
-        serverName = EventRewardsConfig.getString("server_name",null);
-        if(serverName == null) LoggerUtils.warning("Server name not found, player will not be able to see any rewards.");
 
         ConfigurationSection rewards = EventRewardsConfig.getConfigurationSection("rewards");
 
@@ -71,7 +68,7 @@ public class EventRewardsManager {
 
     // Query all rewards and populate the inventory when first open /eventrewards claim
     public void getAllRewards(String uuid, Inventory inv){
-        MySQLManager.getInstance().getAllEventRewards(uuid, serverName, rewards -> {
+        MySQLManager.getInstance().getAllEventRewards(uuid, HoloUtils.plugin.getServerName() , rewards -> {
             if(!rewards.isEmpty()){
                 LoggerUtils.file("EventRewards","Player " + Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName()
                         + " opened claim GUI with " + rewards.size() + " rewards." );
@@ -120,7 +117,7 @@ public class EventRewardsManager {
 
     public void claimAllRewards(Player player){
         String uuid = player.getUniqueId().toString();
-        MySQLManager.getInstance().getAllEventRewards(uuid, serverName, rewards -> {
+        MySQLManager.getInstance().getAllEventRewards(uuid, HoloUtils.plugin.getServerName(), rewards -> {
             if(rewards.isEmpty()) return;
 
             boolean hasUnclaimable = false;
@@ -209,7 +206,7 @@ public class EventRewardsManager {
     }
 
     public void checkUnclaimedReward(Player player){
-        MySQLManager.getInstance().getAllEventRewards(String.valueOf(player.getUniqueId()), serverName, rewards -> {
+        MySQLManager.getInstance().getAllEventRewards(String.valueOf(player.getUniqueId()), HoloUtils.plugin.getServerName(), rewards -> {
             if(!rewards.isEmpty()){
                 SoundUtils.playSound(player,"block.amethyst_block.resonate");
                 player.sendMessage(MessageUtils.process(

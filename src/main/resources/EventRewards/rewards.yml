@@ -1,6 +1,3 @@
-# Put the same name you put in /eventrewards give
-server_name: ""
-
 rewards:
 #  example:
 #    # Optional, defaults to reward id (In this case, "example")

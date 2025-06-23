@@ -1,5 +1,9 @@
 debug: false
 
+# For plugins to identify which server it is in.
+# Also used for various communications between servers in the network
+server_name: ""
+
 # PvE world already let arrow go thru, it's useless now :clown:
 arrow-shoots-thru-players-worlds:
   - example
