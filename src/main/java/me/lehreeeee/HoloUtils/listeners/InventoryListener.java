@@ -85,6 +85,12 @@ public class InventoryListener implements Listener {
 
         if (invHolder instanceof EventRewardsGUI) {
             handleEventRewardsGUI(event, clickedInv);
+            return;
+        }
+
+        InventoryHolder topInvHolder = event.getView().getTopInventory().getHolder(false);
+        if(topInvHolder instanceof EventRewardsGUI || topInvHolder instanceof PlayerTitleGUI){
+            event.setCancelled(true);
         }
     }
 
