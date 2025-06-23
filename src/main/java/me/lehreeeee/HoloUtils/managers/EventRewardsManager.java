@@ -12,6 +12,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -62,8 +63,14 @@ public class EventRewardsManager {
             MySQLManager.getInstance().giveEventReward(uuid,rewardId,server);
         });
 
+        OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(uuid));
+        Player onlinePlayer = player.getPlayer();
+        if(onlinePlayer != null){
+            onlinePlayer.sendMessage(MessageUtils.process("<aqua>[<#FFA500>Event Rewards<aqua>] <gold>You have received an event reward!"));
+        }
+
         LoggerUtils.file("EventRewards", "Gave reward " + rewardId + " to "
-                + Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName() + " for server(s) " + servers + ".");
+                + player.getName() + " for server(s) " + servers + ".");
     }
 
     // Query all rewards and populate the inventory when first open /eventrewards claim
@@ -107,7 +114,7 @@ public class EventRewardsManager {
                     inv.getItem(49).getItemMeta().getPersistentDataContainer().get(pageNSK, PersistentDataType.INTEGER),
                     inv);
 
-            player.sendMessage(MessageUtils.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed the reward: "
+            player.sendMessage(MessageUtils.process("<aqua>[<gold>Event Rewards<aqua>] <gold>You have claimed the reward: "
                     + reward.displayName()
                     + ".",false));
 
@@ -145,10 +152,10 @@ public class EventRewardsManager {
 
             if(hasUnclaimable){
                 SoundUtils.playSound(player,"block.chest.locked");
-                player.sendMessage(MessageUtils.process("<aqua>[<#FFA500>Event Rewards<aqua>] 1 or more rewards are not set up correctly, please report to a developer.",false));
+                player.sendMessage(MessageUtils.process("<aqua>[<gold>Event Rewards<aqua>] <gold>1 or more rewards are not set up correctly, please report to a developer.",false));
             } else {
                 SoundUtils.playSound(player,"block.chest.open");
-                player.sendMessage(MessageUtils.process("<aqua>[<#FFA500>Event Rewards<aqua>] You have claimed all the rewards.",false));
+                player.sendMessage(MessageUtils.process("<aqua>[<gold>Event Rewards<aqua>] <gold>You have claimed all the rewards.",false));
             }
 
             if(!claimedRowId.isEmpty())
