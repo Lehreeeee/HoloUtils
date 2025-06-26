@@ -45,7 +45,7 @@ public class DisplayListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event){
         UUID uuid = event.getPlayer().getUniqueId();
 
-        MySQLManager.getInstance().createUserId(uuid);
+        MySQLManager.getInstance().createUserId(uuid,event.getPlayer().getName());
 
         titleDisplayManager.handlePlayerJoin(event.getPlayer());
         EventRewardsManager.getInstance().checkUnclaimedReward(event.getPlayer());

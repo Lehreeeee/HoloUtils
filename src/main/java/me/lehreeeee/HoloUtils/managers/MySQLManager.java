@@ -322,10 +322,11 @@ public class MySQLManager {
         });
     }
 
-    public void createUserId(UUID uuid) {
-        String uuidString = String.valueOf(uuid);
-        String selectSql = "SELECT id FROM holoutils_users WHERE uuid = ?";
-        String insertSql = "INSERT INTO holoutils_users (uuid, data) VALUES (?, ?)";
+    public void createUserId(UUID uuid, String username) {
+        String uuidString = uuid.toString();
+        String selectSql = "SELECT user_id FROM holoutils_users WHERE uuid = ?";
+        String insertSql = "INSERT INTO holoutils_users (uuid, data, username) VALUES (?, ?, ?)";
+        String updateSql = "UPDATE holoutils_users SET username = ? WHERE uuid = ?";
 
         try (Connection con = dataSource.getConnection()){
             try (PreparedStatement selectStmt = con.prepareStatement(selectSql)) {
@@ -335,7 +336,14 @@ public class MySQLManager {
                         try (PreparedStatement insertStmt = con.prepareStatement(insertSql)) {
                             insertStmt.setString(1, uuidString);
                             insertStmt.setString(2, "{}");
+                            insertStmt.setString(3, username);
                             insertStmt.executeUpdate();
+                        }
+                    } else {
+                        try (PreparedStatement updateStmt = con.prepareStatement(updateSql)) {
+                            updateStmt.setString(1, username);
+                            updateStmt.setString(2, uuidString);
+                            updateStmt.executeUpdate();
                         }
                     }
                 }
@@ -366,11 +374,12 @@ public class MySQLManager {
         try(Connection con = dataSource.getConnection()){
             try(Statement stmt = con.createStatement()){
                 // Create user table
-                String usersTable = "holoutils_players";
+                String usersTable = "holoutils_users";
                 String createUsersTableQuery = "CREATE TABLE IF NOT EXISTS holoutils_users ("
                         + "user_id INT AUTO_INCREMENT PRIMARY KEY, "
                         + "uuid CHAR(36) NOT NULL UNIQUE, "
-                        + "data JSON"
+                        + "data JSON,"
+                        + "username VARCHAR(32) DEFAULT NULL"
                         + ")";
 
                 // Create event table
