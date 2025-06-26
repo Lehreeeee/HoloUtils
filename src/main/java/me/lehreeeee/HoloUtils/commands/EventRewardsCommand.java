@@ -17,7 +17,7 @@ public class EventRewardsCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String [] args){
 
         if(args.length == 1 && args[0].equalsIgnoreCase("claim") && sender instanceof Player player){
-            if (!player.hasPermission("holoutils.eventrewards.claim")) {
+            if (!player.hasPermission("holoutils.eventrewards.claim") && !sender.hasPermission("holoutils.eventrewards.admin")) {
                 MessageUtils.sendFeedbackMessage(sender,"You don't have permission to use this command.");
                 return true;
             }

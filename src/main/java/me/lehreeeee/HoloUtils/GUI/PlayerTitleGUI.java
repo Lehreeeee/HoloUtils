@@ -106,8 +106,6 @@ public class PlayerTitleGUI implements InventoryHolder {
             while(titleSlot < 44 && InventoryUtils.isBorderSlot(titleSlot)){
                 titleSlot++;
             }
-
-            // TODO: Add more pages for more than 28 Tags
             // Make sure its within the inventory, 43 is the last available slot
             if(titleSlot < 44){
                 // Populate the inventory with available titles, how the titles look will be shown as the item name.

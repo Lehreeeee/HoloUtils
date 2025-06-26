@@ -24,9 +24,10 @@ public class EventRewardsCommandTabCompleter implements TabCompleter {
             return switch(args.length){
                 case 3 -> List.of("[reward]");
                 case 4 -> List.of("[server1,server2]");
-                default -> List.of();
+                default -> null;
             };
         }
+
         return List.of();
     }
 }
