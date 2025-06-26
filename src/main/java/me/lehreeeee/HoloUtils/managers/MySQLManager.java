@@ -324,13 +324,21 @@ public class MySQLManager {
 
     public void createUserId(UUID uuid) {
         String uuidString = String.valueOf(uuid);
-        String sql = "INSERT IGNORE INTO holoutils_users (uuid,data) VALUES (?,?)";
-        try (Connection con = dataSource.getConnection()){
-            try(PreparedStatement stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
-                stmt.setString(1, uuidString);
-                stmt.setString(2, "{}");
+        String selectSql = "SELECT id FROM holoutils_users WHERE uuid = ?";
+        String insertSql = "INSERT INTO holoutils_users (uuid, data) VALUES (?, ?)";
 
-                stmt.executeUpdate();
+        try (Connection con = dataSource.getConnection()){
+            try (PreparedStatement selectStmt = con.prepareStatement(selectSql)) {
+                selectStmt.setString(1, uuidString);
+                try (ResultSet rs = selectStmt.executeQuery()) {
+                    if (!rs.next()) {
+                        try (PreparedStatement insertStmt = con.prepareStatement(insertSql)) {
+                            insertStmt.setString(1, uuidString);
+                            insertStmt.setString(2, "{}");
+                            insertStmt.executeUpdate();
+                        }
+                    }
+                }
             }
         } catch (SQLException e) {
             LoggerUtils.severe("Failed to create user. Error: " + e.getMessage());
