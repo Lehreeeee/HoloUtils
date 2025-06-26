@@ -184,6 +184,7 @@ public final class HoloUtils extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new DisplayListener(),this);
         Bukkit.getPluginManager().registerEvents(new InventoryListener(),this);
         Bukkit.getPluginManager().registerEvents(new EntityDamageListener(),this);
+
         if(Bukkit.getPluginManager().getPlugin("CMI") != null){
             LoggerUtils.info("Found CMI, initializing CMIListener");
             Bukkit.getPluginManager().registerEvents(new CMIListener(),this);
