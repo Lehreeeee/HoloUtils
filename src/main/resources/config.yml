@@ -42,3 +42,7 @@ fix-immortal-mob: false
 # DO NOT TOUCH BEFORE ACCESSORY REWORK UPDATE
 # Requires a server restart
 enable-claimaccessories-command: false
+
+# The FileRotater automatically changes files
+# What else is there to say
+auto-rotate-files: false

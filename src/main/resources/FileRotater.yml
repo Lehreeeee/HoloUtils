@@ -1,0 +1,21 @@
+IntervalCheck: 300 #In seconds. Check if time has lapsed for a rotation.
+CommandsExecutedOnRotate:
+  - "ac reload"
+
+Targets:
+  HoloCrates: #This subdirectory must exist
+    ## Automatically updated. Do not edit unless you are intending to override.
+    NextRotationTime: 1 #The next time it will cycle.
+    CurrRotationFile: "JPGen1.yml" #The targetted file should be the same as the one here.
+    #For you to configure.
+    Interval: 43200 #In number of seconds. 1 day is 86400. 1 week is 604800.
+    TargetFilePath: "../AdvancedCrates/Crates/holocrate.yml" #The target file to be replaced
+    Files: # The list of files to be cycled through. Must be found in the subdirectory.
+      - JPGen0.yml
+      - JPGen1.yml
+      - JPGen2.yml
+      - JPGen3.yml
+      - JPGen4.yml
+      - JPGen5.yml
+      - JPGen6.yml
+      - HoloCouncil.yml

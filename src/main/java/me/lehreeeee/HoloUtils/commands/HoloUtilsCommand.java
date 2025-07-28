@@ -2,6 +2,7 @@
 package me.lehreeeee.HoloUtils.commands;
 
 import me.lehreeeee.HoloUtils.HoloUtils;
+import me.lehreeeee.HoloUtils.managers.FileRotaterManager;
 import me.lehreeeee.HoloUtils.managers.DamageLeaderboardManager;
 import me.lehreeeee.HoloUtils.managers.RedisManager;
 import me.lehreeeee.HoloUtils.managers.StatusDisplayManager;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -184,6 +186,32 @@ public class HoloUtilsCommand implements CommandExecutor {
         if(args[0].equalsIgnoreCase("testredis") && args.length == 3){
             RedisManager.getInstance().publish(args[1],args[2]);
             return true;
+        }
+
+        if(args[0].equalsIgnoreCase("fileRotater") && args.length > 1) {
+            if(args[1].equalsIgnoreCase("start")){
+                FileRotaterManager.getInstance().start();
+                MessageUtils.sendFeedbackMessage(sender, "&aFileRotater has started!");
+                return true;
+            }
+            if(args[1].equalsIgnoreCase("stop")){
+                FileRotaterManager.getInstance().stop();
+                MessageUtils.sendFeedbackMessage(sender, "&cFileRotater has stopped!");
+                return true;
+            }
+            if(args[1].equalsIgnoreCase("reload")){
+                FileRotaterManager.getInstance().reload();
+                MessageUtils.sendFeedbackMessage(sender, "&aFileRotater has restarted!");
+                return true;
+            }
+            if(args[1].equalsIgnoreCase("info")){
+                ArrayList<String> stringList = FileRotaterManager.getInstance().getInfo();
+                for(String string: stringList) {
+                    MessageUtils.sendFeedbackMessage(sender, string);
+                }
+                return true;
+            }
+            return false;
         }
 
         MessageUtils.sendFeedbackMessage(sender,"<#FFA500>Unknown command. Check /HoloUtils help.");

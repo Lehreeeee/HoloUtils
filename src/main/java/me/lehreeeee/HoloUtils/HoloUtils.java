@@ -1,6 +1,7 @@
 package me.lehreeeee.HoloUtils;
 
 import me.lehreeeee.HoloUtils.commands.*;
+import me.lehreeeee.HoloUtils.managers.FileRotaterManager;
 import me.lehreeeee.HoloUtils.hooks.PlaceholderAPIHook;
 import me.lehreeeee.HoloUtils.listeners.*;
 import me.lehreeeee.HoloUtils.managers.*;
@@ -27,6 +28,7 @@ public final class HoloUtils extends JavaPlugin {
     private boolean fixImmortal = false;
     private boolean enableClaimaccessoriesCommand = false;
     private boolean MMOItemsAvailable = false;
+    private boolean fileRotaterOn; //???
     private String serverName;
 
     @Override
@@ -98,6 +100,7 @@ public final class HoloUtils extends JavaPlugin {
         MySQLManager.getInstance().loadMySQLConfig(config.getConfigurationSection("mysql"));
 
         // TODO: To be removed after 3 months
+        // -git blame @Lehreeeee the server is on fire!!!
         this.enableClaimaccessoriesCommand = config.getBoolean("enable-claimaccessories-command",false);
 
         playerProjectileListener.setDisabledWorlds(new HashSet<>(config.getStringList("arrow-shoots-thru-players-worlds")));
@@ -107,6 +110,12 @@ public final class HoloUtils extends JavaPlugin {
 
         // Should plugin check for immortal mob and remove them?
         fixImmortal = config.getBoolean("fix-immortal-mob",false);
+
+        // FileRotater on?
+        this.fileRotaterOn = config.getBoolean("auto-rotate-files",false);
+        if(this.fileRotaterOn) {
+            FileRotaterManager.getInstance().start();
+        }
 
         // Set the server the plugin is at
         serverName = config.getString("server_name",null);
@@ -170,6 +179,9 @@ public final class HoloUtils extends JavaPlugin {
         MySQLManager.initialize(this);
         LoggerUtils.info("Initializing EventRewardsManager...");
         EventRewardsManager.initialize();
+        LoggerUtils.info("Initializing FileRotater...");
+        FileRotaterManager.initialize(this);
+
 
         if(MMOItemsAvailable){
             LoggerUtils.info("Found MMOItems, initializing RerollManager");
