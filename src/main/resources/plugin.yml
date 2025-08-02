@@ -1,7 +1,7 @@
 name: HoloUtils
 version: ${project.version}
 main: me.lehreeeee.HoloUtils.HoloUtils
-author: Lehreeeee
+authors: [Lehreeeee, Benloti]
 api-version: '1.21'
 
 # To steal their /a command :)
