@@ -94,9 +94,16 @@ public class FileRotaterManager {
         String nextFileName = cycledFile.getCycledFileNames().get(nextIndex);
 
         cycledFile.updateCycle(nextTime, nextFileName);
-        plugin.getConfig().set(timeKey, nextTime);
-        plugin.getConfig().set(fileKey, nextFileName);
-        plugin.saveConfig();
+
+        File configFile = new File(plugin.getDataFolder(), CONFIG_FILE_NAME);
+        FileConfiguration dataConfig = YamlConfiguration.loadConfiguration(configFile);
+        dataConfig.set(timeKey, nextTime);
+        dataConfig.set(fileKey, nextFileName);
+        try {
+            dataConfig.save(configFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public List<String> getCommandsToExecute() {

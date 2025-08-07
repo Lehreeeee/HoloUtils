@@ -27,7 +27,7 @@ public class CycledFileStruct {
 
     public String fetchInfo(long currTime) {
         long time = nextRotationTime - currTime;
-        String timeLeft = String.format(I_LOVE_HOSHIMACHI_SUISEI, time/86400,time/3600,time/60,time%60);
+        String timeLeft = String.format(I_LOVE_HOSHIMACHI_SUISEI, time/86400,(time%86400)/3600,(time%3600)/60,time%60);
         return String.format(I_LOVE_INUI_TOKO, targetPath, currRotationFileName, timeLeft);
     }
 
