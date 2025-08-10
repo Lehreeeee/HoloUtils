@@ -64,10 +64,21 @@ public class FileRotaterManager {
     }
 
     public void update(CycledFileStruct cycledFile, int cycles) {
+        //Calculate next file and next Rotation Time
+        String timeKey = String.format("Targets.%s.NextRotationTime", cycledFile.getCycledFolderName());
+        long nextTime = cycledFile.getNextRotationTime() + (long) cycledFile.getInterval() * cycles;
+
+        String fileKey = String.format("Targets.%s.CurrRotationFile", cycledFile.getCycledFolderName());
+        int currIndex = cycledFile.getCycledFileNames().indexOf(cycledFile.getCurrRotationFileName());
+        int nextIndex = (currIndex + cycles) % cycledFile.getCycledFileNames().size();
+        String nextFileName = cycledFile.getCycledFileNames().get(nextIndex);
+
+        cycledFile.updateCycle(nextTime, nextFileName);
+
         //Replace file
-        String cycledFilepath = String.format(CYCLED_FILE_PATH, cycledFile.getCycledFolderName(), cycledFile.getCurrRotationFileName());
+        String newFilePath = String.format(CYCLED_FILE_PATH, cycledFile.getCycledFolderName(), nextFileName);
         File oldFile = new File(plugin.getDataFolder().getParentFile(), cycledFile.getTargetPath());
-        File newFile = new File(plugin.getDataFolder(), cycledFilepath);
+        File newFile = new File(plugin.getDataFolder(), newFilePath);
         try {
             FileInputStream inputStream = new FileInputStream(newFile);
             FileOutputStream outputStream = new FileOutputStream(oldFile);
@@ -84,17 +95,7 @@ public class FileRotaterManager {
             LoggerUtils.debug("New File Path: " + newFile.getPath());
         }
 
-        //Update config.yml
-        String timeKey = String.format("Targets.%s.NextRotationTime", cycledFile.getCycledFolderName());
-        long nextTime = cycledFile.getNextRotationTime() + (long) cycledFile.getInterval() * cycles;
-
-        String fileKey = String.format("Targets.%s.CurrRotationFile", cycledFile.getCycledFolderName());
-        int currIndex = cycledFile.getCycledFileNames().indexOf(cycledFile.getCurrRotationFileName());
-        int nextIndex = (currIndex + cycles) % cycledFile.getCycledFileNames().size();
-        String nextFileName = cycledFile.getCycledFileNames().get(nextIndex);
-
-        cycledFile.updateCycle(nextTime, nextFileName);
-
+        //Update FileRotater.yml
         File configFile = new File(plugin.getDataFolder(), CONFIG_FILE_NAME);
         FileConfiguration dataConfig = YamlConfiguration.loadConfiguration(configFile);
         dataConfig.set(timeKey, nextTime);
