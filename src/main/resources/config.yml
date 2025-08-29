@@ -46,3 +46,10 @@ enable-claimaccessories-command: false
 # The FileRotater automatically changes files
 # What else is there to say
 auto-rotate-files: false
+
+# Configs for AutoCheat detection
+AutoCaptcha:
+  CommandExecuted: captchaopen %playername%
+  # 1 in X Chance to trigger. Set to -1
+  Fishing: 500
+  MobKills: -1

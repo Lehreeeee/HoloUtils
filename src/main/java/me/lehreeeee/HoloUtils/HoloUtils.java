@@ -179,8 +179,10 @@ public final class HoloUtils extends JavaPlugin {
         MySQLManager.initialize(this);
         LoggerUtils.info("Initializing EventRewardsManager...");
         EventRewardsManager.initialize();
-        LoggerUtils.info("Initializing FileRotater...");
+        LoggerUtils.info("Initializing FileRotaterManager...");
         FileRotaterManager.initialize(this);
+        LoggerUtils.info("Initializing AutoCaptchaManager...");
+        AutoCaptchaManager.initialize(this);
 
 
         if(MMOItemsAvailable){
@@ -196,6 +198,7 @@ public final class HoloUtils extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new DisplayListener(),this);
         Bukkit.getPluginManager().registerEvents(new InventoryListener(),this);
         Bukkit.getPluginManager().registerEvents(new EntityDamageListener(),this);
+        Bukkit.getPluginManager().registerEvents(new PlayerFishListener(this), this);
 
         if(Bukkit.getPluginManager().getPlugin("CMI") != null){
             LoggerUtils.info("Found CMI, initializing CMIListener");
