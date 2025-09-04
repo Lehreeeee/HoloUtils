@@ -6,6 +6,7 @@ import me.lehreeeee.HoloUtils.managers.*;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,6 +30,7 @@ public class DisplayListener implements Listener {
     }
 
     // This is for both LOL
+    // This is now for 3 things!
     @EventHandler(ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event){
         Entity entity = event.getEntity();
@@ -38,6 +40,10 @@ public class DisplayListener implements Listener {
         else{
             statusDisplayManager.removeStatusDisplay(entity.getUniqueId());
             HoloUtils.plugin.checkImmortal(entity);
+            Entity killer = event.getDamageSource().getCausingEntity();
+            if(killer != null  && killer.getType() == EntityType.PLAYER) {
+                AutoCaptchaManager.getInstance().executeMobKillCheck(killer.getName());
+            }
         }
     }
 

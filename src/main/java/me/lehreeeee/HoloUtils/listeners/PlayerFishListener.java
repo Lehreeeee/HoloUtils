@@ -2,7 +2,6 @@ package me.lehreeeee.HoloUtils.listeners;
 
 import me.lehreeeee.HoloUtils.HoloUtils;
 import me.lehreeeee.HoloUtils.managers.AutoCaptchaManager;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,16 +15,16 @@ public class PlayerFishListener implements Listener {
 
     public PlayerFishListener(HoloUtils plugin){
         this.logger = plugin.getLogger();
-        Bukkit.getPluginManager().registerEvents(this,plugin);
     }
+
     @EventHandler
     public void onPlayerFish(PlayerFishEvent event){
+        if(event.getState() != PlayerFishEvent.State.CAUGHT_FISH) {
+            return;
+        }
         Player player = event.getPlayer();
         AutoCaptchaManager manager = AutoCaptchaManager.getInstance();
-        boolean captchaTriggered =  manager.executeFishCheck(player.getName());
-        if(captchaTriggered){
-            logger.info("[HoloUtils] " + player.getName() + " has triggered the AutoCaptcha!");
-        }
+        manager.executeFishCheck(player.getName());
     }
 
 }

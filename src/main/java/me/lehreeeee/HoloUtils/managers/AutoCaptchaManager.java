@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-
 public class AutoCaptchaManager {
     private JavaPlugin plugin;
     private static AutoCaptchaManager instance;
@@ -35,23 +34,30 @@ public class AutoCaptchaManager {
         }
     }
 
-    public boolean executeFishCheck(String playerName) {
-        if (fishingOdds < 1) {
-            return false;
+    public void executeFishCheck(String playerName) {
+        generateRandomBooleanWithOdds(playerName, fishingOdds);
+
+    }
+
+    public void executeMobKillCheck(String playerName) {
+        generateRandomBooleanWithOdds(playerName, mobKillOdds);
+    }
+
+    //This is a horrendous name
+    private void generateRandomBooleanWithOdds(String playerName, int odds) {
+        if (odds < 1) {
+            return;
         }
-        if(((int) (Math.random() * fishingOdds)) == 1) {
+        int numberReturned = (int) (Math.random() * odds);
+        //Bukkit.getLogger().info(playerName + " has been triggered captcha: " + numberReturned);
+
+        if(numberReturned == 0) {
             String command = captchaCheckCommand.replace("%playername%", playerName);
             Bukkit.getScheduler().runTask(plugin, () ->
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
-            return true;
         }
-        return false;
     }
 
-    //For future use that I am lazy to implement
-    public int getMobKillOdds() {
-        return mobKillOdds;
-    }
 }
 
 
