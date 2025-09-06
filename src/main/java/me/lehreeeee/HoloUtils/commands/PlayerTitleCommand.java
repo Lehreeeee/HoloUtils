@@ -16,7 +16,7 @@ public class PlayerTitleCommand implements CommandExecutor {
         // Player Section
         if(args.length == 0 && sender instanceof Player player) {
             if(TitleDisplayManager.getInstance().getAvailableTitles(player).isEmpty()) {
-                MessageUtils.sendFeedbackMessage(sender, "<#FFA500>You don't have any player title.");
+                MessageUtils.sendFeedbackMessage(sender, "<gold>You don't have any player title.");
                 return true;
             }
 
@@ -25,7 +25,7 @@ public class PlayerTitleCommand implements CommandExecutor {
         }
 
         // Ignore the rest
-        MessageUtils.sendFeedbackMessage(sender,"<#FFA500>Correct usage: /playertitle or /ptitle");
+        MessageUtils.sendFeedbackMessage(sender,"<gold>Correct usage: /playertitle or /ptitle");
         return true;
     }
 }

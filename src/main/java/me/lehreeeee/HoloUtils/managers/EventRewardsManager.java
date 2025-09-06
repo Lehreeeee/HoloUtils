@@ -114,9 +114,9 @@ public class EventRewardsManager {
                     inv.getItem(49).getItemMeta().getPersistentDataContainer().get(pageNSK, PersistentDataType.INTEGER),
                     inv);
 
-            player.sendMessage(MessageUtils.process("<aqua>[<gold>Event Rewards<aqua>] <gold>You have claimed the reward: "
+            player.sendMessage(MessageUtils.process("<gold>You have claimed the reward: "
                     + reward.displayName()
-                    + ".",false));
+                    + ".",true,"Event Rewards"));
 
             LoggerUtils.file("EventRewards",player.getName() + " claimed rewards: " + rewardData);
         });
@@ -152,10 +152,10 @@ public class EventRewardsManager {
 
             if(hasUnclaimable){
                 SoundUtils.playSound(player,"block.chest.locked");
-                player.sendMessage(MessageUtils.process("<aqua>[<gold>Event Rewards<aqua>] <gold>1 or more rewards are not set up correctly, please report to a developer.",false));
+                player.sendMessage(MessageUtils.process("1 or more rewards are not set up correctly, please report to a developer.",true,"Event Rewards"));
             } else {
                 SoundUtils.playSound(player,"block.chest.open");
-                player.sendMessage(MessageUtils.process("<aqua>[<gold>Event Rewards<aqua>] <gold>You have claimed all the rewards.",false));
+                player.sendMessage(MessageUtils.process("You have claimed all the rewards.",true,"Event Rewards"));
             }
 
             if(!claimedRowId.isEmpty())

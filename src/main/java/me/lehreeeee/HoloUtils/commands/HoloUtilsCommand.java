@@ -261,15 +261,15 @@ public class HoloUtilsCommand implements CommandExecutor {
                 return;
             }
 
-            sender.sendMessage(MessageUtils.process("<#FFA500>Command Usage:",true));
-            sender.sendMessage(MessageUtils.process("<#FFA500>/holoutils help <white>-<aqua> Show command usage.",false));
-            sender.sendMessage(MessageUtils.process("<#FFA500>/holoutils reload <white>-<aqua> Take a guess.",false));
-            sender.sendMessage(MessageUtils.process("<#FFA500>/holoutils playertitle <white>-<aqua> Open gui to select display tag, must have atleast 1 tag permission to use.",false));
-            sender.sendMessage(MessageUtils.process("<#FFA500>/holoutils statuseffect [uuid] [effect] [ticks] <white>-<aqua> Apply status effect display on the mob.",false));
-            sender.sendMessage(MessageUtils.process("<#FFA500>/holoutils pdc get [namespacedkey] <white>-<aqua> Get the value of the namespaced key in mainhand item's pdc.",false));
-            sender.sendMessage(MessageUtils.process("<#FFA500>/holoutils pdc remove [namespacedkey] <white>-<aqua> Remove the data from mainhand item's pdc.",false));
-            sender.sendMessage(MessageUtils.process("<#FFA500>/holoutils pdc set [namespace] [key] [datatype] [value] <white>-<aqua> Add data to mainhand item's pdc.",false));
-            sender.sendMessage(MessageUtils.process("<#FFA500>/holoutils testredis <white>-<aqua> For debug purpose, don't touch if you don't know what it does.",false));
+            sender.sendMessage(MessageUtils.process("Command Usage:",true));
+            sender.sendMessage(MessageUtils.process("<gold>/holoutils help <white>-<aqua> Show command usage."));
+            sender.sendMessage(MessageUtils.process("<gold>/holoutils reload <white>-<aqua> Take a guess."));
+            sender.sendMessage(MessageUtils.process("<gold>/holoutils playertitle <white>-<aqua> Open gui to select display tag, must have atleast 1 tag permission to use."));
+            sender.sendMessage(MessageUtils.process("<gold>/holoutils statuseffect [uuid] [effect] [ticks] <white>-<aqua> Apply status effect display on the mob."));
+            sender.sendMessage(MessageUtils.process("<gold>/holoutils pdc get [namespacedkey] <white>-<aqua> Get the value of the namespaced key in mainhand item's pdc."));
+            sender.sendMessage(MessageUtils.process("<gold>/holoutils pdc remove [namespacedkey] <white>-<aqua> Remove the data from mainhand item's pdc."));
+            sender.sendMessage(MessageUtils.process("<gold>/holoutils pdc set [namespace] [key] [datatype] [value] <white>-<aqua> Add data to mainhand item's pdc."));
+            sender.sendMessage(MessageUtils.process("<gold>/holoutils testredis <white>-<aqua> For debug purpose, don't touch if you don't know what it does."));
         }
         else{
             LoggerUtils.info("Command Usage:");

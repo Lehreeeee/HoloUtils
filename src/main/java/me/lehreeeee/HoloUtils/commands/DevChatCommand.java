@@ -73,8 +73,8 @@ public class DevChatCommand implements CommandExecutor {
 
     private void sendCommandUsage(CommandSender sender){
         if (sender instanceof Player) {
-            sender.sendMessage(MessageUtils.process("<#FFA500>Command Usage:",true));
-            sender.sendMessage(MessageUtils.process("<#FFA500>What u need help for, never use staffchat b4 is it :amewtf:",false));
+            sender.sendMessage(MessageUtils.process("Command Usage:",true));
+            sender.sendMessage(MessageUtils.process("<gold>What u need help for, never use staffchat b4 is it :amewtf:"));
         }
         else{
             LoggerUtils.info("Command Usage:");

@@ -36,7 +36,7 @@ public class InventoryUtils {
         if(amountGiven > 0) SoundUtils.playSound(player, "block.amethyst_block.place");
 
         if (!leftoverItems.isEmpty()) {
-            player.sendMessage(MessageUtils.process("<gold>Looks like your inventory is full, please check the ground for your item(s)!",true));
+            player.sendMessage(MessageUtils.process("Looks like your inventory is full, please check the ground for your item(s)!",true));
 
             leftoverItems.forEach((item) -> player.getWorld().dropItem(player.getLocation(),item));
 

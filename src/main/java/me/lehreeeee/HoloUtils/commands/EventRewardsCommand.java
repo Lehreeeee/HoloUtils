@@ -44,10 +44,10 @@ public class EventRewardsCommand implements CommandExecutor {
 
     private void sendCommandUsage(CommandSender sender){
         if (sender instanceof Player) {
-            sender.sendMessage(MessageUtils.process("<#FFA500>Command Usage:",true));
-            sender.sendMessage(MessageUtils.process("<#FFA500>/eventrewards help <white>-<aqua> Show command usage.",false));
-            sender.sendMessage(MessageUtils.process("<#FFA500>/eventrewards claim <white>-<aqua> Open GUI to claim rewards.",false));
-            sender.sendMessage(MessageUtils.process("<#FFA500>/eventrewards give [player] [rewardId] [server] <white>-<aqua> Give rewards to player.",false));
+            sender.sendMessage(MessageUtils.process("Command Usage:",true));
+            sender.sendMessage(MessageUtils.process("<gold>/eventrewards help <white>-<aqua> Show command usage."));
+            sender.sendMessage(MessageUtils.process("<gold>/eventrewards claim <white>-<aqua> Open GUI to claim rewards."));
+            sender.sendMessage(MessageUtils.process("<gold>/eventrewards give [player] [rewardId] [server] <white>-<aqua> Give rewards to player."));
         }
         else{
             LoggerUtils.info("Command Usage:");
