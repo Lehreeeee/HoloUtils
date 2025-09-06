@@ -2,9 +2,11 @@ package me.lehreeeee.HoloUtils.listeners;
 
 import io.lumine.mythic.lib.api.item.NBTItem;
 import io.papermc.paper.event.player.PlayerTradeEvent;
+import me.lehreeeee.HoloUtils.GUI.DeconstructorGUI;
 import me.lehreeeee.HoloUtils.GUI.EventRewardsGUI;
 import me.lehreeeee.HoloUtils.GUI.PlayerTitleGUI;
 import me.lehreeeee.HoloUtils.GUI.RerollGUI;
+import me.lehreeeee.HoloUtils.managers.DeconstructorManager;
 import me.lehreeeee.HoloUtils.managers.EventRewardsManager;
 import me.lehreeeee.HoloUtils.managers.RerollManager;
 import me.lehreeeee.HoloUtils.managers.TitleDisplayManager;
@@ -88,6 +90,12 @@ public class InventoryListener implements Listener {
             return;
         }
 
+        if (invHolder instanceof DeconstructorGUI) {
+            handleDeconstructGUI(event, clickedInv);
+            return;
+        }
+
+        // lock player's inventory here
         InventoryHolder topInvHolder = event.getView().getTopInventory().getHolder(false);
         if(topInvHolder instanceof EventRewardsGUI || topInvHolder instanceof PlayerTitleGUI){
             event.setCancelled(true);
@@ -130,14 +138,19 @@ public class InventoryListener implements Listener {
     public void onInventoryClose(InventoryCloseEvent event){
         Inventory closedInv = event.getInventory();
         InventoryHolder invHolder = closedInv.getHolder(false);
+        Player player = (Player) event.getPlayer();
 
         if(invHolder instanceof RerollGUI){
-            InventoryUtils.giveItem(Collections.singletonList(closedInv.getItem(11)), (Player) event.getPlayer(),true);
+            InventoryUtils.giveItem(Collections.singletonList(closedInv.getItem(11)), player,true);
             return;
         }
 
         if (invHolder instanceof EventRewardsGUI) {
-            EventRewardsManager.getInstance().clearPlayerRewardsCache(String.valueOf(event.getPlayer().getUniqueId()));
+            EventRewardsManager.getInstance().clearPlayerRewardsCache(String.valueOf(player.getUniqueId()));
+        }
+
+        if(invHolder instanceof DeconstructorGUI deconstructorGUI){
+            InventoryUtils.giveItem(deconstructorGUI.getReturnItems(),player);
         }
     }
 
@@ -285,7 +298,7 @@ public class InventoryListener implements Listener {
 
             if(updatedItem != null) {
                 SoundUtils.playSound(player,"block.amethyst_block.resonate");
-                player.sendMessage(MessageUtils.process("<aqua>[<gold>Reroll<aqua>] <gold>Item stats have been rerolled!",false));
+                player.sendMessage(MessageUtils.process("Item stats have been rerolled!",true,"Reroll"));
                 clickedInv.setItem(11, updatedItem);
 
                 // Update requirements again
@@ -343,7 +356,7 @@ public class InventoryListener implements Listener {
                 // Ignore invalid reward
                 if(!EventRewardsManager.getInstance().isRewardIdValid(rewardId)) {
                     SoundUtils.playSound(player,"block.chest.locked");
-                    player.sendMessage(MessageUtils.process("<aqua>[<#FFA500>Event Rewards<aqua>] This reward is not set up correctly, please report to a developer.",false));
+                    player.sendMessage(MessageUtils.process("This reward is not set up correctly, please report to a developer.",true,"Event Rewards"));
                     return;
                 }
 
@@ -351,6 +364,19 @@ public class InventoryListener implements Listener {
                 clickedInv.setItem(clickedSlot,null);
                 EventRewardsManager.getInstance().claimReward(player, clickedInv, rowId);
             }
+        }
+    }
+
+    private void handleDeconstructGUI(InventoryClickEvent event, Inventory clickedInv){
+        int clickedSlot = event.getRawSlot();
+        Player player = (Player) event.getWhoClicked();
+
+        if(InventoryUtils.isBorderSlot(clickedSlot)){
+            event.setCancelled(true);
+        }
+
+        if(clickedSlot == 49){
+            DeconstructorManager.getInstance().deconstructItems(player,clickedInv);
         }
     }
 

@@ -53,3 +53,8 @@ AutoCaptcha:
   # 1 in X Chance to trigger. Set to -1
   Fishing: 500
   MobKills: -1
+
+# Configs for /deconstruct command, initially added for accessory rework
+deconstructor:
+  allowed-tiers:
+    - ACCESSORY_COMMON

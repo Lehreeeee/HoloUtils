@@ -28,7 +28,6 @@ public final class HoloUtils extends JavaPlugin {
     private boolean fixImmortal = false;
     private boolean enableClaimaccessoriesCommand = false;
     private boolean MMOItemsAvailable = false;
-    private boolean fileRotaterOn; //???
     private String serverName;
 
     @Override
@@ -88,9 +87,6 @@ public final class HoloUtils extends JavaPlugin {
         TitleDisplayManager.getInstance().loadPlayerTitlesConfig(playerTitleConfig);
         StatusDisplayManager.getInstance().loadStatusEffectsConfig(elementalStatusConfig);
         EventRewardsManager.getInstance().loadEventRewardsConfig(eventrewardsConfig);
-        if(MMOItemsAvailable){
-            RerollManager.getInstance().loadRerollConfig(rerollConfig);
-        }
 
         // Base config file
         FileConfiguration config = this.getConfig();
@@ -98,6 +94,11 @@ public final class HoloUtils extends JavaPlugin {
         DevChatManager.getInstance().loadDevChatConfig(config.getConfigurationSection("dev-chat"));
         RedisManager.getInstance().loadRedisConfig(config.getConfigurationSection("redis"));
         MySQLManager.getInstance().loadMySQLConfig(config.getConfigurationSection("mysql"));
+
+        if(MMOItemsAvailable){
+            RerollManager.getInstance().loadRerollConfig(rerollConfig);
+            DeconstructorManager.getInstance().loadDeconstructorConfig(config.getConfigurationSection("deconstructor"));
+        }
 
         // TODO: To be removed after 3 months
         // -git blame @Lehreeeee the server is on fire!!!
@@ -112,8 +113,7 @@ public final class HoloUtils extends JavaPlugin {
         fixImmortal = config.getBoolean("fix-immortal-mob",false);
 
         // FileRotater on?
-        this.fileRotaterOn = config.getBoolean("auto-rotate-files",false);
-        if(this.fileRotaterOn) {
+        if(config.getBoolean("auto-rotate-files",false)) {
             FileRotaterManager.getInstance().start();
         }
 
@@ -184,10 +184,10 @@ public final class HoloUtils extends JavaPlugin {
         LoggerUtils.info("Initializing AutoCaptchaManager...");
         AutoCaptchaManager.initialize(this);
 
-
         if(MMOItemsAvailable){
-            LoggerUtils.info("Found MMOItems, initializing RerollManager");
+            LoggerUtils.info("Found MMOItems, initializing RerollManager and DeconstructorManager");
             RerollManager.initialize();
+            DeconstructorManager.initialize();
         }
     }
 
@@ -221,8 +221,9 @@ public final class HoloUtils extends JavaPlugin {
         getCommand("playertitle").setExecutor(new PlayerTitleCommand());
 
         if(MMOItemsAvailable){
-            LoggerUtils.info("Found MMOItems, loading reroll commands...");
+            LoggerUtils.info("Found MMOItems, loading reroll and deconstructor commands...");
             getCommand("reroll").setExecutor(new RerollCommand());
+            getCommand("deconstructor").setExecutor(new DeconstructorCommand());
         }
 
         // TODO: To be removed after 3 months

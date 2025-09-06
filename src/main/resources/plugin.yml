@@ -30,3 +30,6 @@ commands:
     permission: holoutils.reroll
   eventrewards:
     description: Command for claiming rewards obtained from events
+  deconstructor:
+    description: Command for deconstructing mmoitems
+    permission: holoutils.deconstructor
