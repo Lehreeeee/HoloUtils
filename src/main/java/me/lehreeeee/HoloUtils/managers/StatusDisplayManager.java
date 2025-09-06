@@ -13,11 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Display;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TextDisplay;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
@@ -140,26 +136,6 @@ public class StatusDisplayManager {
         }
     }
 
-    public void updateLocation(UUID uuid, Location location){
-        if(!loadedStatusDisplay.containsKey(uuid)) return;
-
-        Entity entity = Bukkit.getEntity(uuid);
-        TextDisplay display = loadedStatusDisplay.get(uuid);
-
-        if(entity != null){
-            // Delay it or it wont work when changing world
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    // Teleport is needed after changing world too
-                    display.teleport(location);
-                    mountDisplay(entity,display);
-                    LoggerUtils.debug("Updated title location for entity " + uuid + " to " + display.getLocation());
-                }
-            }.runTaskLater(plugin, 5L);
-        }
-    }
-
     public void removeStatusDisplay(UUID uuid){
         if(!loadedStatusDisplay.containsKey(uuid)) return;
 
@@ -188,10 +164,16 @@ public class StatusDisplayManager {
     }
 
     private void mountDisplay(Entity targetEntity, TextDisplay display){
-
         // Use the basic mount if its not a modeled entity.
         if (!modelEngineAvailable || !ModelEngineHook.isModeledEntity(targetEntity.getUniqueId())) {
-            targetEntity.addPassenger(display);
+            Bukkit.getScheduler().runTaskTimer(plugin, task -> {
+                if(display.isValid()) {
+                    display.teleport(targetEntity.getLocation().add(0, ((LivingEntity) targetEntity).getEyeHeight() + statusHeight,0));
+                    return;
+                }
+                task.cancel();
+            },1L,1L);
+
             display.setVisibleByDefault(true);
             return;
         }
@@ -258,12 +240,14 @@ public class StatusDisplayManager {
             entity.setVisibleByDefault(false);
             entity.setTransformation(
                     new Transformation(
-                            new Vector3f(0, statusHeight, 0),
+                            new Vector3f(0, 0, 0),
                             new AxisAngle4f(), // no left rotation
                             new Vector3f(1,1,1), // Must have scale or else it wont show
                             new AxisAngle4f() // no right rotation
                     )
             );
+
+            entity.setTeleportDuration(3);
         });
     }
 }

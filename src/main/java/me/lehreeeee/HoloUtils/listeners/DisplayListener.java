@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -22,12 +21,6 @@ import java.util.UUID;
 public class DisplayListener implements Listener {
     private final TitleDisplayManager titleDisplayManager = TitleDisplayManager.getInstance();
     private final StatusDisplayManager statusDisplayManager = StatusDisplayManager.getInstance();
-
-    // For non-player only
-    @EventHandler(ignoreCancelled = true)
-    public void onEntityTeleport(EntityTeleportEvent event){
-        statusDisplayManager.updateLocation(event.getEntity().getUniqueId(),event.getTo());
-    }
 
     // This is for both LOL
     // This is now for 3 things!
