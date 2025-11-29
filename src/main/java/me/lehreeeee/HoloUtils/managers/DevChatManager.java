@@ -71,6 +71,8 @@ public class DevChatManager {
         if(sender instanceof Player player){
             messageSender = MessageUtils.revert(player.displayName());
 
+            message = message.replace("[i]","[item]");
+
             if(message.contains("[item]")){
                 ItemStack itemHeld = player.getInventory().getItemInMainHand();
 

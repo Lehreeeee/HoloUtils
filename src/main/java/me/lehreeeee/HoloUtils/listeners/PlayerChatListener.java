@@ -21,7 +21,7 @@ public class PlayerChatListener implements Listener {
         event.setCancelled(true);
 
         // Sends the message
-        devChatManager.publishMessage(player, MessageUtils.revert(event.message()));
+        devChatManager.publishMessage(player, MessageUtils.revert(event.originalMessage()));
     }
 
     // This event is called before AsyncChatEvent, need to cancel this cuz i only need AsyncChatEvent
