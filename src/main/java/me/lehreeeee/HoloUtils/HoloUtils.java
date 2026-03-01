@@ -26,7 +26,6 @@ public final class HoloUtils extends JavaPlugin {
 
     private PlayerProjectileListener playerProjectileListener;
     private boolean fixImmortal = false;
-    private boolean enableClaimaccessoriesCommand = false;
     private boolean MMOItemsAvailable = false;
     private String serverName;
 
@@ -99,10 +98,6 @@ public final class HoloUtils extends JavaPlugin {
             RerollManager.getInstance().loadRerollConfig(rerollConfig);
             DeconstructorManager.getInstance().loadDeconstructorConfig(config.getConfigurationSection("deconstructor"));
         }
-
-        // TODO: To be removed after 3 months
-        // -git blame @Lehreeeee the server is on fire!!!
-        this.enableClaimaccessoriesCommand = config.getBoolean("enable-claimaccessories-command",false);
 
         playerProjectileListener.setDisabledWorlds(new HashSet<>(config.getStringList("arrow-shoots-thru-players-worlds")));
 
@@ -227,7 +222,7 @@ public final class HoloUtils extends JavaPlugin {
         }
 
         // TODO: To be removed after 3 months
-        if(enableClaimaccessoriesCommand){
+        if(this.getConfig().getBoolean("enable-claimaccessories-command",false)){
             LoggerUtils.info("Loading claimaccessories commands...");
             getCommand("claimaccessories").setExecutor(new ClaimAccessoriesCommand());
         }
