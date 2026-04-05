@@ -378,6 +378,10 @@ public class InventoryListener implements Listener {
         if(clickedSlot == 49){
             DeconstructorManager.getInstance().deconstructItems(player,clickedInv);
         }
+
+        if(clickedSlot == 53){
+            DeconstructorManager.getInstance().loadDeconstructableItems(player, clickedInv);
+        }
     }
 
     private void updateDiceLore(Inventory rerollGUI, RerollSlotAction action, @Nullable Player player){

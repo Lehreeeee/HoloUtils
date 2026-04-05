@@ -39,6 +39,14 @@ public class DeconstructorGUI implements InventoryHolder {
         return items;
     }
 
+    public int getEmptySlot(){
+        for (int i = 0; i < 54; i++) {
+            if (InventoryUtils.isBorderSlot(i)) continue;
+            if (inventory.getItem(i) == null) return i;
+        }
+        return -1;
+    }
+
     private void prepareInventory(){
         // Glass Pane to fill the border
         ItemStack fillGlassPane = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
@@ -56,6 +64,19 @@ public class DeconstructorGUI implements InventoryHolder {
             deconstructButton.setItemMeta(deconstructButtonMeta);
         }
 
+        // Load Items button
+        ItemStack loadItemsButton = new ItemStack(Material.NETHER_STAR);
+        ItemMeta loadItemsButtonMeta = loadItemsButton.getItemMeta();
+        if (loadItemsButtonMeta != null){
+            loadItemsButtonMeta.displayName(MessageUtils.process("<aqua><b>Load Items"));
+            loadItemsButtonMeta.lore(List.of(
+                    MessageUtils.process("<gray>Click to load deconstructable"),
+                    MessageUtils.process("<gray>items from your inventory.")
+            ));
+
+            loadItemsButton.setItemMeta(loadItemsButtonMeta);
+        }
+
         // Fill border
         for (int i = 0; i < 54; i++) {
             if (InventoryUtils.isBorderSlot(i)) {
@@ -64,5 +85,6 @@ public class DeconstructorGUI implements InventoryHolder {
         }
 
         inventory.setItem(49, deconstructButton);
+        inventory.setItem(53, loadItemsButton);
     }
 }

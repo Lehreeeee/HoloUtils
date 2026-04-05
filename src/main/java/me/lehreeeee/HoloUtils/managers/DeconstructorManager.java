@@ -1,6 +1,7 @@
 package me.lehreeeee.HoloUtils.managers;
 
 import io.lumine.mythic.lib.api.item.NBTItem;
+import me.lehreeeee.HoloUtils.GUI.DeconstructorGUI;
 import me.lehreeeee.HoloUtils.utils.InventoryUtils;
 import me.lehreeeee.HoloUtils.utils.LoggerUtils;
 import me.lehreeeee.HoloUtils.utils.MessageUtils;
@@ -59,7 +60,7 @@ public class DeconstructorManager {
             NBTItem nbtItem = NBTItem.get(item);
 
             String tag = nbtItem.getString("MMOITEMS_TIER");
-            if(tag.isBlank() || !isDeconstructable(tag)) continue;
+            if(tag.isBlank() || !isTierDeconstructable(tag)) continue;
 
             ItemTier tier = MMOItems.plugin.getTiers().get(tag);
             if(tier == null) continue;
@@ -83,7 +84,41 @@ public class DeconstructorManager {
                 "Deconstructor"));
     }
 
-    public boolean isDeconstructable(String tier){
+    public void loadDeconstructableItems(Player player, Inventory clickedInv){
+        int itemsLoaded = 0;
+        ItemStack[] playerInv = player.getInventory().getContents();
+        DeconstructorGUI deconstructorGUI = (DeconstructorGUI) clickedInv.getHolder();
+
+        for(int i = 0; i < playerInv.length; i++){
+            int emptySlot = deconstructorGUI.getEmptySlot();
+            if(emptySlot == -1) break;
+            ItemStack item = playerInv[i];
+
+            if(isItemDeconstructable(item)){
+                clickedInv.setItem(emptySlot, item.clone());
+                player.getInventory().setItem(i, null);
+                itemsLoaded++;
+            }
+        }
+
+        if(itemsLoaded > 0){
+            SoundUtils.playSound(player, "item.armor.equip_netherite");
+            player.sendMessage(MessageUtils.process("Loaded " + itemsLoaded + " deconstructable item(s) from your inventory.", true, "Deconstructor"));
+        } else {
+            SoundUtils.playSound(player, "entity.villager.no");
+            player.sendMessage(MessageUtils.process("No deconstructable items found in your inventory.", true, "Deconstructor"));
+        }
+    }
+
+    private boolean isItemDeconstructable(ItemStack item){
+        if(item == null) return false;
+
+        String tag = NBTItem.get(item).getString("MMOITEMS_TIER");
+
+        return !tag.isBlank() && isTierDeconstructable(tag);
+    }
+
+    private boolean isTierDeconstructable(String tier){
         return deconstructableItems.contains(tier);
     }
 }
